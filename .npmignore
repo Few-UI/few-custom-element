@@ -1,0 +1,11 @@
+.gitignore
+.gitlab-ci.yml
+.npmignore
+.npmrc
+.vscode
+*.log*
+*.tgz
+CODEOWNERS
+node_modules
+out
+renovate.json

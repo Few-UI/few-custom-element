@@ -1,0 +1,31 @@
+{
+    "files.exclude": {
+        ".git": true,
+        "node_modules": false
+    },
+    "search.exclude": {
+        ".vscode": true,
+        "node_modules": true,
+        "out": true
+    },
+    "css.validate": true,
+    "scss.validate": true,
+    "eslint.enable": true,
+    "typescript.disableAutomaticTypeAcquisition": true,
+    "eslint.autoFixOnSave": true,
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#6f0e7b",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#000000",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "titleBar.activeBackground": "#46094d",
+        "titleBar.inactiveBackground": "#46094d99",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveForeground": "#e7e7e799",
+        "statusBar.background": "#46094d",
+        "statusBarItem.hoverBackground": "#6f0e7b",
+        "statusBar.foreground": "#e7e7e7"
+    },
+    "peacock.color": "#46094d"
+}
