@@ -1,19 +1,15 @@
 /* eslint-env es6 */
 
 //import buttonCss from './button.scss';
-import { createElementFromHtmlString, getViewModel } from './decl-utils';
+import { createElementFromHtmlString, getViewModel, evalMethod } from './decl-utils';
 
 export class DeclButton extends HTMLElement {
     static get tag() {
         return 'decl-button';
     }
 
-    get size() {
-        return this.getAttribute( 'size' );
-    }
-
-    get action() {
-        return this.getAttribute( 'action' );
+    get clickAction() {
+        return this.getAttribute( 'click' );
     }
 
     constructor() {
@@ -27,19 +23,19 @@ export class DeclButton extends HTMLElement {
         // shadowRoot.appendChild( style );
 
         //let newDom = document.createElement( 'div' );
-        shadowRoot.appendChild( createElementFromHtmlString( `<button class="base-button${ this.size === 'auto' ? ' size-auto' : '' }" ><slot/></button>` ) );
+        shadowRoot.appendChild( createElementFromHtmlString( '<button class="base-button" ><slot/></button>' ) );
     }
 
     doAction() {
         return ( e ) => {
-            console.log( `${this.action} executed!` );
+            let vm = getViewModel( this );
+            evalMethod( vm.method[ this.clickAction ], vm );
         };
     }
 
     // https://stackoverflow.com/questions/43836886/failed-to-construct-customelement-error-when-javascript-file-is-placed-in-head
     connectedCallback() {
         this.onclick = this.doAction();
-        let vm = getViewModel( this );
     }
 
     /*

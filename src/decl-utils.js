@@ -101,6 +101,19 @@ export let evalExpression = function( input, params ) {
   return new Function( ...names, `return ${input};` )( ...vals );
 };
 
+export let evalMethod = function( method, vm ) {
+  let vals = method.input ? Object.values( method.input ) : [];
+  vals = vals.map( ( o ) => {
+    let template = getExpressionFromTemplate( o );
+    return template ? evalExpression( template, vm ) : o;
+  } );
+  let callee = {
+      module: console,
+      method: method.name
+  };
+  return callee.module[ callee.method ].apply( callee.module, vals );
+};
+
 /**
  * Set view model context on specific element
  * @param {Element} element DOM Element
@@ -120,7 +133,7 @@ export function setViewModel( element, viewModel ) {
  * @returns {Element} Closest parent element which has view model context
  */
 export function getViewElement( element ) {
-    return element.closest( 'decl-scope' );
+    return element.closest( '.decl-scope' );
 }
 
 /**

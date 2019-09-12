@@ -18,9 +18,14 @@ export default class DeclViewModel {
         this._view = null;
 
         /**
-         * data not sure if we need it?
+         * data
          */
         this.data = viewModelInput.data;
+
+        /**
+         * function
+         */
+        this.method = viewModelInput.function;
     }
 
     /**

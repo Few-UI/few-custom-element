@@ -1,13 +1,14 @@
 let mock = {
-    view: '<button>{{data.testMsg}}</button>',
+    view: '' +
+            '<decl-button click="testAction">{{data.testMsg}}</decl-button>',
     viewModel: JSON.parse( `
         {
             "data": {
                 "testMsg": "Hello World!"
             },
             "function": {
-                "testFunc1": {
-                    "name": "alert",
+                "testAction": {
+                    "name": "log",
                     "input": {
                         "message": "{{data.testMsg}}"
                     }
