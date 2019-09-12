@@ -1,5 +1,4 @@
 /* eslint-env es6 */
-
 let exports;
 
 /**
@@ -44,19 +43,6 @@ export let evalExpression = function( input, params ) {
   const names = params ? Object.keys( params ) : [];
   const vals = params ? Object.values( params ) : [];
   return new Function( ...names, `return ${input};` )( ...vals );
-};
-
-export let evalMethod = function( method, vm ) {
-  let vals = method.input ? Object.values( method.input ) : [];
-  vals = vals.map( ( o ) => {
-    let template = getExpressionFromTemplate( o );
-    return template ? evalExpression( template, vm ) : o;
-  } );
-  let callee = {
-      module: console,
-      method: method.name
-  };
-  return callee.module[ callee.method ].apply( callee.module, vals );
 };
 
 /**

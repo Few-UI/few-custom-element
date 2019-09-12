@@ -12,7 +12,7 @@ export default {
     input: 'public/main.js',
     output: {
         file: 'public/bundle.js',
-        format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+        format: 'amd',
         sourcemap: true
     },
     plugins: [

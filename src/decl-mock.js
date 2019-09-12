@@ -1,5 +1,6 @@
+
 let mock = {
-    view: '' +
+    viewHtml: '' +
             '<decl-button click="testAction">{{data.testMsg}}</decl-button>',
     viewModel: JSON.parse( `
         {
@@ -8,6 +9,7 @@ let mock = {
             },
             "function": {
                 "testAction": {
+                    "import": "js/test",
                     "name": "log",
                     "input": {
                         "message": "{{data.testMsg}}"

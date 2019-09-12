@@ -1,7 +1,7 @@
 /* eslint-env es6 */
 
 //import buttonCss from './button.scss';
-import { createElementFromHtmlString, getViewModel, evalMethod } from './decl-utils';
+import { createElementFromHtmlString, getViewModel } from './decl-utils';
 
 export class DeclButton extends HTMLElement {
     static get tag() {

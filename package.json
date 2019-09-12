@@ -1,6 +1,8 @@
 {
   "name": "decl",
   "devDependencies": {
+    "babel-eslint": "^8.2.6",
+    "eslint": "^4.19.1",
     "jasmine": "^3.4.0",
     "karma": "^4.2.0",
     "karma-chrome-launcher": "^3.0.0",
@@ -25,6 +27,5 @@
     "site": "serve public",
     "start": "npm-run-all --parallel site watch",
     "test": "karma start"
-  },
-  "dependencies": {}
+  }
 }
