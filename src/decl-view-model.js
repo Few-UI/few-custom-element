@@ -1,5 +1,6 @@
 /* eslint-env es6 */
-import { getExpressionFromTemplate, evalExpression } from './decl-utils';
+import DeclViewElement from './decl-view-element';
+import { getExpressionFromTemplate, evalExpression, parseView, setViewModel } from './decl-utils';
 export default class DeclViewModel {
     /**
      * Constructor for View Model Object
@@ -13,6 +14,11 @@ export default class DeclViewModel {
         this._parent = parent;
 
         /**
+         * view object
+         */
+        this._view = null;
+
+        /**
          * data
          */
         this.data = viewModelInput.data;
@@ -21,6 +27,26 @@ export default class DeclViewModel {
          * function
          */
         this.method = viewModelInput.function;
+    }
+
+    /**
+     * set view for current view model
+     * @param {string} viewHtml view HTML snippet as string
+     * @returns {Element} top DOM Node
+     */
+    setView( viewHtml ) {
+        this._view = DeclViewElement.createView( parseView( viewHtml ) );
+        setViewModel( this._view.reference, this );
+        this.updateView();
+        return this._view.reference;
+    }
+
+    /**
+     * update view when view model is updated
+     * This method is not needed later
+     */
+    updateView() {
+        this._view.updateView( this );
     }
 
     /**

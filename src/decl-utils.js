@@ -2,8 +2,6 @@
 
 let exports;
 
-import VirtualDomElement from './virtual-dom-element';
-
 /**
  * Create DOM Element from HTML String
  * @param {string} str HTML String snippet as input
@@ -33,66 +31,13 @@ export function getExpressionFromTemplate( str ) {
 }
 
 /**
- * create Virtual DOM from dom element
- * @param {DOM Element} elem dom element
+ * Parse view string as DOM without interpret it
+ * @param {string} str view template as string
+ * @returns {Element} DOM Element
  */
-function createVirtualDom( elem ) {
-    if( elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE ) {
-        return;
-    }
-
-    let node = new VirtualDomElement( elem.nodeName );
-    node.hasExpr = false;
-    if ( elem.nodeType === Node.ELEMENT_NODE ) {
-        for( let i = 0; i < elem.attributes.length; i++ ) {
-            let name = elem.attributes[i].name;
-            let value = elem.attributes[i].value;
-            // TODO: we can do it better later
-            let expr = getExpressionFromTemplate( value );
-            if( expr ) {
-                node.addProperty( name, expr );
-                node.hasExpr = true;
-            }
-        }
-    } else if ( elem.nodeType === Node.TEXT_NODE ) {
-        let attr = 'textContent';
-        let value = elem[attr];
-        // TODO: we can do it better later
-        let expr = getExpressionFromTemplate( value );
-        if( expr ) {
-            node.addProperty( attr, expr );
-            node.hasExpr = true;
-        }
-    } else {
-        // do nothing
-    }
-
-    if ( node.hasExpr ) {
-        node.reference = elem;
-    }
-
-    for ( let i = 0; i < elem.childNodes.length; i++ ) {
-        let child = elem.childNodes[i];
-        let childNode = createVirtualDom( child );
-        if( childNode ) {
-            node.addChild( childNode );
-            node.hasExpr = node.hasExpr ? node.hasExpr : childNode.hasExpr;
-        }
-    }
-    return node;
-}
-
-/**
- * Interpreter for view and view model
- * @param {string} viewHtml view HTML snippet as string
- * @returns {Element} DOM Element contains everything
- */
-export function createView( viewHtml ) {
-    let newDom = document.createElement( 'div' );
-    newDom.innerHTML = viewHtml.trim();
-    let view = createVirtualDom( newDom );
-    view.reference = newDom;
-    return view;
+export function parseView( str ) {
+    let parser = new DOMParser();
+    return parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild;
 }
 
 export let evalExpression = function( input, params ) {
@@ -153,9 +98,9 @@ export default exports = {
     getExpressionFromTemplate,
     createElementFromHtmlString,
     evalTemplate,
-    createView,
     evalExpression,
     getViewElement,
     getViewModel,
+    parseView,
     setViewModel
 };

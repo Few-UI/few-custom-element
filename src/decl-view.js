@@ -2,7 +2,7 @@
 
 import mock from './decl-mock';
 import DeclViewModel from './decl-view-model';
-import { createView, setViewModel, getViewModel } from './decl-utils';
+import { setViewModel, getViewModel } from './decl-utils';
 
 export class DeclView extends HTMLElement {
     static get tag() {
@@ -19,7 +19,6 @@ export class DeclView extends HTMLElement {
 
     constructor() {
         super();
-        // const shadowRoot = this.attachShadow( { mode: 'open' } );
 
         /**
          * view model
@@ -30,14 +29,9 @@ export class DeclView extends HTMLElement {
     attributeChangedCallback( name, oldValue, newValue ) {
         console.log( `${name}: ${oldValue} => ${newValue}` );
 
-        let vm = new DeclViewModel( getViewModel( this ), mock.viewModel );
-        setViewModel( this, vm );
+        this._vm = new DeclViewModel( getViewModel( this ), mock.viewModel );
 
-        this._view = createView( mock.view );
-
-        this._view.updateView( vm );
-
-        this.appendChild( this._view.reference );
+        this.appendChild( this._vm.setView( mock.view ) );
     }
 }
 customElements.define( DeclView.tag, DeclView );
