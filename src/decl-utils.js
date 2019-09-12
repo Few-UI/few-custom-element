@@ -27,7 +27,7 @@ export let evalTemplate = function( input, params ) {
  * @param {string} str string as '{{ something }}'
  * @returns {string} expression
  */
-function getExpressionFromTemplate( str ) {
+export function getExpressionFromTemplate( str ) {
     let match = str.match( /^\s*{{\s*([\S\s\r\n]*)\s*}}\s*$/m );
     return match ? match[1] : null;
 }
@@ -150,6 +150,7 @@ export function getViewModel( element ) {
 }
 
 export default exports = {
+    getExpressionFromTemplate,
     createElementFromHtmlString,
     evalTemplate,
     createView,

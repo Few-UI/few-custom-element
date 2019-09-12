@@ -29,7 +29,7 @@ export class DeclButton extends HTMLElement {
     doAction() {
         return ( e ) => {
             let vm = getViewModel( this );
-            evalMethod( vm.method[ this.clickAction ], vm );
+            vm.evalMethod( this.clickAction );
         };
     }
 

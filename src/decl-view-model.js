@@ -1,5 +1,5 @@
 /* eslint-env es6 */
-
+import { getExpressionFromTemplate, evalExpression } from './decl-utils';
 export default class DeclViewModel {
     /**
      * Constructor for View Model Object
@@ -13,11 +13,6 @@ export default class DeclViewModel {
         this._parent = parent;
 
         /**
-         * view html
-         */
-        this._view = null;
-
-        /**
          * data
          */
         this.data = viewModelInput.data;
@@ -29,11 +24,22 @@ export default class DeclViewModel {
     }
 
     /**
-     * set view for view model. Only one view is allowed
-     * @param {string} viewHtml view html as string
+     * evaluate method in view model
+     * @param {string} methodName method name in view model
+     * @returns {object} result
      */
-    setView( viewHtml ) {
-        this._view = viewHtml;
+    evalMethod( methodName ) {
+        let method = this.method[methodName];
+        let vals = method.input ? Object.values( method.input ) : [];
+        vals = vals.map( ( o ) => {
+          let template = getExpressionFromTemplate( o );
+          return template ? evalExpression( template, this ) : o;
+        } );
+        let callee = {
+            module: console,
+            method: method.name
+        };
+        return callee.module[ callee.method ].apply( callee.module, vals );
     }
 }
 
