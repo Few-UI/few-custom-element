@@ -1,3 +1,4 @@
+/* eslint-env es6 */
 
 let mock = {
     viewHtml: '' +
@@ -10,9 +11,12 @@ let mock = {
             "function": {
                 "testAction": {
                     "import": "js/test",
-                    "name": "log",
+                    "name": "testAccu",
                     "input": {
                         "message": "{{data.testMsg}}"
+                    },
+                    "output": {
+                        "data.testMsg": ""
                     }
                 }
             }

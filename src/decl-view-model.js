@@ -1,4 +1,5 @@
 /* eslint-env es6 */
+import _ from 'lodash';
 import DeclViewElement from './decl-view-element';
 import { getExpressionFromTemplate, evalExpression, parseView, setViewModel } from './decl-utils';
 
@@ -28,6 +29,13 @@ export default class DeclViewModel {
          * view object
          */
         this._view = this.createView( viewModelInput.viewHtml );
+
+        /**
+         * method update view
+         */
+        this.updateView = _.debounce( () => {
+            this._view.updateView( this );
+        }, 100 );
     }
 
     /**
@@ -51,11 +59,13 @@ export default class DeclViewModel {
     }
 
     /**
-     * update view when view model is updated
-     * This method is not needed later
+     * Update value and trigger view update
+     * @param {string} path value path on viewModel
+     * @param {string} value value itself
      */
-    updateView() {
-        this._view.updateView( this );
+    updateValue( path, value ) {
+        _.set( this, path, value );
+        this.updateView();
     }
 
     /**
@@ -66,20 +76,24 @@ export default class DeclViewModel {
     evalMethod( methodName ) {
         let method = this.method[methodName];
         if ( method.import ) {
-            import( method.import ).then( ( $ ) => {
-                console.log( 'loaded' );
+            return import( method.import ).then( ( dep ) => {
+                let vals = method.input ? Object.values( method.input ) : [];
+                vals = vals.map( ( o ) => {
+                  let template = getExpressionFromTemplate( o );
+                  return template ? evalExpression( template, this ) : o;
+                } );
+                let callee = {
+                    module: dep,
+                    method: method.name
+                };
+                let res = callee.module[ callee.method ].apply( callee.module, vals );
+
+                // consider thenable later
+                _.forEach( method.output, ( valPath, vmPath ) => {
+                    this.updateValue( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
+                } );
             } );
         }
-        let vals = method.input ? Object.values( method.input ) : [];
-        vals = vals.map( ( o ) => {
-          let template = getExpressionFromTemplate( o );
-          return template ? evalExpression( template, this ) : o;
-        } );
-        let callee = {
-            module: console,
-            method: method.name
-        };
-        return callee.module[ callee.method ].apply( callee.module, vals );
     }
 }
 
