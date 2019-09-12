@@ -2,7 +2,7 @@
 /* eslint-env es6, jasmine */
 
 import { DeclButton } from '../src/decl-button';
-import { TestUtils } from './testUtils';
+import { TestUtils } from './test-utils';
 
 describe( 'Test decl-button', () => {
   it( 'Verify decl-button can apply text content', async() => {

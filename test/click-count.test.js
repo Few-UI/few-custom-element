@@ -1,7 +1,7 @@
 /* eslint-env es6, jasmine */
 
 import { ClickCountComponent } from '../src/click-count';
-import { TestUtils } from './testUtils';
+import { TestUtils } from './test-utils';
 
 describe( 'Click Count Component', () => {
   it( 'displayed click count starts from 0', async() => {

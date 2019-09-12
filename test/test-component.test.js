@@ -2,7 +2,7 @@
 /* eslint-env es6, jasmine */
 
 import { TextComponent } from '../src/text-component';
-import { TestUtils } from './testUtils';
+import { TestUtils } from './test-utils';
 
 describe( 'Text Component', () => {
   it( 'displays default text when text is not provided as an attribute', async() => {

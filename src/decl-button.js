@@ -1,9 +1,7 @@
 /* eslint-env es6 */
 
 //import buttonCss from './button.scss';
-import { createElementFromHtmlString, getDataModel } from './declUtils';
-
-'use strict';
+import { createElementFromHtmlString, getViewModel } from './decl-utils';
 
 export class DeclButton extends HTMLElement {
     static get tag() {
@@ -40,8 +38,8 @@ export class DeclButton extends HTMLElement {
 
     // https://stackoverflow.com/questions/43836886/failed-to-construct-customelement-error-when-javascript-file-is-placed-in-head
     connectedCallback() {
-        // this.onclick = this.doAction();
-        let vm = getDataModel( this );
+        this.onclick = this.doAction();
+        let vm = getViewModel( this );
     }
 
     /*

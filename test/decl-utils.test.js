@@ -1,8 +1,8 @@
 /* eslint-env es6, jasmine */
 
-import utils from '../src/declUtils';
+import utils from '../src/decl-utils';
 
-describe( 'Test declUtils', () => {
+describe( 'Test decl-utils', () => {
   it( 'Verify createView can render DOM correctly', async() => {
     let mock = {
         view: '<button>{{data.testMsg}}</button>',
@@ -15,7 +15,7 @@ describe( 'Test declUtils', () => {
             }
         ` )
     };
-    expect( utils.createView( mock.view, mock.data ).outerHTML ).toEqual(
-        '<button>Hello World!</button>' );
+    expect( utils.createView( mock.view ).reference.outerHTML ).toEqual(
+        '<div><button>{{data.testMsg}}</button></div>' );
   } );
 } );
