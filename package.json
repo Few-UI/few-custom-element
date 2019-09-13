@@ -27,5 +27,8 @@
     "site": "serve public",
     "start": "npm-run-all --parallel site watch",
     "test": "karma start"
+  },
+  "dependencies": {
+    "yaml": "^1.6.0"
   }
 }

@@ -1,0 +1,21 @@
+# view
+viewHtml:
+  <decl-button click="testAction">{{data.testMsg}}</decl-button>
+  <decl-bridge>
+    <decl-button click="testAction">{{data.testMsg}}</decl-button>
+  </decl-bridge>
+
+# view model
+viewModel:
+  data:
+    testMsg: Hello World!
+
+  function:
+    testAction:
+      import: sample/test
+      name: testAccu
+      input:
+        message: '{{data.testMsg}}'
+      output:
+        data.testMsg: ''
+

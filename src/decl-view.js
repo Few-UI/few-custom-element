@@ -1,8 +1,8 @@
 /* eslint-env es6 */
 
-import mock from './decl-mock';
+import YAML from 'yaml';
 import DeclViewModel from './decl-view-model';
-import { getViewModel } from './decl-utils';
+import { getViewModel, httpGet } from './decl-utils';
 
 export class DeclView extends HTMLElement {
     static get tag() {
@@ -28,10 +28,11 @@ export class DeclView extends HTMLElement {
 
     attributeChangedCallback( name, oldValue, newValue ) {
         console.log( `${name}: ${oldValue} => ${newValue}` );
+            httpGet( `sample/${newValue}View.yml` ).then( ( ymlContent ) => {
+                this._vm = new DeclViewModel( getViewModel( this ), YAML.parse( ymlContent ) );
 
-        this._vm = new DeclViewModel( getViewModel( this ), mock );
-
-        this.appendChild( this._vm.getViewElement() );
+                this.appendChild( this._vm.getViewElement() );
+            } );
     }
 }
 customElements.define( DeclView.tag, DeclView );
