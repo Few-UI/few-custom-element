@@ -2,7 +2,10 @@
 
 let mock = {
     viewHtml: '' +
-            '<decl-button click="testAction">{{data.testMsg}}</decl-button>',
+            '<decl-button click="testAction">{{data.testMsg}}</decl-button>' +
+            '<decl-bridge>' +
+                '<decl-button click="testAction">{{data.testMsg}}</decl-button>' +
+            '</decl-bridge>',
     viewModel: JSON.parse( `
         {
             "data": {

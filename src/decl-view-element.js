@@ -1,6 +1,7 @@
 /* eslint-env es6 */
 
 import _ from 'lodash';
+import DeclBridge from './decl-bridge';
 import { getExpressionFromTemplate, evalExpression } from './decl-utils';
 
 export default class DeclViewElement {
@@ -97,8 +98,8 @@ export default class DeclViewElement {
     }
 
     updateView( vm ) {
-        // We can cut NGElement here or cut it at VDOM creation
-        if( this.hasExpr /*&& !NGElement.isDefined( this.tagName )*/ ) {
+        // We can cut DeclBridge here or cut it at VDOM creation
+        if( this.hasExpr && !DeclBridge.isBridge( this.reference ) ) {
             _.forEach( this.props, ( value, name ) => {
                 let res = evalExpression( value, vm );
                 if ( this.values[name] !== res ) {
