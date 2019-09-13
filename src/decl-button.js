@@ -1,7 +1,7 @@
 /* eslint-env es6 */
 
 //import buttonCss from './button.scss';
-import { createElementFromHtmlString, getViewModel } from './decl-utils';
+import { parseView2, getViewModel } from './decl-utils';
 
 export class DeclButton extends HTMLElement {
     static get tag() {
@@ -23,7 +23,7 @@ export class DeclButton extends HTMLElement {
         // shadowRoot.appendChild( style );
 
         //let newDom = document.createElement( 'div' );
-        shadowRoot.appendChild( createElementFromHtmlString( '<button class="base-button" ><slot/></button>' ) );
+        shadowRoot.appendChild( parseView2( '<button class="base-button" ><slot/></button>' ).firstChild );
     }
 
     doAction() {

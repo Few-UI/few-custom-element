@@ -1,16 +1,6 @@
 /* eslint-env es6 */
 let exports;
 
-/**
- * Create DOM Element from HTML String
- * @param {string} str HTML String snippet as input
- * @returns {Element} DOM Element
- */
-export function createElementFromHtmlString( str ) {
-    let newDom = document.createElement( 'div' );
-    newDom.innerHTML = str.trim();
-    return newDom.firstChild;
-}
 
 export let evalTemplate = function( input, params ) {
   const names = params ? Object.keys( params ) : [];
@@ -27,6 +17,17 @@ export let evalTemplate = function( input, params ) {
 export function getExpressionFromTemplate( str ) {
     let match = str.match( /^\s*{{\s*([\S\s\r\n]*)\s*}}\s*$/m );
     return match ? match[1] : null;
+}
+
+/**
+ * Parse view string as DOM with interpretion
+ * @param {string} str HTML String snippet as input
+ * @returns {Element} DOM Element
+ */
+export function parseView2( str ) {
+    let newDom = document.createElement( 'div' );
+    newDom.innerHTML = str.trim();
+    return newDom;
 }
 
 /**
@@ -82,11 +83,11 @@ export function getViewModel( element ) {
 
 export default exports = {
     getExpressionFromTemplate,
-    createElementFromHtmlString,
     evalTemplate,
     evalExpression,
     getViewElement,
     getViewModel,
     parseView,
+    parseView2,
     setViewModel
 };

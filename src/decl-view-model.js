@@ -1,7 +1,7 @@
 /* eslint-env es6 */
 import _ from 'lodash';
 import DeclViewElement from './decl-view-element';
-import { getExpressionFromTemplate, evalExpression, parseView, setViewModel } from './decl-utils';
+import { getExpressionFromTemplate, evalExpression, parseView2, setViewModel } from './decl-utils';
 
 export default class DeclViewModel {
     /**
@@ -44,7 +44,7 @@ export default class DeclViewModel {
      * @returns {DeclViewElement} view object
      */
     createView( viewHtml ) {
-        this._view = DeclViewElement.createView( parseView( viewHtml ) );
+        this._view = DeclViewElement.createView( parseView2( viewHtml ) );
         setViewModel( this._view.reference, this );
         this._view.updateView( this );
         return this._view;
