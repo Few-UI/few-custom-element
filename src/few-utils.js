@@ -99,12 +99,26 @@ export function httpGet( theUrl ) {
     } );
 }
 
+/**
+ * Import Global Document Style Sheet to shadow DOM
+ * @param {Element} shadowRoot Shadow root element for shadow DOM
+ */
+export function importDocStyle( shadowRoot ) {
+    let linkElems = document.head.querySelectorAll( 'link' );
+    linkElems.forEach( ( elem )=>{
+        if ( elem.rel === 'stylesheet' ) {
+            shadowRoot.appendChild( elem.cloneNode() );
+        }
+    } );
+}
+
 export default exports = {
     getExpressionFromTemplate,
     evalTemplate,
     evalExpression,
     getViewElement,
     getViewModel,
+    importDocStyle,
     parseView,
     parseView2,
     httpGet,
