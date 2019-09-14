@@ -1,5 +1,7 @@
 {
-  "name": "decl",
+  "name": "few",
+  "version": "1.0.0",
+  "description": "few UI framework",
   "devDependencies": {
     "babel-eslint": "^8.2.6",
     "eslint": "^4.19.1",
