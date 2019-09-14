@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/jesse23/few.svg?branch=master)](https://travis-ci.org/jesse23/few)
 
 # FEW
-Practice to create a Fewarative UI
+Practice to create a declarative UI
 
 ## Getting started
 ### Debug in Test Site
