@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/jesse23/decl.svg?branch=master)](https://travis-ci.org/jesse23/decl)
+[![Build Status](https://travis-ci.org/jesse23/few.svg?branch=master)](https://travis-ci.org/jesse23/few)
 
-# DECL
+# FEW
 Practice to create a Fewarative UI
 
 ## Getting started
