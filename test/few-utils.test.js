@@ -1,8 +1,8 @@
 /* eslint-env es6, jasmine */
 
-import utils from '../src/decl-utils';
+import utils from '../src/few-utils';
 
-describe( 'Test decl-utils', () => {
+describe( 'Test few-utils', () => {
   it( 'Verify parseView can parse DOM correctly', () => {
     let viewHtml = '' +
         '<button>Button1</button>' +

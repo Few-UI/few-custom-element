@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/jesse23/decl.svg?branch=master)](https://travis-ci.org/jesse23/decl)
 
 # DECL
-Practice to create a Declarative UI
+Practice to create a Fewarative UI
 
 ## Getting started
 ### Debug in Test Site

@@ -53,7 +53,7 @@ export let evalExpression = function( input, params ) {
  */
 export function setViewModel( element, viewModel ) {
     element._vm = viewModel;
-    element.classList.add( 'decl-scope' );
+    element.classList.add( 'few-scope' );
 }
 
 /**
@@ -65,7 +65,7 @@ export function setViewModel( element, viewModel ) {
  * @returns {Element} Closest parent element which has view model context
  */
 export function getViewElement( element ) {
-    return element.closest( '.decl-scope' );
+    return element.closest( '.few-scope' );
 }
 
 /**

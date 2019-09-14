@@ -1,21 +1,21 @@
 /* eslint-env es6 */
 
 import _ from 'lodash';
-import DeclBridge from './decl-bridge';
-import { getExpressionFromTemplate, evalExpression } from './decl-utils';
+import FewBridge from './few-bridge';
+import { getExpressionFromTemplate, evalExpression } from './few-utils';
 
-export default class DeclViewElement {
+export default class FewViewElement {
     /**
-     * Create DeclViewElement structure based on input DOM
+     * Create FewViewElement structure based on input DOM
      * @param {Element} elem DOM Element
-     * @returns {Object} DeclViewElement
+     * @returns {Object} FewViewElement
      */
     static createView( elem, level = 0 ) {
         if( elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE ) {
             return;
         }
 
-        let node = new DeclViewElement( elem.nodeName );
+        let node = new FewViewElement( elem.nodeName );
         node.hasExpr = false;
         if ( elem.nodeType === Node.ELEMENT_NODE ) {
             for( let i = 0; i < elem.attributes.length; i++ ) {
@@ -47,7 +47,7 @@ export default class DeclViewElement {
 
         for ( let i = 0; i < elem.childNodes.length; i++ ) {
             let child = elem.childNodes[i];
-            let childNode = DeclViewElement.createView( child, level + 1 );
+            let childNode = FewViewElement.createView( child, level + 1 );
             if( childNode ) {
                 node.addChild( childNode );
                 node.hasExpr = node.hasExpr ? node.hasExpr : childNode.hasExpr;
@@ -98,8 +98,8 @@ export default class DeclViewElement {
     }
 
     updateView( vm ) {
-        // We can cut DeclBridge here or cut it at VDOM creation
-        if( this.hasExpr && !DeclBridge.isBridge( this.reference ) ) {
+        // We can cut FewBridge here or cut it at VDOM creation
+        if( this.hasExpr && !FewBridge.isBridge( this.reference ) ) {
             _.forEach( this.props, ( value, name ) => {
                 let res = evalExpression( value, vm );
                 if ( this.values[name] !== res ) {

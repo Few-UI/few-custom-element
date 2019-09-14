@@ -1,17 +1,17 @@
 /* eslint-env es6 */
 
-export default class DeclBridge extends HTMLElement {
+export default class FewBridge extends HTMLElement {
     static isBridge( elem ) {
         if ( elem ) {
             if ( elem.nodeType === Node.TEXT_NODE ) {
                 elem = elem.parentElement;
             }
-            return elem.closest( '.decl-bridge' );
+            return elem.closest( '.few-bridge' );
         }
     }
 
     static get tag() {
-        return 'decl-bridge';
+        return 'few-bridge';
     }
 
     constructor() {
@@ -20,9 +20,9 @@ export default class DeclBridge extends HTMLElement {
         const shadowRoot = this.attachShadow( { mode: 'open' } );
         shadowRoot.appendChild( document.createElement( 'slot' ) );
 
-        this.classList.add( 'decl-bridge' );
+        this.classList.add( 'few-bridge' );
     }
 }
 
 // test code, will comment out later
-customElements.define( DeclBridge.tag, DeclBridge );
+customElements.define( FewBridge.tag, FewBridge );

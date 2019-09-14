@@ -1,12 +1,12 @@
 /* eslint-env es6 */
 import _ from 'lodash';
-import DeclViewElement from './decl-view-element';
-import { getExpressionFromTemplate, evalExpression, parseView2, setViewModel } from './decl-utils';
+import FewViewElement from './few-view-element';
+import { getExpressionFromTemplate, evalExpression, parseView2, setViewModel } from './few-utils';
 
-export default class DeclViewModel {
+export default class FewViewModel {
     /**
      * Constructor for View Model Object
-     * @param {DeclViewModel} parent parent view model
+     * @param {FewViewModel} parent parent view model
      * @param {Object} viewModelInput view model input
      */
     constructor( parent, viewModelInput ) {
@@ -41,10 +41,10 @@ export default class DeclViewModel {
     /**
      * set view for current view model
      * @param {string} viewHtml view HTML snippet as string
-     * @returns {DeclViewElement} view object
+     * @returns {FewViewElement} view object
      */
     createView( viewHtml ) {
-        this._view = DeclViewElement.createView( parseView2( viewHtml ) );
+        this._view = FewViewElement.createView( parseView2( viewHtml ) );
         setViewModel( this._view.reference, this );
         this._view.updateView( this );
         return this._view;

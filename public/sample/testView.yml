@@ -1,9 +1,9 @@
 # view
 viewHtml:
-  <decl-button click="testAction">{{data.testMsg}}</decl-button>
-  <decl-bridge>
-    <decl-button click="testAction">{{data.testMsg}}</decl-button>
-  </decl-bridge>
+  <few-button click="testAction">{{data.testMsg}}</few-button>
+  <few-bridge>
+    <few-button click="testAction">{{data.testMsg}}</few-button>
+  </few-bridge>
 
 # view model
 viewModel:

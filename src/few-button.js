@@ -1,11 +1,11 @@
 /* eslint-env es6 */
 
 //import buttonCss from './button.scss';
-import { parseView2, getViewModel } from './decl-utils';
+import { parseView2, getViewModel } from './few-utils';
 
-export class DeclButton extends HTMLElement {
+export class FewButton extends HTMLElement {
     static get tag() {
-        return 'decl-button';
+        return 'few-button';
     }
 
     get clickAction() {
@@ -45,4 +45,4 @@ export class DeclButton extends HTMLElement {
     }
     */
 }
-customElements.define( DeclButton.tag, DeclButton );
+customElements.define( FewButton.tag, FewButton );
