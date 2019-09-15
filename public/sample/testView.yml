@@ -1,16 +1,19 @@
 # view
-viewHtml:
-  <few-button click="testAction">{{data.testMsg}}</few-button>
-  <few-bridge>
-    <few-button click="testAction">{{data.testMsg}}</few-button>
-  </few-bridge>
+view:
+  viewHtml:
+    <few-button2 click="testAction">{{data.testMsg}}</few-button2>
+    <few-bridge>
+      <few-button2 click="testAction">{{data.testMsg}}</few-button2>
+    </few-bridge>
+  import:
+    - sample/few-button2
 
 # view model
 viewModel:
   data:
     testMsg: Hello World!
 
-  function:
+  method:
     testAction:
       import: sample/test
       name: testAccu

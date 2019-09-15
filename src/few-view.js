@@ -2,6 +2,7 @@
 
 import YAML from 'yaml';
 import FewViewModel from './few-view-model';
+import moduleLoader from './few-module-loader';
 import { getViewModel, httpGet } from './few-utils';
 
 export class FewView extends HTMLElement {
@@ -28,11 +29,20 @@ export class FewView extends HTMLElement {
 
     attributeChangedCallback( name, oldValue, newValue ) {
         console.log( `${name}: ${oldValue} => ${newValue}` );
-            httpGet( `sample/${newValue}View.yml` ).then( ( ymlContent ) => {
-                this._vm = new FewViewModel( getViewModel( this ), YAML.parse( ymlContent ) );
 
-                this.appendChild( this._vm.getViewElement() );
-            } );
+        httpGet( `sample/${newValue}View.yml` ).then( ( ymlContent ) => {
+            // prepare vmInput
+            let vmInput = YAML.parse( ymlContent );
+
+            // dependecy injection
+            vmInput.moduleLoader = moduleLoader;
+
+            this._vm = new FewViewModel( getViewModel( this ), vmInput );
+
+            return this._vm.createView( vmInput.view );
+        } ).then( ( velwElem ) => {
+            this.appendChild( velwElem );
+        } );
     }
 }
 customElements.define( FewView.tag, FewView );

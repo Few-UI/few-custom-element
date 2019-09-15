@@ -28,12 +28,17 @@ export default class FewViewModel {
         /**
          * function
          */
-        this.method = viewModelInput.viewModel.function;
+        this.method = viewModelInput.viewModel.method;
+
+        /**
+         * module loader
+         */
+        this.moduleLoader = viewModelInput.moduleLoader;
 
         /**
          * view object
          */
-        this._view = this.createView( viewModelInput.viewHtml );
+        this._view = null;
 
         /**
          * method update view
@@ -46,13 +51,15 @@ export default class FewViewModel {
     /**
      * set view for current view model
      * @param {string} viewHtml view HTML snippet as string
-     * @returns {FewViewElement} view object
+     * @returns {Promise} promise with view element
      */
-    createView( viewHtml ) {
-        this._view = FewViewElement.createView( parseView2( viewHtml ) );
-        setViewModel( this._view.reference, this );
-        this._view.updateView( this );
-        return this._view;
+    createView( view ) {
+        return this.moduleLoader.loadModules( view.import ? view.import : [] ).then( () => {
+            this._view = FewViewElement.createView( parseView2( view.viewHtml ) );
+            setViewModel( this._view.reference, this );
+            this._view.updateView( this );
+            return this.getViewElement();
+        } );
     }
 
     /**
