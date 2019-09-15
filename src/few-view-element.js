@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import FewBridge from './few-bridge';
 import { getExpressionFromTemplate, evalExpression } from './few-utils';
-import FewViewModel from './few-view-model';
 
 export default class FewViewElement {
     /**
@@ -26,8 +25,14 @@ export default class FewViewElement {
                 // TODO: we can do it better later
                 let expr = getExpressionFromTemplate( value );
                 if( expr ) {
-                    node.addProperty( name, expr );
-                    node.hasExpr = true;
+                    // if name is event like onclick
+                    // TODO: make it as expression later
+                    if ( name === 'onclick' ) {
+                        elem.setAttribute( name, `few.exec(this, '${expr}')` );
+                    } else {
+                        node.addProperty( name, expr );
+                        node.hasExpr = true;
+                    }
                 }
             }
         } else if ( elem.nodeType === Node.TEXT_NODE ) {

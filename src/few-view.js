@@ -34,6 +34,7 @@ export class FewView extends HTMLElement {
 
         // dependecy injection
         vmInput.moduleLoader = moduleLoader;
+        vmInput.methodNamespaces = [ 'method' ];
 
         this._vm = new FewViewModel( getViewModel( this ), vmInput );
 
