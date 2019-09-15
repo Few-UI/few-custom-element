@@ -27,22 +27,17 @@ export class FewView extends HTMLElement {
         this._vm = null;
     }
 
-    attributeChangedCallback( name, oldValue, newValue ) {
+    async attributeChangedCallback( name, oldValue, newValue ) {
         console.log( `${name}: ${oldValue} => ${newValue}` );
 
-        httpGet( `sample/${newValue}View.yml` ).then( ( ymlContent ) => {
-            // prepare vmInput
-            let vmInput = YAML.parse( ymlContent );
+        let vmInput = YAML.parse( await httpGet( `sample/${newValue}View.yml` ) );
 
-            // dependecy injection
-            vmInput.moduleLoader = moduleLoader;
+        // dependecy injection
+        vmInput.moduleLoader = moduleLoader;
 
-            this._vm = new FewViewModel( getViewModel( this ), vmInput );
+        this._vm = new FewViewModel( getViewModel( this ), vmInput );
 
-            return this._vm.createView( vmInput.view );
-        } ).then( ( velwElem ) => {
-            this.appendChild( velwElem );
-        } );
+        this.appendChild( await this._vm.createView( vmInput.view ) );
     }
 }
 customElements.define( FewView.tag, FewView );

@@ -3,11 +3,13 @@
 import _ from 'lodash';
 import FewBridge from './few-bridge';
 import { getExpressionFromTemplate, evalExpression } from './few-utils';
+import FewViewModel from './few-view-model';
 
 export default class FewViewElement {
     /**
      * Create FewViewElement structure based on input DOM
      * @param {Element} elem DOM Element
+     * @param {number} level level for current element input
      * @returns {Object} FewViewElement
      */
     static createView( elem, level = 0 ) {
@@ -97,6 +99,18 @@ export default class FewViewElement {
         this.children = this.children.concat( children );
     }
 
+    /**
+     * get DOM element for current view element
+     * @returns {Element} DOM element for current view element
+     */
+    getDomElement() {
+        return this.reference;
+    }
+
+    /**
+     * update view based on view model object
+     * @param {FewViewModel} vm view model object
+     */
     updateView( vm ) {
         // We can cut FewBridge here or cut it at VDOM creation
         if( this.hasExpr && !FewBridge.isBridge( this.reference ) ) {

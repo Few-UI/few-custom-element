@@ -1,4 +1,5 @@
 /* eslint-env es6 */
+import './few-global';
 import _ from 'lodash';
 import FewViewElement from './few-view-element';
 import { getExpressionFromTemplate, evalExpression, parseView2, setViewModel } from './few-utils';
@@ -50,16 +51,17 @@ export default class FewViewModel {
 
     /**
      * set view for current view model
-     * @param {string} viewHtml view HTML snippet as string
+     * @param {Object} view view input
      * @returns {Promise} promise with view element
      */
-    createView( view ) {
-        return this.moduleLoader.loadModules( view.import ? view.import : [] ).then( () => {
-            this._view = FewViewElement.createView( parseView2( view.viewHtml ) );
-            setViewModel( this._view.reference, this );
-            this._view.updateView( this );
-            return this.getViewElement();
-        } );
+    async createView( view ) {
+        await this.moduleLoader.loadModules( view.import ? view.import : [] );
+
+        this._view = FewViewElement.createView( parseView2( view.viewHtml ) );
+        let elem = this._view.getDomElement();
+        setViewModel( elem, this );
+        this._view.updateView( this );
+        return elem;
     }
 
     /**
@@ -108,4 +110,3 @@ export default class FewViewModel {
         }
     }
 }
-

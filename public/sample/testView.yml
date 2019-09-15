@@ -1,9 +1,9 @@
 # view
 view:
   viewHtml:
-    <few-button2 click="testAction">{{data.testMsg}}</few-button2>
+    <few-button2 onclick="few.exec(this, 'testAction')">{{data.testMsg}}</few-button2>
     <few-bridge>
-      <few-button2 click="testAction">{{data.testMsg}}</few-button2>
+      <few-button2 onclick="few.exec(this, 'testAction')">{{data.testMsg}}</few-button2>
     </few-bridge>
   import:
     - sample/few-button2
