@@ -3,7 +3,7 @@
 //import buttonCss from './button.scss';
 import { parseView2, getViewModel } from './few-utils';
 
-export class FewButton extends HTMLElement {
+export default class FewButton extends HTMLElement {
     static get tag() {
         return 'few-button';
     }
