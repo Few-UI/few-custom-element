@@ -95,7 +95,7 @@ export default class FewViewModel {
     evalMethod( methodName ) {
         let method = this._getMethodDefinition( methodName );
         if ( method.import ) {
-            return import( method.import ).then( ( dep ) => {
+            return this._options.moduleLoader.loadModule( method.import ).then( ( dep ) => {
                 let vals = method.input ? Object.values( method.input ) : [];
                 vals = vals.map( ( o ) => {
                   let template = getExpressionFromTemplate( o );
