@@ -21,6 +21,11 @@ export default class FewViewModel {
         this.data = viewModelInput.viewModel.data;
 
         /**
+         * ctx
+         */
+        this.ctx = viewModelInput.viewModel.ctx;
+
+        /**
          * function
          */
         this.method = viewModelInput.viewModel.function;
