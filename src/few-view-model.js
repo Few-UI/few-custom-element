@@ -90,7 +90,7 @@ export default class FewViewModel {
     /**
      * evaluate method in view model
      * @param {string} methodName method name in view model
-     * @returns {object} result
+     * @returns {Promise} promise with result
      */
     evalMethod( methodName ) {
         let method = this._getMethodDefinition( methodName );
