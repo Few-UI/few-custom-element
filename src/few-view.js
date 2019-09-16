@@ -2,7 +2,6 @@
 
 import YAML from 'yaml';
 import FewViewModel from './few-view-model';
-import moduleLoader from './few-module-loader';
 import { getViewModel, httpGet } from './few-utils';
 
 export class FewView extends HTMLElement {
