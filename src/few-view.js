@@ -32,10 +32,6 @@ export class FewView extends HTMLElement {
 
         let vmInput = YAML.parse( await httpGet( `sample/${newValue}View.yml` ) );
 
-        // dependecy injection
-        vmInput.moduleLoader = moduleLoader;
-        vmInput.methodNamespaces = [ 'method' ];
-
         this._vm = new FewViewModel( getViewModel( this ), vmInput );
 
         this.appendChild( await this._vm.createView( vmInput.view ) );

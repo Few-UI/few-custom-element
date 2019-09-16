@@ -22,3 +22,8 @@ viewModel:
       output:
         data.testMsg: ''
 
+#option
+option:
+  methodNamespaces:
+    - method
+

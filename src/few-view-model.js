@@ -2,6 +2,7 @@
 import './few-global';
 import _ from 'lodash';
 import FewViewElement from './few-view-element';
+import moduleLoader from './few-module-loader';
 import { getExpressionFromTemplate, evalExpression, parseView2, setViewModel } from './few-utils';
 
 export default class FewViewModel {
@@ -21,11 +22,11 @@ export default class FewViewModel {
         /**
          * module loader
          */
-        this._options = {
-            moduleLoader: viewModelInput.moduleLoader,
-            methodNamespaces: viewModelInput.methodNamespaces || [],
-            dataNamespace: viewModelInput.dataNamespace
-        };
+        this._option = viewModelInput.option || {};
+
+        if ( !this._option.moduleLoader ) {
+            this._option.moduleLoader = moduleLoader;
+        }
 
         /**
          * view object
@@ -46,7 +47,7 @@ export default class FewViewModel {
      * @returns {Promise} promise with view element
      */
     async createView( view ) {
-        await this._options.moduleLoader.loadModules( view.import ? view.import : [] );
+        await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
         this._view = FewViewElement.createView( parseView2( view.viewHtml ) );
         let elem = this._view.getDomElement();
@@ -75,7 +76,7 @@ export default class FewViewModel {
 
     _getMethodDefinition( key ) {
         let methodDef = null;
-        _.forEach( this._options.methodNamespaces, ( n ) => {
+        _.forEach( this._option.methodNamespaces || [], ( n ) => {
             methodDef = _.get( this._vm, `${n}.${key}` );
             if ( methodDef ) {
                 return false;
@@ -89,10 +90,10 @@ export default class FewViewModel {
     }
 
     _getVmPath( path ) {
-        if ( this._options.dataNamespace ) {
+        if ( this._option.dataNamespace ) {
             let idx = path.indexOf( '.' );
             let key = idx === -1 ? path : path.substr( 0, idx );
-            return this._vm[key] ? path : `${this._options.dataNamespace}.${path}`;
+            return this._vm[key] ? path : `${this._option.dataNamespace}.${path}`;
         }
         return path;
     }
@@ -105,7 +106,7 @@ export default class FewViewModel {
     evalMethod( methodName ) {
         let method = this._getMethodDefinition( methodName );
         if ( method.import ) {
-            return this._options.moduleLoader.loadModule( method.import ).then( ( dep ) => {
+            return this._option.moduleLoader.loadModule( method.import ).then( ( dep ) => {
                 let vals = method.input ? Object.values( method.input ) : [];
                 vals = vals.map( ( o ) => {
                   let template = getExpressionFromTemplate( o );
