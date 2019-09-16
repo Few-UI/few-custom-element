@@ -23,7 +23,8 @@ export default class FewViewModel {
          */
         this._options = {
             moduleLoader: viewModelInput.moduleLoader,
-            methodNamespaces: viewModelInput.methodNamespaces || []
+            methodNamespaces: viewModelInput.methodNamespaces || [],
+            dataNamespace: viewModelInput.dataNamespace
         };
 
         /**
@@ -87,6 +88,15 @@ export default class FewViewModel {
         return methodDef;
     }
 
+    _getVmPath( path ) {
+        if ( this._options.dataNamespace ) {
+            let idx = path.indexOf( '.' );
+            let key = idx === -1 ? path : path.substr( 0, idx );
+            return this._vm[key] ? path : `${this._options.dataNamespace}.${path}`;
+        }
+        return path;
+    }
+
     /**
      * evaluate method in view model
      * @param {string} methodName method name in view model
@@ -109,7 +119,7 @@ export default class FewViewModel {
 
                 // consider thenable later
                 _.forEach( method.output, ( valPath, vmPath ) => {
-                    this.updateValue( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
+                    this.updateValue( this._getVmPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
                 } );
             } );
         }
