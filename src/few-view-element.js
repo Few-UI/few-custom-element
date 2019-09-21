@@ -27,8 +27,8 @@ export default class FewViewElement {
                 if( expr ) {
                     // if name is event like onclick
                     // TODO: make it as expression later
-                    if ( name === 'onclick' ) {
-                        elem.setAttribute( name, `few.exec(this, '${expr}')` );
+                    if ( /^on.+/.test( name ) ) {
+                        elem.setAttribute( name, `few.exec(this, '${expr}', event)` );
                     } else {
                         node.addProperty( name, expr );
                         node.hasExpr = true;

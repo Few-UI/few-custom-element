@@ -5,6 +5,14 @@ view:
     <few-bridge>
       <few-button2 onclick="{{method.testAction}}">{{data.testMsg}}</few-button2>
     </few-bridge>
+    <div>
+      <h3>Test Form</h3>
+        <form action="#" onsubmit="{{method.testSubmit}}">
+          <label for="name">Name:</label>
+          <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
+          <input type="text" name="user_group" onKeyPress="if (event.which == 13) return false;">
+          <button type="submit">Send your message</button>
+        </form>
   import:
     - sample/few-button2
 
