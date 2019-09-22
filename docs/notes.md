@@ -35,3 +35,4 @@
 
 # References
 [Google Example](https://developers.google.com/web/fundamentals/web-components/examples/howto-tabs)
+[Rules for Custom Element](https://stackoverflow.com/questions/55215397/js-custom-element-get-inner-html)

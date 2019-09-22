@@ -7,12 +7,17 @@ view:
     </few-bridge>
     <div>
       <h3>Test Form</h3>
-        <form action="#" onsubmit="{{method.testSubmit}}">
-          <label for="name">Name:</label>
-          <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
-          <input type="text" name="user_group" onKeyPress="if (event.which == 13) return false;">
-          <button type="submit">Send your message</button>
-        </form>
+      <form action="#" onsubmit="{{method.testSubmit}}">
+        <label for="name">Name:</label>
+        <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
+        <input type="text" name="user_group" onKeyPress="if (event.which == 13) return false;">
+        <button type="submit">Send your message</button>
+      </form>
+    </div>
+    <div>
+      <h3>Output</h3>
+      <div>{{data.testMsg}}</div>
+    </div>
   import:
     - sample/few-button2
 
@@ -29,7 +34,13 @@ viewModel:
         message: '{{data.testMsg}}'
       output:
         data.testMsg: ''
-
+    testSubmit:
+      import: sample/test
+      name: testAccu
+      input:
+        message: '{{data.testMsg}}'
+      output:
+        data.testMsg: ''
 #option
 option:
   methodNamespaces:
