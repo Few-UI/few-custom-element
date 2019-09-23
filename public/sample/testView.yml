@@ -6,20 +6,12 @@ view:
       <few-button2 onclick="{{method.testAction}}">{{data.testMsg}}</few-button2>
     </few-bridge>
     <div>
-      <h3>view in view</h3>
+      <h2>view in view</h2>
       <few-view view="sample/subView"></few-view>
     </div>
+
     <div>
-      <h3>Test Form</h3>
-      <form action="#" onsubmit="{{method.testSubmit}}">
-        <label for="name">Name:</label>
-        <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
-        <input type="text" name="user_group" onKeyPress="if (event.which == 13) return false;">
-        <button type="submit">Send your message</button>
-      </form>
-    </div>
-    <div>
-      <h3>Output</h3>
+      <h2>Output</h2>
       <div>{{data.testMsg}}</div>
     </div>
   import:
@@ -38,13 +30,7 @@ viewModel:
         message: '{{data.testMsg}}'
       output:
         data.testMsg: ''
-    testSubmit:
-      import: sample/test
-      name: testAccu
-      input:
-        message: '{{data.testMsg}}'
-      output:
-        data.testMsg: ''
+
 #option
 option:
   methodNamespaces:
