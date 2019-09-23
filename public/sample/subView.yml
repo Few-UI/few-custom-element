@@ -2,16 +2,13 @@
 view:
   viewHtml:
     <few-button2 onclick="{{testAction}}">{{data.testMsg2}}</few-button2>
-    <few-bridge>
-      <few-button2 onclick="{{method.testAction}}">{{data.testMsg2}}</few-button2>
-    </few-bridge>
   import:
     - sample/few-button2
 
 # view model
 viewModel:
   data:
-    testMsg2: Hello World!
+    testMsg2: Hello World2!
 
   method:
     testAction:
