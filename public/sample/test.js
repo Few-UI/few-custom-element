@@ -9,15 +9,21 @@
 define( [], () => {
     var _counter = 0;
 
-    return {
-        log: function( msg ) {
-            console.log( msg );
-            return msg;
-        },
-        testAccu: function() {
-            return `count ${_counter++}`;
-        }
+    var exports = {};
 
+    exports.log = function( msg ) {
+        console.log( msg );
+        return msg;
     };
+
+    exports.testAccu = function() {
+        return `count ${_counter++}`;
+    };
+
+    exports.testAccu2 = function( value ) {
+        return ++value;
+    };
+
+    return exports;
 } );
 

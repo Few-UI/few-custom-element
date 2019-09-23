@@ -9,14 +9,16 @@ view:
 viewModel:
   data:
     testMsg2: Hello World2!
+    subCounter: 21
 
   method:
     testAction:
       import: sample/test
-      name: testAccu
+      name: testAccu2
       input:
-        message: '{{data.testMsg2}}'
+        value: '{{data.subCounter}}'
       output:
+        data.subCounter: ''
         data.testMsg2: ''
 
 #option
