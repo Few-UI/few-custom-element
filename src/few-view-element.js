@@ -12,7 +12,7 @@ export default class FewViewElement {
      * @returns {Object} FewViewElement
      */
     static createView( elem, level = 0 ) {
-        if( elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE ) {
+        if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE  || FewBridge.hasBridgeClass( elem ) ) {
             return;
         }
 
@@ -118,7 +118,7 @@ export default class FewViewElement {
      */
     updateView( vm ) {
         // We can cut FewBridge here or cut it at VDOM creation
-        if( this.hasExpr && !FewBridge.isBridge( this.reference ) ) {
+        if( this.hasExpr /*&& !FewBridge.isBridge( this.reference )*/ ) {
             _.forEach( this.props, ( value, name ) => {
                 let res = evalExpression( value, vm );
                 if ( this.values[name] !== res ) {

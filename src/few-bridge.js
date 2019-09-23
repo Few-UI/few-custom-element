@@ -10,6 +10,10 @@ export default class FewBridge extends HTMLElement {
         }
     }
 
+    static hasBridgeClass( elem ) {
+        return elem && elem.classList && elem.classList.contains( 'few-bridge' );
+    }
+
     static get tag() {
         return 'few-bridge';
     }

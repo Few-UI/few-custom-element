@@ -3,18 +3,19 @@
 import YAML from 'yaml';
 import FewViewModel from './few-view-model';
 import { getViewModel, httpGet } from './few-utils';
+import FewBridge from './few-bridge';
 
-export class FewView extends HTMLElement {
+export class FewView extends FewBridge {
     static get tag() {
         return 'few-view';
     }
 
     static get observedAttributes() {
-        return [ 'name' ];
+        return [ 'view' ];
     }
 
-    get name() {
-        return this.getAttribute( 'name' );
+    get view() {
+        return this.getAttribute( 'view' );
     }
 
     constructor() {
@@ -27,13 +28,16 @@ export class FewView extends HTMLElement {
     }
 
     async attributeChangedCallback( name, oldValue, newValue ) {
-        console.log( `${name}: ${oldValue} => ${newValue}` );
+        // console.log( `${name}: ${oldValue} => ${newValue}` );
 
-        let vmInput = YAML.parse( await httpGet( `sample/${newValue}View.yml` ) );
+        if ( name === 'view' && oldValue !== newValue ) {
+            let vmInput = YAML.parse( await httpGet( `${newValue}.yml` ) );
 
-        this._vm = new FewViewModel( getViewModel( this ), vmInput );
+            this._vm = new FewViewModel( getViewModel( this ), vmInput );
+            // console.log( `view generated for ${newValue}`);
 
-        this.appendChild( await this._vm.createView( vmInput.view ) );
+            this.appendChild( await this._vm.createView( vmInput.view ) );
+        }
     }
 }
 customElements.define( FewView.tag, FewView );
