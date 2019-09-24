@@ -1,6 +1,6 @@
 /* eslint-env es6 */
 
-import { getViewModel } from './few-utils';
+import { getViewModel, getFormInput } from './few-utils';
 
 let exports;
 
@@ -11,9 +11,12 @@ let exports;
  * @param {object}  e event object as context
  * @returns {Promise} evaluation as promise
  */
-export function exec( elem, methodName, e ) {
+export function handleEvent( elem, methodName, e ) {
     let vm = getViewModel( elem );
-    return vm.evalMethod( methodName, e );
+    return vm.evalMethod( methodName, {
+        element: elem,
+        event: e
+    } );
 }
 
 /**
@@ -30,7 +33,8 @@ export function importDocStyle( shadowRoot ) {
 }
 
 export default exports = {
-    exec,
+    handleEvent,
+    getFormInput,
     importDocStyle
 };
 

@@ -28,6 +28,10 @@ export default class FewViewModel {
             this._option.moduleLoader = moduleLoader;
         }
 
+        if ( !this._option.argumentNameSpace ) {
+            this._option.argumentNameSpace = 'arg';
+        }
+
         /**
          * view object
          */
@@ -101,10 +105,10 @@ export default class FewViewModel {
     /**
      * evaluate method in view model
      * @param {string} methodName method name in view model
-     * @param {object} e event object as context
+     * @param {object} arg input from upstream
      * @returns {Promise} promise with result
      */
-    evalMethod( methodName, e ) {
+    evalMethod( methodName, arg ) {
         /*
             return false from within a jQuery event handler is effectively the same as calling
             both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
@@ -118,7 +122,8 @@ export default class FewViewModel {
 
             Source: John Resig
         */
-        if( e ) {
+        if( arg && arg.event ) {
+            let e = arg.event;
             e.preventDefault();
             e.stopPropagation();
         }
@@ -126,6 +131,14 @@ export default class FewViewModel {
         let method = this._getMethodDefinition( methodName );
         if ( method.import ) {
             return this._option.moduleLoader.loadModule( method.import ).then( ( dep ) => {
+                // backup and apply arg
+                // For now only support on level arg
+                let originArg = this._vm[this._option.argumentNameSpace];
+                if ( arg ) {
+                    this._vm[this._option.argumentNameSpace] = arg;
+                }
+
+
                 let vals = method.input ? Object.values( method.input ) : [];
                 vals = vals.map( ( o ) => {
                   let template = getExpressionFromTemplate( o );
@@ -136,6 +149,11 @@ export default class FewViewModel {
                     method: method.name
                 };
                 let res = callee.module[ callee.method ].apply( callee.module, vals );
+
+                // restore origin namespace
+                if ( arg ) {
+                    this._vm[this._option.argumentNameSpace] = originArg;
+                }
 
                 // consider thenable later
                 _.forEach( method.output, ( valPath, vmPath ) => {

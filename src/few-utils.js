@@ -99,6 +99,31 @@ export function httpGet( theUrl ) {
     } );
 }
 
+/**
+ * get form input from Form HTML Element
+ * @param {Element} elem Form element
+ * @returns {Object} from input as name value pair
+ */
+export function getFormInput( elem ) {
+    let res = {};
+    // TODO: not consider custom element for now
+    if( elem.tagName === 'FORM' ) {
+        let nodeList = elem.elements;
+        for ( let i = 0; i < nodeList.length; i++ ) {
+            if ( nodeList[i].nodeName === 'INPUT' && nodeList[i].type === 'text' ) {
+                // Update text input
+                nodeList[i].value.toLocaleUpperCase();
+            }
+
+            // only supports naming input
+            if( nodeList[i].name ) {
+                res[nodeList[i].name] = nodeList[i].value;
+            }
+        }
+    }
+    return res;
+}
+
 export default exports = {
     getExpressionFromTemplate,
     evalTemplate,
@@ -108,5 +133,6 @@ export default exports = {
     parseView,
     parseView2,
     httpGet,
+    getFormInput,
     setViewModel
 };

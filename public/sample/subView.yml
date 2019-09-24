@@ -19,19 +19,11 @@ viewModel:
     subCounter: 21
 
   method:
-    testAction:
-      import: sample/test
-      name: testAccu2
-      input:
-        value: '{{data.subCounter}}'
-      output:
-        data.subCounter: ''
-        data.testMsg2: ''
     testSubmit:
       import: sample/test
-      name: testAccu
+      name: log
       input:
-        message: '{{data.testMsg}}'
+        user_name: '{{few.getFormInput(arg.element).user_name}}'
       output:
         data.testMsg: ''
 
@@ -39,4 +31,6 @@ viewModel:
 option:
   methodNamespaces:
     - method
+  argumentNameSpace:
+    arg
 

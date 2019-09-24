@@ -35,4 +35,6 @@ viewModel:
 option:
   methodNamespaces:
     - method
+  argumentNameSpace:
+    arg
 
