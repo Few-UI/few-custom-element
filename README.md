@@ -18,3 +18,7 @@ npm test
 # debug unit test
 npm test -- -debug
 ```
+
+## Goal
+- Transparent
+- Performance

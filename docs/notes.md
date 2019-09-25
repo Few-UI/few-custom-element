@@ -31,14 +31,29 @@
      |           |        |                     |        |           |
      +-----------+        +---------------------+        +-----------+
 ```
+## Design Note
+### How is ELM
+- ELM concept:
+  - Model
+  - View
+  - Update
+    - Msg
 
-# 0924 Refactor
-- few-view-model => few-component
-- evalMethod => update
-- updateView => render
-- method => action
+- Each concept is a composition from sub view.
+- update in Sub view will not be called automatically, update from parent view needs to decide when an how
+- When Msg raised from sub view, you can use App.map to map it to Msg, which can be consumed by parent
+  - Better to reserve childMsg so that u can use it when u call child's update
+
+### Question
+#### Shall we bubble up all Msg in sub component to parent?
+No, we should treat sub component as black box. It doesn't has flexibility like ELM, but it is codeless
+#### How to share data between components?
+- A global stack
+- Call Stack
+- Maybe we still need a message map?
 
 
 # References
-[Google Example](https://developers.google.com/web/fundamentals/web-components/examples/howto-tabs)
-[Rules for Custom Element](https://stackoverflow.com/questions/55215397/js-custom-element-get-inner-html)
+- [Rules for Custom Element](https://stackoverflow.com/questions/55215397/js-custom-element-get-inner-html)
+- [Web Component Example fro Google - Tabs](https://developers.google.com/web/fundamentals/web-components/examples/howto-tabs)
+- [Unidirectional User Interface Architectures](https://staltz.com/unidirectional-user-interface-architectures.html)

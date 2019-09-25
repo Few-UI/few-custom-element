@@ -3,7 +3,7 @@ view:
   viewHtml:
     <div>
       <h3>Test Form</h3>
-      <form onsubmit="{{method.testSubmit}}">
+      <form onsubmit="{{actions.testSubmit}}">
         <label for="name">Name:</label>
         <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
         <button type="submit">{{data.testMsg}}</button>
@@ -20,7 +20,7 @@ viewModel:
     testMsg: Click Me!
 
   # action?
-  method:
+  actions:
     testSubmit:
       import: sample/test
       name: testProc
@@ -32,7 +32,7 @@ viewModel:
 #option
 option:
   methodNamespaces:
-    - method
+    - actions
   argumentNameSpace:
     arg
 

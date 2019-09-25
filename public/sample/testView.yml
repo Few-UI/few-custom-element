@@ -3,7 +3,7 @@ view:
   viewHtml:
     <test-button onclick="{{testAction}}">{{data.testMsg}}</test-button>
     <few-bridge>
-      <test-button onclick="{{method.testAction}}">{{data.testMsg}}</test-button>
+      <test-button onclick="{{actions.testAction}}">{{data.testMsg}}</test-button>
     </few-bridge>
     <div>
       <h2>view in view</h2>
@@ -22,7 +22,7 @@ viewModel:
   data:
     testMsg: Hello World!
 
-  method:
+  actions:
     testAction:
       import: sample/test
       name: testAccu
@@ -34,7 +34,7 @@ viewModel:
 #option
 option:
   methodNamespaces:
-    - method
+    - actions
   argumentNameSpace:
     arg
 
