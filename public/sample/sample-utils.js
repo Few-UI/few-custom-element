@@ -28,6 +28,14 @@ define( [], () => {
         return value ? `Input '${value}'` : 'No Input';
     };
 
+    exports.testProcAsync = function( value ) {
+        return new Promise( ( resolve, reject ) => {
+            setTimeout( () => {
+                resolve( value ? `Input '${value}'` : 'No Input' );
+            }, 3000 );
+        } );
+    };
+
     return exports;
 } );
 

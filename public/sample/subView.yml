@@ -23,7 +23,7 @@ viewModel:
   actions:
     testSubmit:
       import: sample/sample-utils
-      name: testProc
+      name: testProcAsync
       input:
         user_name: '{{few.getFormInput(arg.element).user_name}}'
       output:

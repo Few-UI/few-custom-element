@@ -155,6 +155,9 @@ export default class FewComponent {
                     this._vm[this._option.argumentNameSpace] = originArg;
                 }
 
+                // No matther res is thenable or not, it will be handled by next then
+                return res;
+            } ).then( ( res ) => {
                 // consider thenable later
                 _.forEach( method.output, ( valPath, vmPath ) => {
                     this.updateValue( this._getVmPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
