@@ -64,8 +64,21 @@ export function setViewModel( element, viewModel ) {
  * @param {Element} element Current DOM Element
  * @returns {Element} Closest parent element which has view model context
  */
-export function getViewElement( element ) {
+function getScopeElement( element ) {
     return element.closest( '.few-scope' );
+}
+
+/**
+ * Get closest few view element
+ *
+ * @param {Element} element Current DOM Element
+ * @returns {Element} Closest parent element which has view model context
+ */
+export function getViewElement( element ) {
+    let scopeElem = getScopeElement( element );
+    if ( scopeElem ) {
+        return scopeElem.parentElement;
+    }
 }
 
 /**

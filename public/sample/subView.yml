@@ -29,9 +29,12 @@ viewModel:
       output:
         data.testMsg: ''
     submitInfo:
-      name: console.log
+      import: sample/sample-utils
+      name: testSubmit
       input:
-        value: '{{data.testMsg}}'
+        msg: submit
+        ctx: '{{arg}}'
+        data: '{{data.testMsg}}'
 
 #option
 option:

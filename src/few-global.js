@@ -1,6 +1,6 @@
 /* eslint-env es6 */
 
-import { getViewModel, getFormInput } from './few-utils';
+import { getViewModel, getFormInput, getViewElement } from './few-utils';
 
 let exports;
 
@@ -12,6 +12,22 @@ let exports;
  * @returns {Promise} evaluation as promise
  */
 export function handleEvent( elem, methodName, e ) {
+    /*
+        return false from within a jQuery event handler is effectively the same as calling
+        both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
+
+        e.preventDefault() will prevent the default event from occuring.
+        e.stopPropagation() will prevent the event from bubbling up.
+        return false will do both.
+
+        Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
+        notably, return false does not stop the event from bubbling up.
+
+        Source: John Resig
+    */
+    e.preventDefault();
+    // e.stopPropagation();
+
     let component = getViewModel( elem );
     return component.update( methodName, {
         element: elem,
@@ -35,6 +51,7 @@ export function importDocStyle( shadowRoot ) {
 export default exports = {
     handleEvent,
     getFormInput,
+    getViewElement,
     importDocStyle
 };
 

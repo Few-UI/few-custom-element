@@ -17,6 +17,10 @@ export class FewView extends HTMLElement {
         return this.getAttribute( 'view' );
     }
 
+    get onupdate() {
+        return this.getAttribute( 'onupdate' );
+    }
+
     constructor() {
         super();
 
@@ -36,6 +40,12 @@ export class FewView extends HTMLElement {
             // console.log( `view generated for ${newValue}`);
 
             this.appendChild( await this._vm.createView( vmInput.view ) );
+
+            this.firstChild.addEventListener( 'fewupdate', ( e ) => {
+                console.log( `${e.detail.id} => ${e.detail.value}` );
+                // few.handleEvent( this, e.detail.id, e.detail.value );
+                this._vm.update( e.detail.id, e.detail.value );
+            } );
         }
     }
 }

@@ -8,7 +8,7 @@ view:
     <div>
       <h2>view in view</h2>
       <!-- need to find a way to drive sub-view -->
-      <few-view view="sample/subView" onsubmit="{{actions.testAction}}"></few-view>
+      <few-view view="sample/subView" id="dialog" onupdate="{{actions.testAction}}"></few-view>
     </div>
     <div>
       <h2>Output</h2>
@@ -28,6 +28,13 @@ viewModel:
       name: testAccu
       input:
         message: '{{data.testMsg}}'
+      output:
+        data.testMsg: ''
+    dialog:
+      import: sample/sample-utils
+      name: log
+      input:
+        message: '{{arg}}'
       output:
         data.testMsg: ''
 
