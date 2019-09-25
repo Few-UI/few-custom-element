@@ -33,7 +33,7 @@ viewModel:
       name: testSubmit
       input:
         msg: submit
-        ctx: '{{arg}}'
+        element: '{{arg.element}}'
         data: '{{data.testMsg}}'
 
 #option

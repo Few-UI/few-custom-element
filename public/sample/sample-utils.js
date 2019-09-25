@@ -36,14 +36,7 @@ define( [], () => {
         } );
     };
 
-    exports.testSubmit = function( msg, ctx, data ) {
-        let elem = ctx.element;
-        if ( ctx.event ) {
-            let e = ctx.event;
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
+    exports.testSubmit = function( msg, elem, data ) {
         let viewElem = few.getViewElement( elem );
         viewElem.dispatchEvent( new CustomEvent( 'fewupdate',
             {
@@ -51,6 +44,7 @@ define( [], () => {
                 cancelable : true,  // Whether the event may be canceled or not
                 detail: {
                     id: viewElem.id,
+                    msg: msg,
                     value: data
                 }
             }
