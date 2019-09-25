@@ -41,7 +41,7 @@ export default class FewComponent {
          * method update view
          */
         this.updateView = _.debounce( () => {
-            this._view.updateView( this._vm );
+            this._view.render( this._vm );
         }, 100 );
     }
 
@@ -56,7 +56,7 @@ export default class FewComponent {
         this._view = FewViewElement.createView( parseView2( view.viewHtml ) );
         let elem = this._view.getDomElement();
         setViewModel( elem, this );
-        this._view.updateView( this._vm );
+        this._view.render( this._vm );
         return elem;
     }
 

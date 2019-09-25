@@ -113,10 +113,10 @@ export default class FewViewElement {
     }
 
     /**
-     * update view based on view model object
+     * render view based on view model object
      * @param {FewComponent} vm view model object
      */
-    updateView( vm ) {
+    render( vm ) {
         // We can cut FewBridge here or cut it at VDOM creation
         if( this.hasExpr /*&& !FewBridge.isBridge( this.reference )*/ ) {
             _.forEach( this.props, ( value, name ) => {
@@ -128,7 +128,7 @@ export default class FewViewElement {
             } );
 
             for( let child of this.children ) {
-                child.updateView( vm );
+                child.render( vm );
             }
         }
     }
