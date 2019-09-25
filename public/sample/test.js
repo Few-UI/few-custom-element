@@ -24,6 +24,10 @@ define( [], () => {
         return ++value;
     };
 
+    exports.testProc = function( value ) {
+        return value ? `Input '${value}'` : 'No Input';
+    };
+
     return exports;
 } );
 

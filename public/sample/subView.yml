@@ -15,13 +15,13 @@ view:
 # view model
 viewModel:
   data:
-    testMsg2: Hello World2!
     subCounter: 21
+    testMsg: Click Me!
 
   method:
     testSubmit:
       import: sample/test
-      name: log
+      name: testProc
       input:
         user_name: '{{few.getFormInput(arg.element).user_name}}'
       output:
