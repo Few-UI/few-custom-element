@@ -125,7 +125,7 @@ export default class FewComponent {
         if( arg && arg.event ) {
             let e = arg.event;
             e.preventDefault();
-            e.stopPropagation();
+            // e.stopPropagation();
         }
 
         let method = this._getMethodDefinition( methodName );

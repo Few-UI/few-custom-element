@@ -3,7 +3,7 @@ view:
   viewHtml:
     <div>
       <h3>Test Form</h3>
-      <form action="" onsubmit="{{method.testSubmit}}">
+      <form onsubmit="{{method.testSubmit}}">
         <label for="name">Name:</label>
         <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
         <button type="submit">{{data.testMsg}}</button>
@@ -14,10 +14,12 @@ view:
 
 # view model
 viewModel:
+  # model
   data:
     subCounter: 21
     testMsg: Click Me!
 
+  # action?
   method:
     testSubmit:
       import: sample/test
