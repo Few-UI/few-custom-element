@@ -10,7 +10,7 @@ view:
       </form>
     </div>
   import:
-    - sample/few-button2
+    - sample/test-button
 
 # view model
 viewModel:
