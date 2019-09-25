@@ -3,9 +3,8 @@
 import YAML from 'yaml';
 import FewComponent from './few-component';
 import { getViewModel, httpGet } from './few-utils';
-import FewBridge from './few-bridge';
 
-export class FewView extends FewBridge {
+export class FewView extends HTMLElement {
     static get tag() {
         return 'few-view';
     }

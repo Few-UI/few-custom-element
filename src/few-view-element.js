@@ -12,7 +12,7 @@ export default class FewViewElement {
      * @returns {Object} FewViewElement
      */
     static createView( elem, level = 0 ) {
-        if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE  || FewBridge.hasBridgeClass( elem ) ) {
+        if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE || FewBridge.hasBridgeClass( elem ) ) {
             return;
         }
 

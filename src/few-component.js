@@ -78,7 +78,7 @@ export default class FewComponent {
         this.updateView();
     }
 
-    _getMethodDefinition( key ) {
+    _getActionDefinition( key ) {
         let methodDef = null;
         _.forEach( this._option.methodNamespaces || [], ( n ) => {
             methodDef = _.get( this._vm, `${n}.${key}` );
@@ -128,7 +128,7 @@ export default class FewComponent {
             // e.stopPropagation();
         }
 
-        let method = this._getMethodDefinition( methodName );
+        let method = this._getActionDefinition( methodName );
         if ( method.import ) {
             return this._option.moduleLoader.loadModule( method.import ).then( ( dep ) => {
                 // backup and apply arg

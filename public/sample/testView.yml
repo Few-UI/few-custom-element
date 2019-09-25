@@ -8,7 +8,7 @@ view:
     <div>
       <h2>view in view</h2>
       <!-- need to find a way to drive sub-view -->
-      <few-view view="sample/subView"></few-view>
+      <few-view view="sample/subView" onsubmit="{{actions.testAction}}"></few-view>
     </div>
     <div>
       <h2>Output</h2>
