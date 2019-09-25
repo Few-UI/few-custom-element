@@ -12,8 +12,8 @@ let exports;
  * @returns {Promise} evaluation as promise
  */
 export function handleEvent( elem, methodName, e ) {
-    let vm = getViewModel( elem );
-    return vm.evalMethod( methodName, {
+    let component = getViewModel( elem );
+    return component.update( methodName, {
         element: elem,
         event: e
     } );

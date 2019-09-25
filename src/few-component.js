@@ -108,7 +108,7 @@ export default class FewComponent {
      * @param {object} arg input from upstream
      * @returns {Promise} promise with result
      */
-    evalMethod( methodName, arg ) {
+    update( methodName, arg ) {
         /*
             return false from within a jQuery event handler is effectively the same as calling
             both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.

@@ -33,8 +33,8 @@
 ```
 
 # 0924 Refactor
+- few-view-model => few-component
 - evalMethod => update
-- few-component => model
 - updateView => render
 - method => action
 

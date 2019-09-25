@@ -1,4 +1,5 @@
 /* eslint-env es6 */
+/* global few */
 
 //import buttonCss from './button.scss';
 import { parseView2, getViewModel } from './few-utils';
@@ -28,8 +29,7 @@ export default class FewButton extends HTMLElement {
 
     doAction() {
         return ( e ) => {
-            let vm = getViewModel( this );
-            vm.evalMethod( this.clickAction );
+            few.handleEvent( this.action );
         };
     }
 
