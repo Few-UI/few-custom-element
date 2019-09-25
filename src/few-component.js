@@ -106,9 +106,8 @@ export default class FewComponent {
      * evaluate method in view model
      * @param {string} methodName method name in view model
      * @param {object} arg input from upstream
-     * @returns {Promise} promise with result
      */
-    update( methodName, arg ) {
+    async update( methodName, arg ) {
         /*
             return false from within a jQuery event handler is effectively the same as calling
             both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
@@ -129,40 +128,34 @@ export default class FewComponent {
         }
 
         let method = this._getActionDefinition( methodName );
-        if ( method.import ) {
-            return this._option.moduleLoader.loadModule( method.import ).then( ( dep ) => {
-                // backup and apply arg
-                // For now only support on level arg
-                let originArg = this._vm[this._option.argumentNameSpace];
-                if ( arg ) {
-                    this._vm[this._option.argumentNameSpace] = arg;
-                }
 
+        let dep =  method.import ? await this._option.moduleLoader.loadModule( method.import ) : window;
 
-                let vals = method.input ? Object.values( method.input ) : [];
-                vals = vals.map( ( o ) => {
-                  let template = getExpressionFromTemplate( o );
-                  return template ? evalExpression( template, this._vm ) : o;
-                } );
-                let callee = {
-                    module: dep,
-                    method: method.name
-                };
-                let res = callee.module[ callee.method ].apply( callee.module, vals );
-
-                // restore origin namespace
-                if ( arg ) {
-                    this._vm[this._option.argumentNameSpace] = originArg;
-                }
-
-                // No matther res is thenable or not, it will be handled by next then
-                return res;
-            } ).then( ( res ) => {
-                // consider thenable later
-                _.forEach( method.output, ( valPath, vmPath ) => {
-                    this.updateValue( this._getVmPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
-                } );
-            } );
+        // backup and apply arg
+        // For now only support on level arg
+        let originArg = this._vm[this._option.argumentNameSpace];
+        if ( arg ) {
+            this._vm[this._option.argumentNameSpace] = arg;
         }
+
+
+        let vals = method.input ? Object.values( method.input ) : [];
+        vals = vals.map( ( o ) => {
+          let template = getExpressionFromTemplate( o );
+          return template ? evalExpression( template, this._vm ) : o;
+        } );
+
+        let func = _.get( dep, method.name );
+        let res = await func.apply( dep, vals );
+
+        // restore origin namespace
+        if ( arg ) {
+            this._vm[this._option.argumentNameSpace] = originArg;
+        }
+
+        // consider thenable later
+        _.forEach( method.output, ( valPath, vmPath ) => {
+            this.updateValue( this._getVmPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
+        } );
     }
 }

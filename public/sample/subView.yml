@@ -3,7 +3,7 @@ view:
   viewHtml:
     <div>
       <h3>Test Form</h3>
-      <form onsubmit="{{actions.testSubmit}}">
+      <form onsubmit="{{actions.submitInfo}}">
         <label for="name">Name:</label>
         <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
         <button type="submit">{{data.testMsg}}</button>
@@ -21,13 +21,17 @@ viewModel:
 
   # action?
   actions:
-    testSubmit:
+    updateInput:
       import: sample/sample-utils
       name: testProcAsync
       input:
         user_name: '{{few.getFormInput(arg.element).user_name}}'
       output:
         data.testMsg: ''
+    submitInfo:
+      name: console.log
+      input:
+        value: '{{data.testMsg}}'
 
 #option
 option:
