@@ -10,7 +10,7 @@ view:
       </form>
     </div>
   import:
-    - sample/test-button
+    - sample/sample-button
 
 # view model
 viewModel:
@@ -22,7 +22,7 @@ viewModel:
   # action?
   actions:
     testSubmit:
-      import: sample/test
+      import: sample/sample-utils
       name: testProc
       input:
         user_name: '{{few.getFormInput(arg.element).user_name}}'

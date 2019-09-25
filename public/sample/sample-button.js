@@ -3,7 +3,7 @@
 define( [], () => {
 class FewButton extends HTMLElement {
     static get tag() {
-        return 'test-button';
+        return 'sample-button';
     }
 
     get clickAction() {
