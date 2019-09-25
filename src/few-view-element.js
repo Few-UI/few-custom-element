@@ -114,7 +114,7 @@ export default class FewViewElement {
 
     /**
      * update view based on view model object
-     * @param {FewViewModel} vm view model object
+     * @param {FewComponent} vm view model object
      */
     updateView( vm ) {
         // We can cut FewBridge here or cut it at VDOM creation

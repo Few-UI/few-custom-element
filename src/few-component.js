@@ -5,10 +5,10 @@ import FewViewElement from './few-view-element';
 import moduleLoader from './few-module-loader';
 import { getExpressionFromTemplate, evalExpression, parseView2, setViewModel } from './few-utils';
 
-export default class FewViewModel {
+export default class FewComponent {
     /**
      * Constructor for View Model Object
-     * @param {FewViewModel} parent parent view model
+     * @param {FewComponent} parent parent view model
      * @param {Object} viewModelInput view model input
      */
     constructor( parent, viewModelInput ) {

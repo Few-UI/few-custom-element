@@ -30,8 +30,14 @@
      |           +------->+      Procedure      +------->+           |
      |           |        |                     |        |           |
      +-----------+        +---------------------+        +-----------+
-
 ```
+
+# 0924 Refactor
+- evalMethod => update
+- few-component => model
+- updateView => render
+- method => action
+
 
 # References
 [Google Example](https://developers.google.com/web/fundamentals/web-components/examples/howto-tabs)
