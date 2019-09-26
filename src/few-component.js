@@ -9,20 +9,20 @@ export default class FewComponent {
     /**
      * Constructor for View Model Object
      * @param {FewComponent} parent parent view model
-     * @param {Object} viewModelInput view model input
+     * @param {Object} componentDef component definition
      */
-    constructor( parent, viewModelInput ) {
+    constructor( parent, componentDef ) {
         /**
          * parent view model
          */
         this._parent = parent;
 
-        this._vm = viewModelInput.model;
+        this._vm = componentDef.model;
 
         /**
          * module loader
          */
-        this._option = viewModelInput.option || {};
+        this._option = componentDef.option || {};
 
         if ( !this._option.moduleLoader ) {
             this._option.moduleLoader = moduleLoader;

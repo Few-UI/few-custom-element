@@ -34,12 +34,12 @@ export class FewView extends HTMLElement {
         // console.log( `${name}: ${oldValue} => ${newValue}` );
 
         if ( name === 'view' && oldValue !== newValue ) {
-            let vmInput = YAML.parse( await httpGet( `${newValue}.yml` ) );
+            let componentDef = YAML.parse( await httpGet( `${newValue}.yml` ) );
 
-            this._vm = new FewComponent( getViewModel( this ), vmInput );
+            this._vm = new FewComponent( getViewModel( this ), componentDef );
             // console.log( `view generated for ${newValue}`);
 
-            this.appendChild( await this._vm.createView( vmInput.view ) );
+            this.appendChild( await this._vm.createView( componentDef.view ) );
 
             this.firstChild.addEventListener( 'fewupdate', ( e ) => {
                 console.log( `${e.detail.id} => ${e.detail.value}` );
