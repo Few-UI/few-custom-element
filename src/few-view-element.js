@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import FewBridge from './few-bridge';
-import { parseStringTemplate, evalExpression } from './few-utils';
+import { evalExpression } from './few-utils';
 
 export default class FewViewElement {
     /**
@@ -11,7 +11,7 @@ export default class FewViewElement {
      * @param {number} level level for current element input
      * @returns {Object} FewViewElement
      */
-    static createView( elem, level = 0 ) {
+    static createView( elem, comp, level = 0 ) {
         if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE || FewBridge.hasBridgeClass( elem ) ) {
             return;
         }
@@ -23,7 +23,7 @@ export default class FewViewElement {
                 let name = elem.attributes[i].name;
                 let value = elem.attributes[i].value;
                 // TODO: we can do it better later
-                let expr = parseStringTemplate( value );
+                let expr = comp.parseStringTemplate( value );
                 if( expr ) {
                     // if name is event like onclick
                     // TODO: make it as expression later
@@ -39,7 +39,7 @@ export default class FewViewElement {
             let attr = 'textContent';
             let value = elem[attr];
             // TODO: we can do it better later
-            let expr = parseStringTemplate( value );
+            let expr = comp.parseStringTemplate( value );
             if( expr ) {
                 node.addProperty( attr, expr );
                 node.hasExpr = true;
@@ -54,7 +54,7 @@ export default class FewViewElement {
 
         for ( let i = 0; i < elem.childNodes.length; i++ ) {
             let child = elem.childNodes[i];
-            let childNode = FewViewElement.createView( child, level + 1 );
+            let childNode = FewViewElement.createView( child, comp, level + 1 );
             if( childNode ) {
                 node.addChild( childNode );
                 node.hasExpr = node.hasExpr ? node.hasExpr : childNode.hasExpr;

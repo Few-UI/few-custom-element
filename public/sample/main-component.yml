@@ -1,18 +1,18 @@
 # view
 view:
   viewHtml:
-    <sample-button onclick="{{testAction}}">{{testMsg}}</sample-button>
+    <sample-button onclick="${testAction}}">${testMsg}</sample-button>
     <few-bridge>
-      <sample-button onclick="{{action.testAction}}">{{testMsg}}</sample-button>
+      <sample-button onclick="${action.testAction}}">${testMsg}</sample-button>
     </few-bridge>
     <div>
       <h2>view in view</h2>
       <!-- need to find a way to drive sub-view -->
-      <few-view view="sample/sub-component" id="dialog" scope="{{dialogContext}}"></few-view>
+      <few-view view="sample/sub-component" id="dialog" scope="${dialogContext}"></few-view>
     </div>
     <div>
       <h2>Output</h2>
-      <div>{{testMsg}}</div>
+      <div>${testMsg}</div>
     </div>
   import:
     - sample/sample-button
@@ -28,7 +28,7 @@ action:
     import: sample/sample-utils
     name: testAccu
     input:
-      message: '{{testMsg}}'
+      message: '${testMsg}'
     output:
       testMsg: ''
 
@@ -36,7 +36,7 @@ action:
     import: sample/sample-utils
     name: log
     input:
-      message: '{{scope}}'
+      message: '${scope}'
     output:
       testMsg: ''
 
@@ -44,7 +44,7 @@ action:
     import: sample/sample-utils
     name: log
     input:
-      message: '{{dialogContext.valueFromParent + "+" + scope}}'
+      message: '${dialogContext.valueFromParent + "+" + scope}'
     output:
       dialogContext.valueFromParent: ''
 
@@ -54,7 +54,10 @@ action:
 
 #option
 option:
-  scopePath: scope
+# scopePath: scope
   actionPaths:
     - action
+  stringTemplate:
+    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+    index: 1
 

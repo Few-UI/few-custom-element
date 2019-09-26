@@ -3,11 +3,11 @@ view:
   viewHtml:
     <div>
       <h3>Test Form</h3>
-      <form onsubmit="{{action.totalUpdate}}">
+      <form onsubmit="${action.totalUpdate}">
         <label for="name">Name:</label>
         <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
-        <button type="submit">{{testMsg}}</button>
-        <div>{{scope.valueFromParent}}</div>
+        <button type="submit">${testMsg}</button>
+        <div>${scope.valueFromParent}</div>
       </form>
     </div>
   import:
@@ -25,14 +25,14 @@ action:
     name: log
     input:
       value:
-        element: '{{scope.element}}'
-        user_name: '{{few.getFormInput(scope.element).user_name}}'
+        element: '${scope.element}'
+        user_name: '${few.getFormInput(scope.element).user_name}'
 
   updateInput:
     import: sample/sample-utils
     name: testProcAsync
     input:
-      user_name: '{{scope.user_name}}'
+      user_name: '${scope.user_name}'
     output:
       testMsg: ''
 
@@ -41,8 +41,8 @@ action:
     name: testSubmit
     input:
       msg: submit
-      element: '{{scope.element}}'
-      scope: '{{scope.user_name}}'
+      element: '${scope.element}'
+      scope: '${scope.user_name}'
 
   totalUpdate:
     - setValue
@@ -51,7 +51,10 @@ action:
 
 #option
 option:
-  scopePath: scope
+# scopePath: scope
   actionPaths:
     - action
+  stringTemplate:
+    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+    index: 1
 

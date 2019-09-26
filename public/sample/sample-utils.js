@@ -32,7 +32,7 @@ define( [], () => {
         return new Promise( ( resolve, reject ) => {
             setTimeout( () => {
                 resolve( value ? `Input '${value}'` : 'No Input' );
-            }, 3000 );
+            }, 1000 );
         } );
     };
 

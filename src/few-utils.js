@@ -2,18 +2,6 @@
 
 
 /**
- * get expression from '{{}}' pattern
- * We may switch to ${} later.
- * https://stackoverflow.com/questions/29182244/convert-a-string-to-a-template-string
- * @param {string} str string as '{{ something }}'
- * @returns {string} expression
- */
-export function parseStringTemplate( str ) {
-    let match = str.match( /^\s*{{\s*([\S\s\r\n]*)\s*}}\s*$/m );
-    return match ? match[1] : null;
-}
-
-/**
  * Parse view string as DOM with interpretion
  * @param {string} str HTML String snippet as input
  * @returns {Element} DOM Element
@@ -40,17 +28,17 @@ export let evalExpression = function( input, params ) {
   return new Function( ...names, `return ${input};` )( ...vals );
 };
 
-export let evalObjectExpression = function( obj, model ) {
+export let evalObjectExpression = function( obj, comp ) {
     for( let key in obj ) {
         // TODO: we can do it at compile to save performance
         let value = obj[key];
         if ( typeof value === 'string' ) {
-            let template = parseStringTemplate( value );
+            let template = comp.parseStringTemplate( value );
             if ( template ) {
-                obj[key] = evalExpression( template, model );
+                obj[key] = evalExpression( template, comp._vm.model );
             }
         } else {
-            evalObjectExpression( obj[key], model );
+            evalObjectExpression( obj[key], comp );
         }
     }
     return obj;

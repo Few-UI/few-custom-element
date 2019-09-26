@@ -6,6 +6,7 @@ import moduleLoader from './few-module-loader';
 import {
     parseView2,
     setComponent,
+    evalExpression,
     cloneDeepJsonObject,
     evalObjectExpression
 } from './few-utils';
@@ -22,10 +23,18 @@ export default class FewComponent {
          */
         this._parent = parent;
 
+        /**
+         * view object
+         */
+        this._view = null;
+
+        /**
+         * component definition
+         */
         this._vm = componentDef;
 
         /**
-         * module loader
+         * Default options
          */
         this._option = componentDef.option || {};
 
@@ -37,10 +46,7 @@ export default class FewComponent {
             this._option.scopePath = 'scope';
         }
 
-        /**
-         * view object
-         */
-        this._view = null;
+        this._loadStringTemplate();
 
         /**
          * method update view
@@ -48,6 +54,17 @@ export default class FewComponent {
         this.updateView = _.debounce( () => {
             this._view.render( this._vm.model );
         }, 100 );
+    }
+
+    _loadStringTemplate() {
+        let templateDef = this._option.stringTemplate;
+        let regExpObj = evalExpression( templateDef.pattern );
+        this._option.templateParser = function( str ) {
+            let match = regExpObj.exec( str );
+            if ( match ) {
+                return match[templateDef.index];
+            }
+        };
     }
 
     /**
@@ -58,7 +75,7 @@ export default class FewComponent {
     async createView( view ) {
         await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-        this._view = FewViewElement.createView( parseView2( view.viewHtml ) );
+        this._view = FewViewElement.createView( parseView2( view.viewHtml ), this );
         let elem = this._view.getDomElement();
         setComponent( elem, this );
         this._view.render( this._vm.model );
@@ -73,6 +90,10 @@ export default class FewComponent {
     updateValue( path, value ) {
         _.set( this._vm.model, path, value );
         this.updateView();
+    }
+
+    parseStringTemplate( str ) {
+        return this._option.templateParser( str );
     }
 
     _getActionDefinition( key ) {
@@ -103,7 +124,7 @@ export default class FewComponent {
         this.setScope( scope );
 
 
-        let vals = actionDef.input ? Object.values( evalObjectExpression( cloneDeepJsonObject( actionDef.input ), this._vm.model ) ) : [];
+        let vals = actionDef.input ? Object.values( evalObjectExpression( cloneDeepJsonObject( actionDef.input ), this ) ) : [];
 
         let func = _.get( dep, actionDef.name );
         let res = await func.apply( dep, vals );
