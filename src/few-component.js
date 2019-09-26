@@ -92,15 +92,6 @@ export default class FewComponent {
         return methodDef;
     }
 
-    _getModelPath( path ) {
-        if ( this._option.defaultModelPath ) {
-            let idx = path.indexOf( '.' );
-            let key = idx === -1 ? path : path.substr( 0, idx );
-            return this._vm.model[key] ? path : `${this._option.defaultModelPath}.${path}`;
-        }
-        return path;
-    }
-
     async _executeAction( actionDef, scope ) {
         let dep =  actionDef.import ? await this._option.moduleLoader.loadModule( actionDef.import ) : window;
 
@@ -122,7 +113,7 @@ export default class FewComponent {
 
         // consider thenable later
         _.forEach( actionDef.output, ( valPath, vmPath ) => {
-            this.updateValue( this._getModelPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
+            this.updateValue( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
         } );
 
         // scope as next input
