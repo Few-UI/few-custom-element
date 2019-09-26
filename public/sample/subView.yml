@@ -52,8 +52,8 @@ model:
 
 #option
 option:
-  methodNamespaces:
+  defaultActionPaths:
     - actions
-  argumentNameSpace:
+  defaultScopePath:
     arg
 

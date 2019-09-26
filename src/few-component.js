@@ -28,8 +28,8 @@ export default class FewComponent {
             this._option.moduleLoader = moduleLoader;
         }
 
-        if ( !this._option.argumentNameSpace ) {
-            this._option.argumentNameSpace = 'arg';
+        if ( !this._option.defaultScopePath ) {
+            this._option.defaultScopePath = 'arg';
         }
 
         /**
@@ -80,7 +80,7 @@ export default class FewComponent {
 
     _getActionDefinition( key ) {
         let methodDef = null;
-        _.forEach( this._option.methodNamespaces || [], ( n ) => {
+        _.forEach( this._option.defaultActionPaths || [], ( n ) => {
             methodDef = _.get( this._vm, `${n}.${key}` );
             if ( methodDef ) {
                 return false;
@@ -94,10 +94,10 @@ export default class FewComponent {
     }
 
     _getVmPath( path ) {
-        if ( this._option.dataNamespace ) {
+        if ( this._option.defaultModelPath ) {
             let idx = path.indexOf( '.' );
             let key = idx === -1 ? path : path.substr( 0, idx );
-            return this._vm[key] ? path : `${this._option.dataNamespace}.${path}`;
+            return this._vm[key] ? path : `${this._option.defaultModelPath}.${path}`;
         }
         return path;
     }
@@ -107,10 +107,8 @@ export default class FewComponent {
 
         // backup and apply arg
         // For now only support on level arg
-        let originArg = this._vm[this._option.argumentNameSpace];
-        if ( arg ) {
-            this._vm[this._option.argumentNameSpace] = arg;
-        }
+        let originArg = this._vm[this._option.defaultScopePath];
+        this._vm[this._option.defaultScopePath] = arg;
 
 
         let vals = actionDef.input ? Object.values( actionDef.input ) : [];
@@ -123,8 +121,8 @@ export default class FewComponent {
         let res = await func.apply( dep, vals );
 
         // restore origin namespace
-        if ( arg ) {
-            this._vm[this._option.argumentNameSpace] = originArg;
+        if ( originArg ) {
+            this._vm[this._option.defaultScopePath] = originArg;
         }
 
         // consider thenable later
