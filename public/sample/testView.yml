@@ -39,7 +39,7 @@ action:
 
 #option
 option:
-  # defaultModelPath: model
+  # defaultModelPath: data
   defaultScopePath: scope
   defaultActionPaths:
     - action
