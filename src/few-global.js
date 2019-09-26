@@ -1,6 +1,6 @@
 /* eslint-env es6 */
 
-import { getViewModel, getFormInput, getViewElement } from './few-utils';
+import { getComponent, getFormInput, getViewElement } from './few-utils';
 
 let exports;
 
@@ -28,7 +28,7 @@ export function handleEvent( elem, methodName, e ) {
     e.preventDefault();
     // e.stopPropagation();
 
-    let component = getViewModel( elem );
+    let component = getComponent( elem );
     return component.update( methodName, {
         element: elem,
         event: e

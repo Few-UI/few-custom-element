@@ -3,7 +3,7 @@ import './few-global';
 import _ from 'lodash';
 import FewViewElement from './few-view-element';
 import moduleLoader from './few-module-loader';
-import { getExpressionFromTemplate, evalExpression, parseView2, setViewModel } from './few-utils';
+import { getExpressionFromTemplate, evalExpression, parseView2, setComponent } from './few-utils';
 
 export default class FewComponent {
     /**
@@ -55,7 +55,7 @@ export default class FewComponent {
 
         this._view = FewViewElement.createView( parseView2( view.viewHtml ) );
         let elem = this._view.getDomElement();
-        setViewModel( elem, this );
+        setComponent( elem, this );
         this._view.render( this._vm.model );
         return elem;
     }

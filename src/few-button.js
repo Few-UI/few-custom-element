@@ -2,7 +2,7 @@
 /* global few */
 
 //import buttonCss from './button.scss';
-import { parseView2, getViewModel } from './few-utils';
+import { parseView2 } from './few-utils';
 
 export default class FewButton extends HTMLElement {
     static get tag() {

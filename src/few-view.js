@@ -2,7 +2,7 @@
 
 import YAML from 'yaml';
 import FewComponent from './few-component';
-import { getViewModel, httpGet } from './few-utils';
+import { getComponent, httpGet } from './few-utils';
 
 export class FewView extends HTMLElement {
     static get tag() {
@@ -36,7 +36,7 @@ export class FewView extends HTMLElement {
         if ( name === 'view' && oldValue !== newValue ) {
             let componentDef = YAML.parse( await httpGet( `${newValue}.yml` ) );
 
-            this._vm = new FewComponent( getViewModel( this ), componentDef );
+            this._vm = new FewComponent( getComponent( this ), componentDef );
             // console.log( `view generated for ${newValue}`);
 
             this.appendChild( await this._vm.createView( componentDef.view ) );

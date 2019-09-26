@@ -51,7 +51,7 @@ export let evalExpression = function( input, params ) {
  * @param {Element} element DOM Element
  * @param {Object} viewModel viewModel object as context
  */
-export function setViewModel( element, viewModel ) {
+export function setComponent( element, viewModel ) {
     element._vm = viewModel;
     element.classList.add( 'few-scope' );
 }
@@ -87,7 +87,7 @@ export function getViewElement( element ) {
  * @param {Element} element DOM Element
  * @returns {Object} view model object context
  */
-export function getViewModel( element ) {
+export function getComponent( element ) {
     let viewElement = exports.getViewElement( element );
     if( viewElement ) {
         return viewElement._vm;
@@ -142,10 +142,10 @@ export default exports = {
     evalTemplate,
     evalExpression,
     getViewElement,
-    getViewModel,
+    getComponent,
     parseView,
     parseView2,
     httpGet,
     getFormInput,
-    setViewModel
+    setComponent
 };
