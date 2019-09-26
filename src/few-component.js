@@ -102,15 +102,8 @@ export default class FewComponent {
         return path;
     }
 
-    /**
-     * evaluate method in view model
-     * @param {string} methodName method name in view model
-     * @param {object} arg input from upstream
-     */
-    async update( methodName, arg ) {
-        let method = this._getActionDefinition( methodName );
-
-        let dep =  method.import ? await this._option.moduleLoader.loadModule( method.import ) : window;
+    async _executeAction( actionDef, arg ) {
+        let dep =  actionDef.import ? await this._option.moduleLoader.loadModule( actionDef.import ) : window;
 
         // backup and apply arg
         // For now only support on level arg
@@ -120,13 +113,13 @@ export default class FewComponent {
         }
 
 
-        let vals = method.input ? Object.values( method.input ) : [];
+        let vals = actionDef.input ? Object.values( actionDef.input ) : [];
         vals = vals.map( ( o ) => {
           let template = getExpressionFromTemplate( o );
           return template ? evalExpression( template, this._vm ) : o;
         } );
 
-        let func = _.get( dep, method.name );
+        let func = _.get( dep, actionDef.name );
         let res = await func.apply( dep, vals );
 
         // restore origin namespace
@@ -135,8 +128,29 @@ export default class FewComponent {
         }
 
         // consider thenable later
-        _.forEach( method.output, ( valPath, vmPath ) => {
+        _.forEach( actionDef.output, ( valPath, vmPath ) => {
             this.updateValue( this._getVmPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
         } );
+
+        // arg as next input
+        return arg;
+    }
+
+    /**
+     * evaluate method in view model
+     * @param {string} methodName method name in view model
+     * @param {object} arg input from upstream
+     */
+    async update( methodName, arg ) {
+        let actionDef = this._getActionDefinition( methodName );
+
+        if ( _.isArray( actionDef ) ) {
+            return actionDef.reduce( ( argPromise, name ) => {
+                return argPromise.then( ( arg ) => {
+                    return this.update( name, arg );
+                } );
+            }, Promise.resolve( arg ) );
+        }
+        return this._executeAction( actionDef, arg );
     }
 }
