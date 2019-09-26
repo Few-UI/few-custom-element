@@ -29,7 +29,7 @@ export default class FewComponent {
         }
 
         if ( !this._option.defaultScopePath ) {
-            this._option.defaultScopePath = 'arg';
+            this._option.defaultScopePath = 'scope';
         }
 
         /**
@@ -102,13 +102,13 @@ export default class FewComponent {
         return path;
     }
 
-    async _executeAction( actionDef, arg ) {
+    async _executeAction( actionDef, scope ) {
         let dep =  actionDef.import ? await this._option.moduleLoader.loadModule( actionDef.import ) : window;
 
-        // backup and apply arg
-        // For now only support on level arg
+        // backup and apply scope
+        // For now only support on level scope
         let originArg = this._vm[this._option.defaultScopePath];
-        this._vm[this._option.defaultScopePath] = arg;
+        this._vm[this._option.defaultScopePath] = scope;
 
 
         let vals = actionDef.input ? Object.values( actionDef.input ) : [];
@@ -130,25 +130,26 @@ export default class FewComponent {
             this.updateValue( this._getVmPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
         } );
 
-        // arg as next input
-        return arg;
+        // scope as next input
+        return scope;
     }
 
     /**
      * evaluate method in view model
      * @param {string} methodName method name in view model
-     * @param {object} arg input from upstream
+     * @param {object} scope input from upstream
+     * @returns {Promise} promise with scope value
      */
-    async update( methodName, arg ) {
+    async update( methodName, scope ) {
         let actionDef = this._getActionDefinition( methodName );
 
         if ( _.isArray( actionDef ) ) {
-            return actionDef.reduce( ( argPromise, name ) => {
-                return argPromise.then( ( arg ) => {
-                    return this.update( name, arg );
+            return actionDef.reduce( ( scopePromise, name ) => {
+                return scopePromise.then( ( scope ) => {
+                    return this.update( name, scope );
                 } );
-            }, Promise.resolve( arg ) );
+            }, Promise.resolve( scope ) );
         }
-        return this._executeAction( actionDef, arg );
+        return this._executeAction( actionDef, scope );
     }
 }
