@@ -42,8 +42,7 @@ export class FewView extends HTMLElement {
             this.appendChild( await this._vm.createView( componentDef.view ) );
 
             this.firstChild.addEventListener( 'fewupdate', ( e ) => {
-                console.log( `${e.detail.id} => ${e.detail.value}` );
-                // few.handleEvent( this, e.detail.id, e.detail.value );
+                // console.log( `${e.detail.id} => ${e.detail.value}` );
                 this._vm.update( e.detail.id, e.detail.value );
             } );
         }
