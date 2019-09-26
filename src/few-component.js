@@ -33,8 +33,8 @@ export default class FewComponent {
             this._option.moduleLoader = moduleLoader;
         }
 
-        if ( !this._option.defaultScopePath ) {
-            this._option.defaultScopePath = 'scope';
+        if ( !this._option.scopePath ) {
+            this._option.scopePath = 'scope';
         }
 
         /**
@@ -77,7 +77,7 @@ export default class FewComponent {
 
     _getActionDefinition( key ) {
         let methodDef = null;
-        _.forEach( this._option.defaultActionPaths || [], ( n ) => {
+        _.forEach( this._option.actionPaths || [], ( n ) => {
             methodDef = _.get( this._vm, `${n}.${key}` );
             if ( methodDef ) {
                 return false;
@@ -91,7 +91,7 @@ export default class FewComponent {
     }
 
     setScope( scope ) {
-        this._vm.model[this._option.defaultScopePath] = scope;
+        this._vm.model[this._option.scopePath] = scope;
     }
 
     async _executeAction( actionDef, scope ) {
@@ -99,7 +99,7 @@ export default class FewComponent {
 
         // backup and apply scope
         // For now only support on level scope
-        let originArg = this._vm.model[this._option.defaultScopePath];
+        let originArg = this._vm.model[this._option.scopePath];
         this.setScope( scope );
 
 

@@ -51,7 +51,7 @@ action:
 
 #option
 option:
-  defaultScopePath: scope
-  defaultActionPaths:
+  scopePath: scope
+  actionPaths:
     - action
 
