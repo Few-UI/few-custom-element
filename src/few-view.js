@@ -1,7 +1,7 @@
 /* eslint-env es6 */
 
 import _ from 'lodash';
-import YAML from 'yaml';
+import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import { getComponent, httpGet } from './few-utils';
 
@@ -50,7 +50,7 @@ export class FewView extends HTMLElement {
         // console.log( `${name}: ${oldValue} => ${newValue}` );
 
         if ( name === 'view' && oldValue !== newValue ) {
-            let componentDef = YAML.parse( await httpGet( `${newValue}.yml` ) );
+            let componentDef = yaml.load( await httpGet( `${newValue}.yml` ) );
 
             this._vm = new FewComponent( getComponent( this ), componentDef );
             this._vm.setScope( this._scope );

@@ -1,19 +1,14 @@
 /* eslint-env es6 */
 
 
-export let evalTemplate = function( input, params ) {
-  const names = params ? Object.keys( params ) : [];
-  const vals = params ? Object.values( params ) : [];
-  return new Function( ...names, `return \`${input}\`;` )( ...vals );
-};
-
-
 /**
  * get expression from '{{}}' pattern
+ * We may switch to ${} later.
+ * https://stackoverflow.com/questions/29182244/convert-a-string-to-a-template-string
  * @param {string} str string as '{{ something }}'
  * @returns {string} expression
  */
-export function getExpressionFromTemplate( str ) {
+export function parseStringTemplate( str ) {
     let match = str.match( /^\s*{{\s*([\S\s\r\n]*)\s*}}\s*$/m );
     return match ? match[1] : null;
 }
@@ -50,7 +45,7 @@ export let evalObjectExpression = function( obj, model ) {
         // TODO: we can do it at compile to save performance
         let value = obj[key];
         if ( typeof value === 'string' ) {
-            let template = getExpressionFromTemplate( value );
+            let template = parseStringTemplate( value );
             if ( template ) {
                 obj[key] = evalExpression( template, model );
             }

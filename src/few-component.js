@@ -4,8 +4,6 @@ import _ from 'lodash';
 import FewViewElement from './few-view-element';
 import moduleLoader from './few-module-loader';
 import {
-    getExpressionFromTemplate,
-    evalExpression,
     parseView2,
     setComponent,
     cloneDeepJsonObject,

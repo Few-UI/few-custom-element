@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import FewBridge from './few-bridge';
-import { getExpressionFromTemplate, evalExpression } from './few-utils';
+import { parseStringTemplate, evalExpression } from './few-utils';
 
 export default class FewViewElement {
     /**
@@ -23,7 +23,7 @@ export default class FewViewElement {
                 let name = elem.attributes[i].name;
                 let value = elem.attributes[i].value;
                 // TODO: we can do it better later
-                let expr = getExpressionFromTemplate( value );
+                let expr = parseStringTemplate( value );
                 if( expr ) {
                     // if name is event like onclick
                     // TODO: make it as expression later
@@ -39,7 +39,7 @@ export default class FewViewElement {
             let attr = 'textContent';
             let value = elem[attr];
             // TODO: we can do it better later
-            let expr = getExpressionFromTemplate( value );
+            let expr = parseStringTemplate( value );
             if( expr ) {
                 node.addProperty( attr, expr );
                 node.hasExpr = true;

@@ -6,6 +6,7 @@
     "babel-eslint": "^8.2.6",
     "eslint": "^4.19.1",
     "jasmine": "^3.4.0",
+    "js-yaml": "^3.13.1",
     "karma": "^4.2.0",
     "karma-chrome-launcher": "^3.0.0",
     "karma-cli": "^2.0.0",
@@ -21,7 +22,7 @@
     "rollup-plugin-node-resolve": "^5.1.0",
     "rollup-plugin-postcss": "^2.0.3",
     "rollup-plugin-terser": "^5.0.0",
-    "serve": "^11.0.2"
+    "serve": "^11.2.0"
   },
   "scripts": {
     "build": "rollup -c",
@@ -29,8 +30,5 @@
     "site": "serve public",
     "start": "npm-run-all --parallel site watch",
     "test": "karma start"
-  },
-  "dependencies": {
-    "yaml": "^1.6.0"
   }
 }
