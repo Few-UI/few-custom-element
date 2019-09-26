@@ -40,6 +40,23 @@ export class TestUtils {
       return previous + ` ${current[0]}="${current[1]}"`;
     }, '' );
   }
+   /**
+ * Create tick to test async
+ * @param {number} count tick count
+ * @returns {Promise} promise
+ */
+static printTick( count ) {
+    let promises = [];
+    for ( let i = 0; i < count; i++ ) {
+        promises.push( new Promise( ( resolve, reject ) => {
+            setTimeout( () => {
+                lifecycleHook.push( `tick ${i + 1}` );
+                resolve();
+            } );
+        } ) );
+    }
+    return Promise.all( promises );
+}
 
   /**
    * Returns a promise which resolves as soon as

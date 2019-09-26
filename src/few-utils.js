@@ -1,12 +1,11 @@
 /* eslint-env es6 */
 
-
 /**
  * Parse view string as DOM with interpretion
  * @param {string} str HTML String snippet as input
  * @returns {Element} DOM Element
  */
-export function parseView2( str ) {
+export function parseViewToDiv( str ) {
     let newDom = document.createElement( 'div' );
     newDom.innerHTML = str.trim();
     return newDom;
@@ -14,6 +13,7 @@ export function parseView2( str ) {
 
 /**
  * Parse view string as DOM without interpret it
+ * TODO no for now and needs to be enahanced
  * @param {string} str view template as string
  * @returns {Element} DOM Element
  */

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import FewViewElement from './few-view-element';
 import moduleLoader from './few-module-loader';
 import {
-    parseView2,
+    parseViewToDiv,
     setComponent,
     evalExpression,
     cloneDeepJsonObject,
@@ -75,7 +75,7 @@ export default class FewComponent {
     async createView( view ) {
         await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-        this._view = FewViewElement.createView( parseView2( view.viewHtml ), this );
+        this._view = FewViewElement.createView( parseViewToDiv( view.viewHtml ), this );
         let elem = this._view.getDomElement();
         setComponent( elem, this );
         this._view.render( this._vm.model );
