@@ -25,7 +25,7 @@ model:
       import: sample/sample-utils
       name: log
       input:
-        user_name: '{{few.getFormInput(arg.element).user_name}}'
+        user_name: '{{few.getFormInput(scope.element).user_name}}'
       output:
         data.testMsg: ''
 
@@ -33,7 +33,7 @@ model:
       import: sample/sample-utils
       name: testProcAsync
       input:
-        user_name: '{{few.getFormInput(arg.element).user_name}}'
+        user_name: '{{few.getFormInput(scope.element).user_name}}'
       output:
         data.testMsg: ''
 
@@ -42,7 +42,7 @@ model:
       name: testSubmit
       input:
         msg: submit
-        element: '{{arg.element}}'
+        element: '{{scope.element}}'
         data: '{{data.testMsg}}'
 
     totalUpdate:
@@ -55,5 +55,5 @@ option:
   defaultActionPaths:
     - actions
   defaultScopePath:
-    arg
+    scope
 

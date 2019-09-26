@@ -34,7 +34,7 @@ model:
       import: sample/sample-utils
       name: log
       input:
-        message: '{{arg}}'
+        message: '{{scope}}'
       output:
         data.testMsg: ''
 
@@ -43,5 +43,5 @@ option:
   defaultActionPaths:
     - actions
   defaultScopePath:
-    arg
+    scope
 
