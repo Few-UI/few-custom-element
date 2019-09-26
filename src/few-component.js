@@ -17,7 +17,7 @@ export default class FewComponent {
          */
         this._parent = parent;
 
-        this._vm = viewModelInput.viewModel;
+        this._vm = viewModelInput.model;
 
         /**
          * module loader
@@ -70,7 +70,7 @@ export default class FewComponent {
 
     /**
      * Update value and trigger view update
-     * @param {string} path value path on viewModel
+     * @param {string} path value path on model
      * @param {string} value value itself
      */
     updateValue( path, value ) {

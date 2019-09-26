@@ -18,7 +18,7 @@ view:
     - sample/sample-button
 
 # view model
-viewModel:
+model:
   data:
     testMsg: Hello World!
 

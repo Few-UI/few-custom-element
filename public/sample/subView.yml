@@ -13,7 +13,7 @@ view:
     - sample/sample-button
 
 # view model
-viewModel:
+model:
   # model
   data:
     subCounter: 21
@@ -28,6 +28,7 @@ viewModel:
         user_name: '{{few.getFormInput(arg.element).user_name}}'
       output:
         data.testMsg: ''
+
     updateInput:
       import: sample/sample-utils
       name: testProcAsync
@@ -35,6 +36,7 @@ viewModel:
         user_name: '{{few.getFormInput(arg.element).user_name}}'
       output:
         data.testMsg: ''
+
     submitInfo:
       import: sample/sample-utils
       name: testSubmit
@@ -42,6 +44,7 @@ viewModel:
         msg: submit
         element: '{{arg.element}}'
         data: '{{data.testMsg}}'
+
     totalUpdate:
       - setValue
       - submitInfo
