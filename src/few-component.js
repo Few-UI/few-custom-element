@@ -61,14 +61,6 @@ export default class FewComponent {
     }
 
     /**
-     * Return view element
-     * @returns {Element} top DOM Node
-     */
-    getViewElement() {
-        return this._view.reference;
-    }
-
-    /**
      * Update value and trigger view update
      * @param {string} path value path on model
      * @param {string} value value itself
@@ -144,11 +136,9 @@ export default class FewComponent {
         let actionDef = this._getActionDefinition( methodName );
 
         if ( _.isArray( actionDef ) ) {
-            return actionDef.reduce( ( scopePromise, name ) => {
-                return scopePromise.then( ( scope ) => {
-                    return this.update( name, scope );
-                } );
-            }, Promise.resolve( scope ) );
+            return actionDef.reduce( async( scope, name ) => {
+                return this.update( name, await scope );
+            }, scope );
         }
         return this._executeAction( actionDef, scope );
     }
