@@ -1,5 +1,6 @@
 /* eslint-env es6 */
 
+import _ from 'lodash';
 import YAML from 'yaml';
 import FewComponent from './few-component';
 import { getComponent, httpGet } from './few-utils';
@@ -10,15 +11,25 @@ export class FewView extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return [ 'view' ];
+        return [ 'view', 'scope' ];
     }
 
     get view() {
         return this.getAttribute( 'view' );
     }
 
-    get onupdate() {
-        return this.getAttribute( 'onupdate' );
+    get scope() {
+        return this.getAttribute( 'scope' );
+    }
+
+    set scope( value ) {
+        // this.setAttribute( 'scope', value );
+
+        if( this._vm && !_.isEqual( this._scope, value ) ) {
+            this._vm.setScope( this._scope );
+            this._vm.updateView();
+        }
+        this._scope = value;
     }
 
     constructor() {
@@ -28,6 +39,11 @@ export class FewView extends HTMLElement {
          * view model
          */
         this._vm = null;
+
+        /**
+         * temp scope
+         */
+        this._scope = null;
     }
 
     async attributeChangedCallback( name, oldValue, newValue ) {
@@ -37,6 +53,7 @@ export class FewView extends HTMLElement {
             let componentDef = YAML.parse( await httpGet( `${newValue}.yml` ) );
 
             this._vm = new FewComponent( getComponent( this ), componentDef );
+            this._vm.setScope( this._scope );
             // console.log( `view generated for ${newValue}`);
 
             this.appendChild( await this._vm.createView( componentDef.view ) );

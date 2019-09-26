@@ -92,13 +92,17 @@ export default class FewComponent {
         return methodDef;
     }
 
+    setScope( scope ) {
+        this._vm.model[this._option.defaultScopePath] = scope;
+    }
+
     async _executeAction( actionDef, scope ) {
         let dep =  actionDef.import ? await this._option.moduleLoader.loadModule( actionDef.import ) : window;
 
         // backup and apply scope
         // For now only support on level scope
         let originArg = this._vm.model[this._option.defaultScopePath];
-        this._vm.model[this._option.defaultScopePath] = scope;
+        this.setScope( scope );
 
 
         let vals = actionDef.input ? Object.values( evalObjectExpression( cloneDeepJsonObject( actionDef.input ), this._vm.model ) ) : [];
@@ -108,7 +112,7 @@ export default class FewComponent {
 
         // restore origin namespace
         if ( originArg ) {
-            this._vm.model[this._option.defaultScopePath] = originArg;
+            this.setScope( originArg );
         }
 
         // consider thenable later

@@ -8,7 +8,7 @@ view:
     <div>
       <h2>view in view</h2>
       <!-- need to find a way to drive sub-view -->
-      <few-view view="sample/sub-component" id="dialog"></few-view>
+      <few-view view="sample/sub-component" id="dialog" scope="{{dialogContext}}"></few-view>
     </div>
     <div>
       <h2>Output</h2>
@@ -20,6 +20,8 @@ view:
 # model
 model:
   testMsg: Hello World!
+  dialogContext:
+    valueFromParent: Text from parent!
 
 action:
   testAction:
@@ -29,13 +31,26 @@ action:
       message: '{{testMsg}}'
     output:
       testMsg: ''
-  dialog:
+
+  setValue:
     import: sample/sample-utils
     name: log
     input:
       message: '{{scope}}'
     output:
       testMsg: ''
+
+  updateDialogContext:
+    import: sample/sample-utils
+    name: log
+    input:
+      message: '{{dialogContext.valueFromParent + "+" + scope}}'
+    output:
+      dialogContext.valueFromParent: ''
+
+  dialog:
+    - setValue
+    - updateDialogContext
 
 #option
 option:
