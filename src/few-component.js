@@ -41,7 +41,7 @@ export default class FewComponent {
          * method update view
          */
         this.updateView = _.debounce( () => {
-            this._view.render( this._vm );
+            this._view.render( this._vm.model );
         }, 100 );
     }
 
@@ -56,7 +56,7 @@ export default class FewComponent {
         this._view = FewViewElement.createView( parseView2( view.viewHtml ) );
         let elem = this._view.getDomElement();
         setViewModel( elem, this );
-        this._view.render( this._vm );
+        this._view.render( this._vm.model );
         return elem;
     }
 
@@ -74,7 +74,7 @@ export default class FewComponent {
      * @param {string} value value itself
      */
     updateValue( path, value ) {
-        _.set( this._vm, path, value );
+        _.set( this._vm.model, path, value );
         this.updateView();
     }
 
@@ -93,11 +93,11 @@ export default class FewComponent {
         return methodDef;
     }
 
-    _getVmPath( path ) {
+    _getModelPath( path ) {
         if ( this._option.defaultModelPath ) {
             let idx = path.indexOf( '.' );
             let key = idx === -1 ? path : path.substr( 0, idx );
-            return this._vm[key] ? path : `${this._option.defaultModelPath}.${path}`;
+            return this._vm.model[key] ? path : `${this._option.defaultModelPath}.${path}`;
         }
         return path;
     }
@@ -107,14 +107,14 @@ export default class FewComponent {
 
         // backup and apply scope
         // For now only support on level scope
-        let originArg = this._vm[this._option.defaultScopePath];
-        this._vm[this._option.defaultScopePath] = scope;
+        let originArg = this._vm.model[this._option.defaultScopePath];
+        this._vm.model[this._option.defaultScopePath] = scope;
 
 
         let vals = actionDef.input ? Object.values( actionDef.input ) : [];
         vals = vals.map( ( o ) => {
           let template = getExpressionFromTemplate( o );
-          return template ? evalExpression( template, this._vm ) : o;
+          return template ? evalExpression( template, this._vm.model ) : o;
         } );
 
         let func = _.get( dep, actionDef.name );
@@ -122,12 +122,12 @@ export default class FewComponent {
 
         // restore origin namespace
         if ( originArg ) {
-            this._vm[this._option.defaultScopePath] = originArg;
+            this._vm.model[this._option.defaultScopePath] = originArg;
         }
 
         // consider thenable later
         _.forEach( actionDef.output, ( valPath, vmPath ) => {
-            this.updateValue( this._getVmPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
+            this.updateValue( this._getModelPath( vmPath ), valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
         } );
 
         // scope as next input

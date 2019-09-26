@@ -6,7 +6,7 @@ view:
       <form onsubmit="{{action.totalUpdate}}">
         <label for="name">Name:</label>
         <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
-        <button type="submit">{{model.testMsg}}</button>
+        <button type="submit">{{testMsg}}</button>
       </form>
     </div>
   import:
@@ -25,7 +25,7 @@ action:
     input:
       user_name: '{{few.getFormInput(scope.element).user_name}}'
     output:
-      model.testMsg: ''
+      testMsg: ''
 
   updateInput:
     import: sample/sample-utils
@@ -33,7 +33,7 @@ action:
     input:
       user_name: '{{few.getFormInput(scope.element).user_name}}'
     output:
-      model.testMsg: ''
+      testMsg: ''
 
   submitInfo:
     import: sample/sample-utils
@@ -41,7 +41,7 @@ action:
     input:
       msg: submit
       element: '{{scope.element}}'
-      model: '{{model.testMsg}}'
+      scope: '{{testMsg}}'
 
   totalUpdate:
     - setValue
@@ -50,7 +50,7 @@ action:
 
 #option
 option:
-  defaultModelPath: model
+  # defaultModelPath: model
   defaultScopePath: scope
   defaultActionPaths:
     - action
