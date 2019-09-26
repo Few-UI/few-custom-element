@@ -3,7 +3,14 @@ import './few-global';
 import _ from 'lodash';
 import FewViewElement from './few-view-element';
 import moduleLoader from './few-module-loader';
-import { getExpressionFromTemplate, evalExpression, parseView2, setComponent } from './few-utils';
+import {
+    getExpressionFromTemplate,
+    evalExpression,
+    parseView2,
+    setComponent,
+    cloneDeepJsonObject,
+    evalObjectExpression
+} from './few-utils';
 
 export default class FewComponent {
     /**
@@ -103,11 +110,7 @@ export default class FewComponent {
         this._vm.model[this._option.defaultScopePath] = scope;
 
 
-        let vals = actionDef.input ? Object.values( actionDef.input ) : [];
-        vals = vals.map( ( o ) => {
-          let template = getExpressionFromTemplate( o );
-          return template ? evalExpression( template, this._vm.model ) : o;
-        } );
+        let vals = actionDef.input ? Object.values( evalObjectExpression( cloneDeepJsonObject( actionDef.input ), this._vm.model ) ) : [];
 
         let func = _.get( dep, actionDef.name );
         let res = await func.apply( dep, vals );
@@ -123,7 +126,8 @@ export default class FewComponent {
         } );
 
         // scope as next input
-        return scope;
+        // return Object.assign( scope, res );
+        return res ? res : scope;
     }
 
     /**

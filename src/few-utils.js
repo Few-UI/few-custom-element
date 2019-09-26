@@ -1,5 +1,4 @@
 /* eslint-env es6 */
-let exports;
 
 
 export let evalTemplate = function( input, params ) {
@@ -46,6 +45,22 @@ export let evalExpression = function( input, params ) {
   return new Function( ...names, `return ${input};` )( ...vals );
 };
 
+export let evalObjectExpression = function( obj, model ) {
+    for( let key in obj ) {
+        // TODO: we can do it at compile to save performance
+        let value = obj[key];
+        if ( typeof value === 'string' ) {
+            let template = getExpressionFromTemplate( value );
+            if ( template ) {
+                obj[key] = evalExpression( template, model );
+            }
+        } else {
+            evalObjectExpression( obj[key], model );
+        }
+    }
+    return obj;
+};
+
 /**
  * Set view model context on specific element
  * @param {Element} element DOM Element
@@ -69,6 +84,17 @@ function getScopeElement( element ) {
 }
 
 /**
+ * fastest way to copy a pure JSON object, use on your own risk
+ * https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+ *
+ * @param {Object} obj Current DOM Element
+ * @returns {Object} new cloned object
+ */
+export function cloneDeepJsonObject( obj ) {
+    return JSON.parse( JSON.stringify( obj ) );
+}
+
+/**
  * Get closest few view element
  *
  * @param {Element} element Current DOM Element
@@ -88,7 +114,7 @@ export function getViewElement( element ) {
  * @returns {Object} view model object context
  */
 export function getComponent( element ) {
-    let viewElement = exports.getViewElement( element );
+    let viewElement = getViewElement( element );
     if( viewElement ) {
         return viewElement._vm;
     }
@@ -136,16 +162,3 @@ export function getFormInput( elem ) {
     }
     return res;
 }
-
-export default exports = {
-    getExpressionFromTemplate,
-    evalTemplate,
-    evalExpression,
-    getViewElement,
-    getComponent,
-    parseView,
-    parseView2,
-    httpGet,
-    getFormInput,
-    setComponent
-};
