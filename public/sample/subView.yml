@@ -3,57 +3,55 @@ view:
   viewHtml:
     <div>
       <h3>Test Form</h3>
-      <form onsubmit="{{actions.totalUpdate}}">
+      <form onsubmit="{{action.totalUpdate}}">
         <label for="name">Name:</label>
         <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
-        <button type="submit">{{data.testMsg}}</button>
+        <button type="submit">{{model.testMsg}}</button>
       </form>
     </div>
   import:
     - sample/sample-button
 
-# view model
+# model
 model:
-  # model
-  data:
-    subCounter: 21
-    testMsg: Click Me!
+  subCounter: 21
+  testMsg: Click Me!
 
-  # action?
-  actions:
-    setValue:
-      import: sample/sample-utils
-      name: log
-      input:
-        user_name: '{{few.getFormInput(scope.element).user_name}}'
-      output:
-        data.testMsg: ''
+# action
+action:
+  setValue:
+    import: sample/sample-utils
+    name: log
+    input:
+      user_name: '{{few.getFormInput(scope.element).user_name}}'
+    output:
+      model.testMsg: ''
 
-    updateInput:
-      import: sample/sample-utils
-      name: testProcAsync
-      input:
-        user_name: '{{few.getFormInput(scope.element).user_name}}'
-      output:
-        data.testMsg: ''
+  updateInput:
+    import: sample/sample-utils
+    name: testProcAsync
+    input:
+      user_name: '{{few.getFormInput(scope.element).user_name}}'
+    output:
+      model.testMsg: ''
 
-    submitInfo:
-      import: sample/sample-utils
-      name: testSubmit
-      input:
-        msg: submit
-        element: '{{scope.element}}'
-        data: '{{data.testMsg}}'
+  submitInfo:
+    import: sample/sample-utils
+    name: testSubmit
+    input:
+      msg: submit
+      element: '{{scope.element}}'
+      model: '{{model.testMsg}}'
 
-    totalUpdate:
-      - setValue
-      - submitInfo
-      - updateInput
+  totalUpdate:
+    - setValue
+    - submitInfo
+    - updateInput
 
 #option
 option:
+  defaultModelPath: model
+  defaultScopePath: scope
   defaultActionPaths:
-    - actions
-  defaultScopePath:
-    scope
+    - action
 

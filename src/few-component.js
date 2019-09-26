@@ -17,7 +17,7 @@ export default class FewComponent {
          */
         this._parent = parent;
 
-        this._vm = componentDef.model;
+        this._vm = componentDef;
 
         /**
          * module loader

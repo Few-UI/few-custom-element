@@ -1,9 +1,9 @@
 # view
 view:
   viewHtml:
-    <sample-button onclick="{{testAction}}">{{data.testMsg}}</sample-button>
+    <sample-button onclick="{{testAction}}">{{model.testMsg}}</sample-button>
     <few-bridge>
-      <sample-button onclick="{{actions.testAction}}">{{data.testMsg}}</sample-button>
+      <sample-button onclick="{{action.testAction}}">{{model.testMsg}}</sample-button>
     </few-bridge>
     <div>
       <h2>view in view</h2>
@@ -12,36 +12,35 @@ view:
     </div>
     <div>
       <h2>Output</h2>
-      <div>{{data.testMsg}}</div>
+      <div>{{model.testMsg}}</div>
     </div>
   import:
     - sample/sample-button
 
 # model
 model:
-  data:
-    testMsg: Hello World!
+  testMsg: Hello World!
 
-  actions:
-    testAction:
-      import: sample/sample-utils
-      name: testAccu
-      input:
-        message: '{{data.testMsg}}'
-      output:
-        data.testMsg: ''
-    dialog:
-      import: sample/sample-utils
-      name: log
-      input:
-        message: '{{scope}}'
-      output:
-        data.testMsg: ''
+action:
+  testAction:
+    import: sample/sample-utils
+    name: testAccu
+    input:
+      message: '{{model.testMsg}}'
+    output:
+      model.testMsg: ''
+  dialog:
+    import: sample/sample-utils
+    name: log
+    input:
+      message: '{{scope}}'
+    output:
+      model.testMsg: ''
 
 #option
 option:
+  defaultModelPath: model
+  defaultScopePath: scope
   defaultActionPaths:
-    - actions
-  defaultScopePath:
-    scope
+    - action
 
