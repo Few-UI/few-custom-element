@@ -49,6 +49,9 @@ module.exports = function( config ) {
         },
         plugins: [
             // require( 'rollup-plugin-buble' )(),
+            require( 'rollup-plugin-istanbul' )( { // plugin to add code coverage
+                exclude: [ 'test/*.js' ]
+            } ),
             require( 'rollup-plugin-node-resolve' )(), // plugin to use reference from node_modules
             require( 'rollup-plugin-commonjs' )(), // plugin to support commonjs module to browser usage
             require( 'rollup-plugin-postcss' )( {
@@ -77,6 +80,11 @@ module.exports = function( config ) {
         // browsers: [ 'ChromeHeadlessNoSandbox', "Firefox", "Edge" ],
         karmaConfig.browsers.push( 'ChromeHeadlessNoSandbox' );
         karmaConfig.reporters.push( 'spec' );
+        karmaConfig.reporters.push( 'coverage' );
+        karmaConfig.coverageReporter = {
+            type: 'lcov',
+            subdir: '.' // remove browser name from coverage path
+        };
   }
 
   config.set( karmaConfig );
