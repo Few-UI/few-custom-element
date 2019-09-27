@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/jesse23/few.svg?branch=master)](https://travis-ci.org/jesse23/few) [![Coverage Status](https://coveralls.io/repos/github/jesse23/few/badge.svg?branch=master)](https://coveralls.io/github/jesse23/few?branch=master) ![License](https://img.shields.io/github/license/jesse23/few?style=flat-square)
+[![Build Status](https://img.shields.io/travis/jesse23/few?style=flat-square)](https://travis-ci.org/jesse23/few) [![Coverage Status](https://img.shields.io/coveralls/github/jesse23/few?style=flat-square)](https://coveralls.io/github/jesse23/few?branch=master) [![License](https://img.shields.io/github/license/jesse23/few?style=flat-square)](https://github.com/jesse23/few/blob/master/LICENSE)
+
+
 
 # FEW
 Practice to create a declarative UI
