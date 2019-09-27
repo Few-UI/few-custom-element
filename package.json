@@ -30,7 +30,7 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",
-    "site": "serve public",
+    "site": "serve docs",
     "start": "npm-run-all --parallel site watch",
     "test": "karma start",
     "coveralls": "cat ./coverage/lcov.info | coveralls"

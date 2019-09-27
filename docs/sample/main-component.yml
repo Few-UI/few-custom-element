@@ -1,9 +1,9 @@
 # view
 view:
   viewHtml:
-    <sample-button onclick="${testAction}}">${testMsg}</sample-button>
+    <sample-button onclick="${testAction}">${testMsg}</sample-button>
     <few-bridge>
-      <sample-button onclick="${action.testAction}}">${testMsg}</sample-button>
+      <sample-button onclick="${action.testAction}">${testMsg}</sample-button>
     </few-bridge>
     <div>
       <h2>view in view</h2>
