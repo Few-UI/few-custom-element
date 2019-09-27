@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jesse23/few.svg?branch=master)](https://travis-ci.org/jesse23/few)
+[![Build Status](https://travis-ci.org/jesse23/few.svg?branch=master)](https://travis-ci.org/jesse23/few) [![Coverage Status](https://coveralls.io/repos/github/jesse23/few/badge.svg?branch=master)](https://coveralls.io/github/jesse23/few?branch=master)
 
 # FEW
 Practice to create a declarative UI
