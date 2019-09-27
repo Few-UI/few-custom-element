@@ -70,7 +70,7 @@ describe( 'Test evalExpression', () => {
 
     it( 'Verify evalExpression can error out if syntax error', () => {
         expect( () => evalExpression( 'selected.prop[prop_n', {} ) )
-          .toThrowError( 'evalExpression(\'selected.prop[prop_n\') => Unexpected token \';\'' );
+          .toThrowError( /evalExpression\('selected.prop\[prop_n'\) => Unexpected token/ );
     } );
 
     it( 'Verify evalExpression can error out if runtime error', () => {
