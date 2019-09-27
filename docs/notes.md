@@ -57,3 +57,4 @@ No, we should treat sub component as black box. It doesn't has flexibility like 
 - [Rules for Custom Element](https://stackoverflow.com/questions/55215397/js-custom-element-get-inner-html)
 - [Web Component Example fro Google - Tabs](https://developers.google.com/web/fundamentals/web-components/examples/howto-tabs)
 - [Unidirectional User Interface Architectures](https://staltz.com/unidirectional-user-interface-architectures.html)
+- [ShieldsIO(for badge)](https://shields.io/category/build)
