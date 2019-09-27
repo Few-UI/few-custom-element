@@ -1,6 +1,18 @@
 /* eslint-env es6 */
 
 /**
+ * Parse view string as DOM without interpret it
+ * TODO no for now and needs to be enahanced
+ * @param {string} str view template as string
+ * @returns {Element} DOM Element
+ */
+export function parseView( str ) {
+    let parser = new DOMParser();
+    return parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild;
+}
+
+
+/**
  * Parse view string as DOM with interpretion
  * @param {string} str HTML String snippet as input
  * @returns {Element} DOM Element
@@ -12,20 +24,22 @@ export function parseViewToDiv( str ) {
 }
 
 /**
- * Parse view string as DOM without interpret it
- * TODO no for now and needs to be enahanced
- * @param {string} str view template as string
- * @returns {Element} DOM Element
+ * evaluate string as Javascript expression
+ * @param {string} input string as expression
+ * @param {Object} params parameters as name value pair
+ * @return {*} evaluation result
+ *
+ * TODO: match name with function parameters
+ * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
  */
-export function parseView( str ) {
-    let parser = new DOMParser();
-    return parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild;
-}
-
 export let evalExpression = function( input, params ) {
   const names = params ? Object.keys( params ) : [];
   const vals = params ? Object.values( params ) : [];
-  return new Function( ...names, `return ${input};` )( ...vals );
+  try {
+      return new Function( ...names, `return ${input};` )( ...vals );
+  } catch( e ) {
+      throw new Error( `evalExpression('${input}') => ${e.message}` );
+  }
 };
 
 export let evalObjectExpression = function( obj, comp ) {
@@ -55,6 +69,17 @@ export function setComponent( element, viewModel ) {
 }
 
 /**
+ * fastest way to copy a pure JSON object, use on your own risk
+ * https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+ *
+ * @param {Object} obj Current DOM Element
+ * @returns {Object} new cloned object
+ */
+export function cloneDeepJsonObject( obj ) {
+    return obj ? JSON.parse( JSON.stringify( obj ) ) : obj;
+}
+
+/**
  * Get closest parent element which has view model context
  * NOTE: IE may need polyfill below -
  * https://github.com/jonathantneal/closest
@@ -64,17 +89,6 @@ export function setComponent( element, viewModel ) {
  */
 function getScopeElement( element ) {
     return element.closest( '.few-scope' );
-}
-
-/**
- * fastest way to copy a pure JSON object, use on your own risk
- * https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
- *
- * @param {Object} obj Current DOM Element
- * @returns {Object} new cloned object
- */
-export function cloneDeepJsonObject( obj ) {
-    return JSON.parse( JSON.stringify( obj ) );
 }
 
 /**
