@@ -80,6 +80,24 @@ export function cloneDeepJsonObject( obj ) {
 }
 
 /**
+ * simple http get
+ * @param {string} theUrl url as string
+ * @returns {Promise} promise
+ */
+export function httpGet( theUrl ) {
+    return new Promise( ( resolve, reject ) => {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if ( xmlHttp.readyState === 4 && xmlHttp.status === 200 ) {
+                resolve( xmlHttp.responseText );
+            }
+        };
+        xmlHttp.open( 'GET', theUrl, true ); // true for asynchronous
+        xmlHttp.send( null );
+    } );
+}
+
+/**
  * Get closest parent element which has view model context
  * NOTE: IE may need polyfill below -
  * https://github.com/jonathantneal/closest
@@ -117,23 +135,6 @@ export function getComponent( element ) {
     }
 }
 
-/**
- * simple http get
- * @param {string} theUrl url as string
- * @returns {Promise} promise
- */
-export function httpGet( theUrl ) {
-    return new Promise( ( resolve, reject ) => {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() {
-            if ( xmlHttp.readyState === 4 && xmlHttp.status === 200 ) {
-                resolve( xmlHttp.responseText );
-            }
-        };
-        xmlHttp.open( 'GET', theUrl, true ); // true for asynchronous
-        xmlHttp.send( null );
-    } );
-}
 
 /**
  * get form input from Form HTML Element

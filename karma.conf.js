@@ -42,13 +42,13 @@ module.exports = function( config ) {
          * This is just a normal Rollup config object,
          * except that `input` is handled for you.
          */
-        // plugins: [ require( 'rollup-plugin-buble' )() ],
         output: {
             format: 'iife', // Helps prevent naming collisions.
             name: 'declTest', // Required for 'iife' format.
             sourcemap: 'inline' // Sensible for testing.
         },
         plugins: [
+            // require( 'rollup-plugin-buble' )(),
             require( 'rollup-plugin-node-resolve' )(), // plugin to use reference from node_modules
             require( 'rollup-plugin-commonjs' )(), // plugin to support commonjs module to browser usage
             require( 'rollup-plugin-postcss' )( {

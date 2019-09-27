@@ -4,7 +4,8 @@ import {
     parseView,
     parseViewToDiv,
     evalExpression,
-    cloneDeepJsonObject
+    cloneDeepJsonObject,
+    httpGet
 } from '../src/few-utils';
 
 describe( 'Test parseView', () => {
@@ -114,5 +115,36 @@ describe( 'Test cloneDeepJsonObject', () => {
 
     it( 'Verify cloneDeepJsonObject with array', () => {
         expect( cloneDeepJsonObject( [ 2, 3 ] ) ).toEqual( [ 2, 3 ] );
+    } );
+} );
+
+describe( 'Test httpGet', () => {
+    let actualType, actualUrl, mockXHR;
+    beforeEach( function() {
+        actualType = null;
+        actualUrl = null;
+
+        mockXHR = {
+            open: ( type, url, isAsync ) => {
+                actualType = type;
+                actualUrl = url;
+            },
+            send: () => null,
+            readyState: 4,
+            status: 200,
+            responseText: 'testResponse'
+        };
+        spyOn( window, 'XMLHttpRequest' ).and.returnValue( mockXHR );
+    } );
+
+
+    it( 'Verify httpGet works fine for 200', async() => {
+        let promise = httpGet( 'test' );
+        mockXHR.onreadystatechange();
+        let actualResponse = await promise;
+
+        expect( actualType ).toEqual( 'GET' );
+        expect( actualUrl ).toEqual( 'test' );
+        expect( actualResponse ).toEqual( 'testResponse' );
     } );
 } );
