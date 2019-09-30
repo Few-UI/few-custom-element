@@ -52,34 +52,6 @@ define(['require'], function (require) { 'use strict';
     }
   };
 
-  let evalObjectTemplate = function( input, comp, level = 0 ) {
-      // Make the method to be immutable at top level
-      let obj = level > 0 ? input : cloneDeepJsonObject( input );
-
-      for( let key in obj ) {
-          // TODO: we can do it at compile to save performance
-          let value = obj[key];
-          if ( typeof value === 'string' ) {
-              let template = comp.parseStringTemplate( value );
-              if ( template ) {
-                  obj[key] = evalExpression( template, comp._vm.model );
-              }
-          } else {
-              evalObjectTemplate( obj[key], comp, level + 1 );
-          }
-      }
-      return obj;
-  };
-
-  /**
-   * Set view model context on specific element
-   * @param {Element} element DOM Element
-   * @param {Object} viewModel viewModel object as context
-   */
-  function setComponent( element, viewModel ) {
-      element._vm = viewModel;
-      element.classList.add( 'few-scope' );
-  }
 
   /**
    * fastest way to copy a pure JSON object, use on your own risk
@@ -111,45 +83,6 @@ define(['require'], function (require) { 'use strict';
   }
 
   /**
-   * Get closest parent element which has view model context
-   * NOTE: IE may need polyfill below -
-   * https://github.com/jonathantneal/closest
-   *
-   * @param {Element} element Current DOM Element
-   * @returns {Element} Closest parent element which has view model context
-   */
-  function getScopeElement( element ) {
-      return element.closest( '.few-scope' );
-  }
-
-  /**
-   * Get closest few view element
-   *
-   * @param {Element} element Current DOM Element
-   * @returns {Element} Closest parent element which has view model context
-   */
-  function getViewElement( element ) {
-      let scopeElem = getScopeElement( element );
-      if ( scopeElem ) {
-          return scopeElem.parentElement;
-      }
-  }
-
-  /**
-   * Get view model context from closet parent element which has it
-   *
-   * @param {Element} element DOM Element
-   * @returns {Object} view model object context
-   */
-  function getComponent( element ) {
-      let viewElement = getScopeElement( element );
-      if( viewElement ) {
-          return viewElement._vm;
-      }
-  }
-
-
-  /**
    * get form input from Form HTML Element
    * @param {Element} elem Form element
    * @returns {Object} from input as name value pair
@@ -172,6 +105,58 @@ define(['require'], function (require) { 'use strict';
           }
       }
       return res;
+  }
+
+  /**
+   * Get closest parent element which has view model context
+   * NOTE: IE may need polyfill below -
+   * https://github.com/jonathantneal/closest
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {Element} Closest parent element which has view model context
+   */
+  function getScopeElement( element ) {
+      return element.closest( '.few-scope' );
+  }
+
+  /**
+   * Attach component object on specific element
+   * @param {Element} element DOM Element
+   * @param {Object} componentObj componentObject
+   */
+  function setComponent( element, componentObj ) {
+      if ( element && componentObj ) {
+          element._vm = componentObj;
+          element.classList.add( 'few-scope' );
+      } else {
+        throw new Error( `setComponent(${element ?  element.id ? `id:${element.id}` : element.tagName  : 'undefined'}) => componentObj is undefined` );
+      }
+  }
+
+  /**
+   * Get view model context from closet parent element which has it
+   *
+   * @param {Element} element DOM Element
+   * @returns {Object} view model object context
+   */
+  function getComponent( element ) {
+      let scopeElem = getScopeElement( element );
+      if( scopeElem ) {
+          return scopeElem._vm;
+      }
+  }
+
+  /**
+   * Get closest few view element
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {Element} Closest parent element which has view model context
+   */
+  function getViewElement( element ) {
+      let scopeElem = getScopeElement( element );
+      if ( scopeElem ) {
+          return scopeElem.parentElement;
+      }
   }
 
   /* eslint-env es6 */
@@ -21423,6 +21408,8 @@ define(['require'], function (require) { 'use strict';
               this._view.render( this._vm.model );
           }, 100 );
 
+          this.parseStringTemplate = null;
+
           /**
            * Default options
            */
@@ -21454,29 +21441,17 @@ define(['require'], function (require) { 'use strict';
                   return match[templateDef.index];
               }
           };
+
+          this.parseStringTemplate = this._option.templateParser.bind( this );
       }
 
-      /**
-       * set view for current view model
-       * @param {Object} view view input
-       * @returns {Promise} promise with view element
-       */
-      async createView( view ) {
-          await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
-
-          this._view = FewViewElement.createView( parseViewToDiv( view.viewHtml ), this );
-          let elem = this._view.getDomElement();
-          setComponent( elem, this );
-          this._view.render( this._vm.model );
-          return elem;
-      }
 
       /**
        * Update value and trigger view update
        * @param {string} path value path on model
        * @param {string} value value itself
        */
-      updateValue( path, value ) {
+      _updateValue( path, value ) {
           lodash.set( this._vm.model, path, value );
           this.updateView();
           // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
@@ -21487,9 +21462,12 @@ define(['require'], function (require) { 'use strict';
           } );
       }
 
+      /*
       parseStringTemplate( str ) {
           return this._option.templateParser( str );
       }
+      */
+
 
       _getActionDefinition( key ) {
           let methodDef = null;
@@ -21506,8 +21484,27 @@ define(['require'], function (require) { 'use strict';
           return methodDef;
       }
 
-      setScope( scope ) {
+      _setScope( scope ) {
           this._vm.model[this._option.scopePath] = scope;
+      }
+
+      _evalActionInput( input, level = 0 ) {
+          // Make the method to be immutable at top level
+          let obj = level > 0 ? input : cloneDeepJsonObject( input );
+
+          for( let key in obj ) {
+              // TODO: we can do it at compile to save performance
+              let value = obj[key];
+              if ( typeof value === 'string' ) {
+                  let template = this.parseStringTemplate( value );
+                  if ( template ) {
+                      obj[key] = evalExpression( template, this._vm.model );
+                  }
+              } else {
+                  this._evalActionInput( obj[key], level + 1 );
+              }
+          }
+          return obj;
       }
 
       async _executeAction( actionDef, scope ) {
@@ -21516,27 +21513,41 @@ define(['require'], function (require) { 'use strict';
           // backup and apply scope
           // For now only support on level scope
           let originArg = this._vm.model[this._option.scopePath];
-          this.setScope( scope );
+          this._setScope( scope );
 
 
-          let vals = actionDef.input ? Object.values( evalObjectTemplate( actionDef.input, this ) ) : [];
+          let vals = actionDef.input ? Object.values( this._evalActionInput( actionDef.input ) ) : [];
 
           let func = lodash.get( dep, actionDef.name );
           let res = await func.apply( dep, vals );
 
           // restore origin namespace
           if ( originArg ) {
-              this.setScope( originArg );
+              this._setScope( originArg );
           }
 
-          // consider thenable later
           lodash.forEach( actionDef.output, ( valPath, vmPath ) => {
-              this.updateValue( vmPath, valPath && valPath.length > 0 ? lodash.get( res, valPath ) : res );
+              this._updateValue( vmPath, valPath && valPath.length > 0 ? lodash.get( res, valPath ) : res );
           } );
 
           // scope as next input
           // return Object.assign( scope, res );
           return res ? res : scope;
+      }
+
+      /**
+       * set view for current view model
+       * @param {Object} view view input
+       * @returns {Promise} promise with view element
+       */
+      async createView( view ) {
+          await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
+
+          this._view = FewViewElement.createView( parseViewToDiv( view.viewHtml ), this );
+          let elem = this._view.getDomElement();
+          setComponent( elem, this );
+          this._view.render( this._vm.model );
+          return elem;
       }
 
       /**

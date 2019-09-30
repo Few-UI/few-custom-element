@@ -42,34 +42,6 @@ export let evalExpression = function( input, params ) {
   }
 };
 
-export let evalObjectTemplate = function( input, comp, level = 0 ) {
-    // Make the method to be immutable at top level
-    let obj = level > 0 ? input : cloneDeepJsonObject( input );
-
-    for( let key in obj ) {
-        // TODO: we can do it at compile to save performance
-        let value = obj[key];
-        if ( typeof value === 'string' ) {
-            let template = comp.parseStringTemplate( value );
-            if ( template ) {
-                obj[key] = evalExpression( template, comp._vm.model );
-            }
-        } else {
-            evalObjectTemplate( obj[key], comp, level + 1 );
-        }
-    }
-    return obj;
-};
-
-/**
- * Set view model context on specific element
- * @param {Element} element DOM Element
- * @param {Object} viewModel viewModel object as context
- */
-export function setComponent( element, viewModel ) {
-    element._vm = viewModel;
-    element.classList.add( 'few-scope' );
-}
 
 /**
  * fastest way to copy a pure JSON object, use on your own risk
@@ -101,45 +73,6 @@ export function httpGet( theUrl ) {
 }
 
 /**
- * Get closest parent element which has view model context
- * NOTE: IE may need polyfill below -
- * https://github.com/jonathantneal/closest
- *
- * @param {Element} element Current DOM Element
- * @returns {Element} Closest parent element which has view model context
- */
-function getScopeElement( element ) {
-    return element.closest( '.few-scope' );
-}
-
-/**
- * Get closest few view element
- *
- * @param {Element} element Current DOM Element
- * @returns {Element} Closest parent element which has view model context
- */
-export function getViewElement( element ) {
-    let scopeElem = getScopeElement( element );
-    if ( scopeElem ) {
-        return scopeElem.parentElement;
-    }
-}
-
-/**
- * Get view model context from closet parent element which has it
- *
- * @param {Element} element DOM Element
- * @returns {Object} view model object context
- */
-export function getComponent( element ) {
-    let viewElement = getScopeElement( element );
-    if( viewElement ) {
-        return viewElement._vm;
-    }
-}
-
-
-/**
  * get form input from Form HTML Element
  * @param {Element} elem Form element
  * @returns {Object} from input as name value pair
@@ -163,3 +96,57 @@ export function getFormInput( elem ) {
     }
     return res;
 }
+
+/**
+ * Get closest parent element which has view model context
+ * NOTE: IE may need polyfill below -
+ * https://github.com/jonathantneal/closest
+ *
+ * @param {Element} element Current DOM Element
+ * @returns {Element} Closest parent element which has view model context
+ */
+function getScopeElement( element ) {
+    return element.closest( '.few-scope' );
+}
+
+/**
+ * Attach component object on specific element
+ * @param {Element} element DOM Element
+ * @param {Object} componentObj componentObject
+ */
+export function setComponent( element, componentObj ) {
+    if ( element && componentObj ) {
+        element._vm = componentObj;
+        element.classList.add( 'few-scope' );
+    } else {
+      throw new Error( `setComponent(${element ?  element.id ? `id:${element.id}` : element.tagName  : 'undefined'}) => componentObj is undefined` );
+    }
+}
+
+/**
+ * Get view model context from closet parent element which has it
+ *
+ * @param {Element} element DOM Element
+ * @returns {Object} view model object context
+ */
+export function getComponent( element ) {
+    let scopeElem = getScopeElement( element );
+    if( scopeElem ) {
+        return scopeElem._vm;
+    }
+}
+
+/**
+ * Get closest few view element
+ *
+ * @param {Element} element Current DOM Element
+ * @returns {Element} Closest parent element which has view model context
+ */
+export function getViewElement( element ) {
+    let scopeElem = getScopeElement( element );
+    if ( scopeElem ) {
+        return scopeElem.parentElement;
+    }
+}
+
+

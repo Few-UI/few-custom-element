@@ -7,8 +7,7 @@ import {
     parseViewToDiv,
     setComponent,
     evalExpression,
-    cloneDeepJsonObject,
-    evalObjectTemplate
+    cloneDeepJsonObject
 } from './few-utils';
 
 export default class FewComponent {
@@ -47,6 +46,8 @@ export default class FewComponent {
             this._view.render( this._vm.model );
         }, 100 );
 
+        this.parseStringTemplate = null;
+
         /**
          * Default options
          */
@@ -78,29 +79,17 @@ export default class FewComponent {
                 return match[templateDef.index];
             }
         };
+
+        this.parseStringTemplate = this._option.templateParser.bind( this );
     }
 
-    /**
-     * set view for current view model
-     * @param {Object} view view input
-     * @returns {Promise} promise with view element
-     */
-    async createView( view ) {
-        await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
-
-        this._view = FewViewElement.createView( parseViewToDiv( view.viewHtml ), this );
-        let elem = this._view.getDomElement();
-        setComponent( elem, this );
-        this._view.render( this._vm.model );
-        return elem;
-    }
 
     /**
      * Update value and trigger view update
      * @param {string} path value path on model
      * @param {string} value value itself
      */
-    updateValue( path, value ) {
+    _updateValue( path, value ) {
         _.set( this._vm.model, path, value );
         this.updateView();
         // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
@@ -111,9 +100,12 @@ export default class FewComponent {
         } );
     }
 
+    /*
     parseStringTemplate( str ) {
         return this._option.templateParser( str );
     }
+    */
+
 
     _getActionDefinition( key ) {
         let methodDef = null;
@@ -130,8 +122,27 @@ export default class FewComponent {
         return methodDef;
     }
 
-    setScope( scope ) {
+    _setScope( scope ) {
         this._vm.model[this._option.scopePath] = scope;
+    }
+
+    _evalActionInput( input, level = 0 ) {
+        // Make the method to be immutable at top level
+        let obj = level > 0 ? input : cloneDeepJsonObject( input );
+
+        for( let key in obj ) {
+            // TODO: we can do it at compile to save performance
+            let value = obj[key];
+            if ( typeof value === 'string' ) {
+                let template = this.parseStringTemplate( value );
+                if ( template ) {
+                    obj[key] = evalExpression( template, this._vm.model );
+                }
+            } else {
+                this._evalActionInput( obj[key], level + 1 );
+            }
+        }
+        return obj;
     }
 
     async _executeAction( actionDef, scope ) {
@@ -140,27 +151,41 @@ export default class FewComponent {
         // backup and apply scope
         // For now only support on level scope
         let originArg = this._vm.model[this._option.scopePath];
-        this.setScope( scope );
+        this._setScope( scope );
 
 
-        let vals = actionDef.input ? Object.values( evalObjectTemplate( actionDef.input, this ) ) : [];
+        let vals = actionDef.input ? Object.values( this._evalActionInput( actionDef.input ) ) : [];
 
         let func = _.get( dep, actionDef.name );
         let res = await func.apply( dep, vals );
 
         // restore origin namespace
         if ( originArg ) {
-            this.setScope( originArg );
+            this._setScope( originArg );
         }
 
-        // consider thenable later
         _.forEach( actionDef.output, ( valPath, vmPath ) => {
-            this.updateValue( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
+            this._updateValue( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
         } );
 
         // scope as next input
         // return Object.assign( scope, res );
         return res ? res : scope;
+    }
+
+    /**
+     * set view for current view model
+     * @param {Object} view view input
+     * @returns {Promise} promise with view element
+     */
+    async createView( view ) {
+        await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
+
+        this._view = FewViewElement.createView( parseViewToDiv( view.viewHtml ), this );
+        let elem = this._view.getDomElement();
+        setComponent( elem, this );
+        this._view.render( this._vm.model );
+        return elem;
     }
 
     /**
