@@ -43,7 +43,7 @@ action:
   totalUpdate:
     - setValue
     - submitInfo
-    - updateInput
+    # - updateInput
 
 #option
 option:

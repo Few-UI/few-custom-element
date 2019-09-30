@@ -21578,12 +21578,13 @@ define(['require'], function (require) { 'use strict';
       }
 
       async attributeChangedCallback( name, oldValue, newValue ) {
-          // console.log( `${name}: ${oldValue} => ${newValue}` );
+          console.log( `${name}: ${oldValue} => ${newValue}` );
 
           if ( name === 'view' && oldValue !== newValue ) {
               let componentDef = jsYaml$1.load( await httpGet( `${newValue}.yml` ) );
 
               this._vm = new FewComponent( getComponent( this ), componentDef );
+
               this._vm.setScope( this._scope );
               // console.log( `view generated for ${newValue}`);
 

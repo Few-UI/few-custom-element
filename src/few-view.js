@@ -47,12 +47,13 @@ export class FewView extends HTMLElement {
     }
 
     async attributeChangedCallback( name, oldValue, newValue ) {
-        // console.log( `${name}: ${oldValue} => ${newValue}` );
+        console.log( `${name}: ${oldValue} => ${newValue}` );
 
         if ( name === 'view' && oldValue !== newValue ) {
             let componentDef = yaml.load( await httpGet( `${newValue}.yml` ) );
 
             this._vm = new FewComponent( getComponent( this ), componentDef );
+
             this._vm.setScope( this._scope );
             // console.log( `view generated for ${newValue}`);
 
