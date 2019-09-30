@@ -23,6 +23,7 @@ model:
   dialogContext:
     valueFromParent: Text from parent!
 
+# update
 action:
   testAction:
     import: sample/sample-utils

@@ -21574,12 +21574,14 @@ define(['require'], function (require) { 'use strict';
               this._vm.setScope( this._scope );
               // console.log( `view generated for ${newValue}`);
 
-              this.appendChild( await this._vm.createView( componentDef.view ) );
+              let viewElem = await this._vm.createView( componentDef.view );
 
-              this.firstChild.addEventListener( 'fewupdate', ( e ) => {
+              viewElem.addEventListener( 'fewupdate', ( e ) => {
                   // console.log( `${e.detail.id} => ${e.detail.value}` );
                   this._vm.update( e.detail.id, e.detail.value );
               } );
+
+              this.appendChild( viewElem );
           }
       }
   }
