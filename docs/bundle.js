@@ -21338,7 +21338,8 @@ define(['require'], function (require) { 'use strict';
           if( this.hasExpr /*&& !FewBridge.isBridge( this.reference )*/ ) {
               lodash.forEach( this.props, ( value, name ) => {
                   let res = evalExpression( value, vm );
-                  if ( this.values[name] !== res ) {
+                  // TODO: maybe string comparison will be better?
+                  if ( !lodash.isEqual( this.values[name], res ) ) {
                       this.values[name] = res;
                       this.reference[name] = res;
                   }
@@ -21462,13 +21463,15 @@ define(['require'], function (require) { 'use strict';
 
       /**
        * Update value and trigger view update
-       * TODO: This is the core of MVVM system, needs to be redesign later
        * @param {string} path value path on model
        * @param {string} value value itself
        */
       updateValue( path, value ) {
           lodash.set( this._vm.model, path, value );
           this.updateView();
+          // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
+          // to child, the child cannot diffrenciate the value has been changed or not.
+          // For now do a hard update for every child node, which is bad practice
           lodash.forEach( this._children, ( c ) => {
               c.updateView();
           } );
@@ -21495,6 +21498,11 @@ define(['require'], function (require) { 'use strict';
 
       setScope( scope ) {
           this._vm.model[this._option.scopePath] = scope;
+      }
+
+      initScope( scopeExpr ) {
+          // TODO: need to support expr in model later
+          this._vm.model[this._option.scopePath] = evalExpression( this.parseStringTemplate( scopeExpr ), this._parent._vm.model );
       }
 
       async _executeAction( actionDef, scope ) {
@@ -21564,13 +21572,10 @@ define(['require'], function (require) { 'use strict';
       }
 
       set scope( value ) {
-          // this.setAttribute( 'scope', value );
-
-          if( this._vm && !lodash.isEqual( this._scope, value ) ) {
-              this._vm.setScope( this._scope );
-              this._vm.updateView();
-          }
-          this._scope = value;
+          // do nothing
+          // TODO: skip this update or reuse this update in refresh
+          // Better not use it if we don't want to tie up with custom element
+          this._dummy;
       }
 
       constructor() {
@@ -21579,12 +21584,7 @@ define(['require'], function (require) { 'use strict';
           /**
            * view model
            */
-          this._vm = null;
-
-          /**
-           * temp scope
-           */
-          this._scope = null;
+          this._component = null;
       }
 
       async attributeChangedCallback( name, oldValue, newValue ) {
@@ -21593,12 +21593,14 @@ define(['require'], function (require) { 'use strict';
           if ( name === 'view' && oldValue !== newValue ) {
               let componentDef = jsYaml$1.load( await httpGet( `${newValue}.yml` ) );
 
-              this._vm = new FewComponent( getComponent( this ), componentDef );
+              this._component = new FewComponent( getComponent( this ), componentDef );
 
-              this._vm.setScope( this._scope );
+              if ( this.scope ) {
+                  this._component.initScope( this.scope );
+              }
               // console.log( `view generated for ${newValue}`);
 
-              let viewElem = await this._vm.createView( componentDef.view );
+              let viewElem = await this._component.createView( componentDef.view );
 
               this.appendChild( viewElem );
           }

@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import yaml from 'js-yaml';
 import FewComponent from './few-component';
-import { getComponent, httpGet } from './few-utils';
+import { getComponent, httpGet, evalExpression } from './few-utils';
 
 export class FewView extends HTMLElement {
     static get tag() {
@@ -23,13 +23,10 @@ export class FewView extends HTMLElement {
     }
 
     set scope( value ) {
-        // this.setAttribute( 'scope', value );
-
-        if( this._vm && !_.isEqual( this._scope, value ) ) {
-            this._vm.setScope( this._scope );
-            this._vm.updateView();
-        }
-        this._scope = value;
+        // do nothing
+        // TODO: skip this update or reuse this update in refresh
+        // Better not use it if we don't want to tie up with custom element
+        this._dummy;
     }
 
     constructor() {
@@ -38,12 +35,7 @@ export class FewView extends HTMLElement {
         /**
          * view model
          */
-        this._vm = null;
-
-        /**
-         * temp scope
-         */
-        this._scope = null;
+        this._component = null;
     }
 
     async attributeChangedCallback( name, oldValue, newValue ) {
@@ -52,12 +44,14 @@ export class FewView extends HTMLElement {
         if ( name === 'view' && oldValue !== newValue ) {
             let componentDef = yaml.load( await httpGet( `${newValue}.yml` ) );
 
-            this._vm = new FewComponent( getComponent( this ), componentDef );
+            this._component = new FewComponent( getComponent( this ), componentDef );
 
-            this._vm.setScope( this._scope );
+            if ( this.scope ) {
+                this._component.initScope( this.scope );
+            }
             // console.log( `view generated for ${newValue}`);
 
-            let viewElem = await this._vm.createView( componentDef.view );
+            let viewElem = await this._component.createView( componentDef.view );
 
             this.appendChild( viewElem );
         }

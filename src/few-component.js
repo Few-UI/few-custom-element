@@ -90,13 +90,15 @@ export default class FewComponent {
 
     /**
      * Update value and trigger view update
-     * TODO: This is the core of MVVM system, needs to be redesign later
      * @param {string} path value path on model
      * @param {string} value value itself
      */
     updateValue( path, value ) {
         _.set( this._vm.model, path, value );
         this.updateView();
+        // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
+        // to child, the child cannot diffrenciate the value has been changed or not.
+        // For now do a hard update for every child node, which is bad practice
         _.forEach( this._children, ( c ) => {
             c.updateView();
         } );
@@ -123,6 +125,11 @@ export default class FewComponent {
 
     setScope( scope ) {
         this._vm.model[this._option.scopePath] = scope;
+    }
+
+    initScope( scopeExpr ) {
+        // TODO: need to support expr in model later
+        this._vm.model[this._option.scopePath] = evalExpression( this.parseStringTemplate( scopeExpr ), this._parent._vm.model );
     }
 
     async _executeAction( actionDef, scope ) {

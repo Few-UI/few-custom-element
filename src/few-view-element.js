@@ -121,7 +121,8 @@ export default class FewViewElement {
         if( this.hasExpr /*&& !FewBridge.isBridge( this.reference )*/ ) {
             _.forEach( this.props, ( value, name ) => {
                 let res = evalExpression( value, vm );
-                if ( this.values[name] !== res ) {
+                // TODO: maybe string comparison will be better?
+                if ( !_.isEqual( this.values[name], res ) ) {
                     this.values[name] = res;
                     this.reference[name] = res;
                 }
