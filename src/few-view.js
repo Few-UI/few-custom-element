@@ -44,13 +44,9 @@ export class FewView extends HTMLElement {
         if ( name === 'view' && oldValue !== newValue ) {
             let componentDef = yaml.load( await httpGet( `${newValue}.yml` ) );
 
-            this._component = new FewComponent( getComponent( this ), componentDef );
+            this._component = new FewComponent( getComponent( this ), componentDef, this.scope );
 
-            if ( this.scope ) {
-                this._component.initScope( this.scope );
-            }
-            // console.log( `view generated for ${newValue}`);
-
+            // View has too be initialized separately since it is async
             let viewElem = await this._component.createView( componentDef.view );
 
             this.appendChild( viewElem );

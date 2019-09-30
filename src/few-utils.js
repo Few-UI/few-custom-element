@@ -42,7 +42,10 @@ export let evalExpression = function( input, params ) {
   }
 };
 
-export let evalObjectExpression = function( obj, comp ) {
+export let evalObjectTemplate = function( input, comp, level = 0 ) {
+    // Make the method to be immutable at top level
+    let obj = level > 0 ? input : cloneDeepJsonObject( input );
+
     for( let key in obj ) {
         // TODO: we can do it at compile to save performance
         let value = obj[key];
@@ -52,7 +55,7 @@ export let evalObjectExpression = function( obj, comp ) {
                 obj[key] = evalExpression( template, comp._vm.model );
             }
         } else {
-            evalObjectExpression( obj[key], comp );
+            evalObjectTemplate( obj[key], comp, level + 1 );
         }
     }
     return obj;
@@ -129,7 +132,7 @@ export function getViewElement( element ) {
  * @returns {Object} view model object context
  */
 export function getComponent( element ) {
-    let viewElement = getViewElement( element );
+    let viewElement = getScopeElement( element );
     if( viewElement ) {
         return viewElement._vm;
     }

@@ -78,6 +78,10 @@ describe( 'Test evalExpression', () => {
             a: 3
         } ) ).toThrowError( 'evalExpression(\'a.b.c\') => Cannot read property \'c\' of undefined' );
     } );
+
+    it( 'Verify evalExpression can run statement without input', () => {
+        expect( evalExpression( '"3"' ) ).toEqual( '3' );
+    } );
 } );
 
 describe( 'Test cloneDeepJsonObject', () => {

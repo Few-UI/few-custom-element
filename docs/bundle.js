@@ -52,7 +52,10 @@ define(['require'], function (require) { 'use strict';
     }
   };
 
-  let evalObjectExpression = function( obj, comp ) {
+  let evalObjectTemplate = function( input, comp, level = 0 ) {
+      // Make the method to be immutable at top level
+      let obj = level > 0 ? input : cloneDeepJsonObject( input );
+
       for( let key in obj ) {
           // TODO: we can do it at compile to save performance
           let value = obj[key];
@@ -62,7 +65,7 @@ define(['require'], function (require) { 'use strict';
                   obj[key] = evalExpression( template, comp._vm.model );
               }
           } else {
-              evalObjectExpression( obj[key], comp );
+              evalObjectTemplate( obj[key], comp, level + 1 );
           }
       }
       return obj;
@@ -139,7 +142,7 @@ define(['require'], function (require) { 'use strict';
    * @returns {Object} view model object context
    */
   function getComponent( element ) {
-      let viewElement = getViewElement( element );
+      let viewElement = getScopeElement( element );
       if( viewElement ) {
           return viewElement._vm;
       }
@@ -21389,8 +21392,9 @@ define(['require'], function (require) { 'use strict';
        * Constructor for View Model Object
        * @param {FewComponent} parent parent view model
        * @param {Object} componentDef component definition
+       * @param {string} scopeExpr expression to fetch scope in parent component
        */
-      constructor( parent, componentDef ) {
+      constructor( parent, componentDef, scopeExpr ) {
           /**
            * parent view model
            */
@@ -21413,6 +21417,13 @@ define(['require'], function (require) { 'use strict';
           this._vm = componentDef;
 
           /**
+           * method update view
+           */
+          this.updateView = lodash.debounce( () => {
+              this._view.render( this._vm.model );
+          }, 100 );
+
+          /**
            * Default options
            */
           this._option = componentDef.option || {};
@@ -21425,14 +21436,13 @@ define(['require'], function (require) { 'use strict';
               this._option.scopePath = 'scope';
           }
 
+          // Load string template
           this._loadStringTemplate();
 
-          /**
-           * method update view
-           */
-          this.updateView = lodash.debounce( () => {
-              this._view.render( this._vm.model );
-          }, 100 );
+          // Load Scope
+          if ( scopeExpr ) {
+              this._vm.model[this._option.scopePath] = evalExpression( this.parseStringTemplate( scopeExpr ), this._parent._vm.model );
+          }
       }
 
       _loadStringTemplate() {
@@ -21500,11 +21510,6 @@ define(['require'], function (require) { 'use strict';
           this._vm.model[this._option.scopePath] = scope;
       }
 
-      initScope( scopeExpr ) {
-          // TODO: need to support expr in model later
-          this._vm.model[this._option.scopePath] = evalExpression( this.parseStringTemplate( scopeExpr ), this._parent._vm.model );
-      }
-
       async _executeAction( actionDef, scope ) {
           let dep =  actionDef.import ? await this._option.moduleLoader.loadModule( actionDef.import ) : window;
 
@@ -21514,7 +21519,7 @@ define(['require'], function (require) { 'use strict';
           this.setScope( scope );
 
 
-          let vals = actionDef.input ? Object.values( evalObjectExpression( cloneDeepJsonObject( actionDef.input ), this ) ) : [];
+          let vals = actionDef.input ? Object.values( evalObjectTemplate( actionDef.input, this ) ) : [];
 
           let func = lodash.get( dep, actionDef.name );
           let res = await func.apply( dep, vals );
@@ -21593,13 +21598,9 @@ define(['require'], function (require) { 'use strict';
           if ( name === 'view' && oldValue !== newValue ) {
               let componentDef = jsYaml$1.load( await httpGet( `${newValue}.yml` ) );
 
-              this._component = new FewComponent( getComponent( this ), componentDef );
+              this._component = new FewComponent( getComponent( this ), componentDef, this.scope );
 
-              if ( this.scope ) {
-                  this._component.initScope( this.scope );
-              }
-              // console.log( `view generated for ${newValue}`);
-
+              // View has too be initialized separately since it is async
               let viewElem = await this._component.createView( componentDef.view );
 
               this.appendChild( viewElem );

@@ -8,7 +8,7 @@ import {
     setComponent,
     evalExpression,
     cloneDeepJsonObject,
-    evalObjectExpression
+    evalObjectTemplate
 } from './few-utils';
 
 export default class FewComponent {
@@ -16,8 +16,9 @@ export default class FewComponent {
      * Constructor for View Model Object
      * @param {FewComponent} parent parent view model
      * @param {Object} componentDef component definition
+     * @param {string} scopeExpr expression to fetch scope in parent component
      */
-    constructor( parent, componentDef ) {
+    constructor( parent, componentDef, scopeExpr ) {
         /**
          * parent view model
          */
@@ -40,6 +41,13 @@ export default class FewComponent {
         this._vm = componentDef;
 
         /**
+         * method update view
+         */
+        this.updateView = _.debounce( () => {
+            this._view.render( this._vm.model );
+        }, 100 );
+
+        /**
          * Default options
          */
         this._option = componentDef.option || {};
@@ -52,14 +60,13 @@ export default class FewComponent {
             this._option.scopePath = 'scope';
         }
 
+        // Load string template
         this._loadStringTemplate();
 
-        /**
-         * method update view
-         */
-        this.updateView = _.debounce( () => {
-            this._view.render( this._vm.model );
-        }, 100 );
+        // Load Scope
+        if ( scopeExpr ) {
+            this._vm.model[this._option.scopePath] = evalExpression( this.parseStringTemplate( scopeExpr ), this._parent._vm.model );
+        }
     }
 
     _loadStringTemplate() {
@@ -127,11 +134,6 @@ export default class FewComponent {
         this._vm.model[this._option.scopePath] = scope;
     }
 
-    initScope( scopeExpr ) {
-        // TODO: need to support expr in model later
-        this._vm.model[this._option.scopePath] = evalExpression( this.parseStringTemplate( scopeExpr ), this._parent._vm.model );
-    }
-
     async _executeAction( actionDef, scope ) {
         let dep =  actionDef.import ? await this._option.moduleLoader.loadModule( actionDef.import ) : window;
 
@@ -141,7 +143,7 @@ export default class FewComponent {
         this.setScope( scope );
 
 
-        let vals = actionDef.input ? Object.values( evalObjectExpression( cloneDeepJsonObject( actionDef.input ), this ) ) : [];
+        let vals = actionDef.input ? Object.values( evalObjectTemplate( actionDef.input, this ) ) : [];
 
         let func = _.get( dep, actionDef.name );
         let res = await func.apply( dep, vals );
