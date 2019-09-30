@@ -14,7 +14,7 @@ view:
 # model
 model:
   subCounter: 21
-  testMsg: Click Me!
+  testMsg: Update Cross Component
 
 # action
 action:
