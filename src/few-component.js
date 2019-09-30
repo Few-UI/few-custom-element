@@ -23,6 +23,12 @@ export default class FewComponent {
          */
         this._parent = parent;
 
+        this._children = [];
+
+        if ( parent ) {
+            parent._children.push( this );
+        }
+
         /**
          * view object
          */
@@ -84,12 +90,16 @@ export default class FewComponent {
 
     /**
      * Update value and trigger view update
+     * TODO: This is the core of MVVM system, needs to be redesign later
      * @param {string} path value path on model
      * @param {string} value value itself
      */
     updateValue( path, value ) {
         _.set( this._vm.model, path, value );
         this.updateView();
+        _.forEach( this._children, ( c ) => {
+            c.updateView();
+        } );
     }
 
     parseStringTemplate( str ) {

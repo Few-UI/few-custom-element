@@ -21395,6 +21395,12 @@ define(['require'], function (require) { 'use strict';
            */
           this._parent = parent;
 
+          this._children = [];
+
+          if ( parent ) {
+              parent._children.push( this );
+          }
+
           /**
            * view object
            */
@@ -21456,12 +21462,16 @@ define(['require'], function (require) { 'use strict';
 
       /**
        * Update value and trigger view update
+       * TODO: This is the core of MVVM system, needs to be redesign later
        * @param {string} path value path on model
        * @param {string} value value itself
        */
       updateValue( path, value ) {
           lodash.set( this._vm.model, path, value );
           this.updateView();
+          lodash.forEach( this._children, ( c ) => {
+              c.updateView();
+          } );
       }
 
       parseStringTemplate( str ) {
