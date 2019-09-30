@@ -35,12 +35,10 @@ action:
       testMsg: ''
 
   submitInfo:
-    import: sample/sample-utils
-    name: testSubmit
+    name: few.requestUpdate
     input:
-      msg: submit
       element: '${scope.element}'
-      scope: '${scope.user_name}'
+      data: '${scope.user_name}'
 
   totalUpdate:
     - setValue

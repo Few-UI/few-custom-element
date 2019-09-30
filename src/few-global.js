@@ -36,6 +36,18 @@ export function handleEvent( elem, methodName, e ) {
 }
 
 /**
+ * Request update to parent view model
+ * @param {Element} elem DOM Element  as context
+ * @param {object}  data data as request input
+ * @returns {Promise} evaluation as promise
+ */
+export function requestUpdate( elem, data ) {
+    let viewElem = getViewElement( elem );
+    let component = getComponent( viewElem );
+    return component.update( viewElem.id, data );
+}
+
+/**
  * Import Global Document Style Sheet to shadow DOM
  * @param {Element} shadowRoot Shadow root element for shadow DOM
  */
@@ -50,6 +62,7 @@ export function importDocStyle( shadowRoot ) {
 
 export default exports = {
     handleEvent,
+    requestUpdate,
     getFormInput,
     getViewElement,
     importDocStyle

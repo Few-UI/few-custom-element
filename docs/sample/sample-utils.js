@@ -36,21 +36,6 @@ define( [], () => {
         } );
     };
 
-    exports.testSubmit = function( msg, elem, data ) {
-        let viewElem = few.getViewElement( elem );
-        viewElem.dispatchEvent( new CustomEvent( 'fewupdate',
-            {
-                bubbles    : true, // Whether the event will bubble up through the DOM or not
-                cancelable : true,  // Whether the event may be canceled or not
-                detail: {
-                    id: viewElem.id,
-                    msg: msg,
-                    value: data
-                }
-            }
-        ) );
-    };
-
     return exports;
 } );
 

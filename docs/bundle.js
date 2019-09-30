@@ -21153,6 +21153,18 @@ define(['require'], function (require) { 'use strict';
   }
 
   /**
+   * Request update to parent view model
+   * @param {Element} elem DOM Element  as context
+   * @param {object}  data data as request input
+   * @returns {Promise} evaluation as promise
+   */
+  function requestUpdate( elem, data ) {
+      let viewElem = getViewElement( elem );
+      let component = getComponent( viewElem );
+      return component.update( viewElem.id, data );
+  }
+
+  /**
    * Import Global Document Style Sheet to shadow DOM
    * @param {Element} shadowRoot Shadow root element for shadow DOM
    */
@@ -21167,6 +21179,7 @@ define(['require'], function (require) { 'use strict';
 
   exports$1 = {
       handleEvent,
+      requestUpdate,
       getFormInput,
       getViewElement,
       importDocStyle
@@ -21575,11 +21588,6 @@ define(['require'], function (require) { 'use strict';
               // console.log( `view generated for ${newValue}`);
 
               let viewElem = await this._vm.createView( componentDef.view );
-
-              viewElem.addEventListener( 'fewupdate', ( e ) => {
-                  // console.log( `${e.detail.id} => ${e.detail.value}` );
-                  this._vm.update( e.detail.id, e.detail.value );
-              } );
 
               this.appendChild( viewElem );
           }
