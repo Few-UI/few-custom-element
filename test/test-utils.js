@@ -32,16 +32,17 @@ function _renderToDocument( tag, attributes, textContent ) {
  * Returns a promise which resolves as soon as
  * requested element becomes available.
  * @param {string} tag HTML tag
+ * @param {boolean} waitForSubDiv if true will wait until firstchild is ready
  * @returns {Promise<HTMLElement>} promise object
  */
-async function _waitForComponentToRender( tag ) {
+async function _waitForComponentToRender( tag, waitForSubDiv ) {
     return new Promise( resolve => {
         /**
          * test function
          */
         function requestComponent() {
             const element = document.querySelector( tag );
-            if ( element ) {
+            if ( waitForSubDiv ? element && element.firstChild : element ) {
                 resolve( element );
             } else {
                 window.requestAnimationFrame( requestComponent );
@@ -50,7 +51,6 @@ async function _waitForComponentToRender( tag ) {
         requestComponent();
     } );
 }
-
 
 /**
  * Renders a given element with provided attributes
@@ -64,6 +64,20 @@ async function _waitForComponentToRender( tag ) {
 export function render( tag, attributes = {}, textContent = '' ) {
     _renderToDocument( tag, attributes, textContent );
     return _waitForComponentToRender( tag );
+}
+
+/**
+ * Renders a given element with provided attributes
+ * and returns a promise which resolves as soon as
+ * rendered element becomes available.
+ * @param {string} tag tags
+ * @param {object} attributes attributes
+ * @param {string} textContent attributes[]
+ * @returns {Promise<HTMLElement>} Promise Object
+ */
+export function renderToSub( tag, attributes = {}, textContent = '' ) {
+    _renderToDocument( tag, attributes, textContent );
+    return _waitForComponentToRender( tag, true );
 }
 
 /**

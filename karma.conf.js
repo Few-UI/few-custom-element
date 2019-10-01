@@ -49,9 +49,11 @@ module.exports = function( config ) {
         },
         plugins: [
             // require( 'rollup-plugin-buble' )(),
+            /*
             require( 'rollup-plugin-istanbul' )( { // plugin to add code coverage
                 exclude: [ 'test/*.js' ]
             } ),
+            */
             require( 'rollup-plugin-node-resolve' )(), // plugin to use reference from node_modules
             require( 'rollup-plugin-commonjs' )(), // plugin to support commonjs module to browser usage
             require( 'rollup-plugin-postcss' )( {
@@ -75,6 +77,15 @@ module.exports = function( config ) {
         karmaConfig.singleRun = false;
         karmaConfig.autoWatch = true;
   } else {
+        // Push istanbul pugin here otherwise it will impact debug mode
+        karmaConfig.rollupPreprocessor.plugins.unshift(
+            require( 'rollup-plugin-istanbul' )( { // plugin to add code coverage
+                exclude: [
+                    'test/*.js',
+                    'node_modules/**/*'
+                ]
+            } ),
+        );
         // NOTE: FF looks have problem....will test it later
         // NOTE: Edge is working but for gitlab CI will comment it for now
         // browsers: [ 'ChromeHeadlessNoSandbox', "Firefox", "Edge" ],

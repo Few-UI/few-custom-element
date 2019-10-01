@@ -3,7 +3,7 @@
 // there own
 // In this OOTB example, we assume we are using single bundle without code split.
 // So ther is a simple delegate for this purpose
-import FewButton from './few-button';
+// import FewButton from './few-button';
 
 /**
  * load single module
@@ -11,9 +11,11 @@ import FewButton from './few-button';
  * @returns {Promise} promise with module object
  */
 export function loadModule( moduleName ) {
+    /*
     if ( /few-button$/.test( moduleName ) ) {
         return Promise.resolve( FewButton );
     }
+    */
     return import( moduleName );
 }
 

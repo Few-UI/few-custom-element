@@ -61,14 +61,27 @@ export function cloneDeepJsonObject( obj ) {
  */
 export function httpGet( theUrl ) {
     return new Promise( ( resolve, reject ) => {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() {
-            if ( xmlHttp.readyState === 4 && xmlHttp.status === 200 ) {
-                resolve( xmlHttp.responseText );
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = () => {
+            if ( xhr.readyState === 4 && xhr.status !== 404 ) {
+                resolve( xhr.responseText );
+            } else {
+                // reject( `httpGet(${theUrl}) => ${xhr.status}:${xhr.responseText}` );
             }
         };
-        xmlHttp.open( 'GET', theUrl, true ); // true for asynchronous
-        xmlHttp.send( null );
+
+        xhr.onerror = () => {
+            reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+        };
+
+        xhr.onloadend = function() {
+            if ( xhr.status === 404 ) {
+                reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+            }
+        };
+
+        xhr.open( 'GET', theUrl, true ); // true for asynchronous
+        xhr.send( null );
     } );
 }
 
