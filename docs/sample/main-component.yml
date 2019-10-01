@@ -1,6 +1,6 @@
 # view
 view:
-  viewHtml:
+  template:
     <sample-button onclick="${testAction}">${testMsg}</sample-button>
     <few-bridge>
       <sample-button onclick="${action.testAction}">${testMsg}</sample-button>

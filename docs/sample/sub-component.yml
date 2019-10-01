@@ -1,6 +1,6 @@
 # view
 view:
-  viewHtml:
+  template:
     <h3>Test Form</h3>
     <form onsubmit="${action.totalUpdate}">
       <label for="name">Name:</label>
@@ -50,7 +50,7 @@ option:
 # scopePath: scope
   actionPaths:
     - action
-  stringTemplate:
-    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
-    index: 1
+#  stringTemplate:
+#    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+#    index: 1
 

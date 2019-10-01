@@ -21396,6 +21396,14 @@ define(['require'], function (require) { 'use strict';
 	            this._option.scopePath = 'scope';
 	        }
 
+	        if ( !this._option.stringTemplate ) {
+	            this._option.stringTemplate = {
+	                // eslint-disable-next-line no-template-curly-in-string
+	                pattern: '\/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$\/m',
+	                index: 1
+	            };
+	        }
+
 	        // Load string template
 	        this._loadStringTemplate();
 
@@ -21516,7 +21524,7 @@ define(['require'], function (require) { 'use strict';
 	    async createView( view ) {
 	        await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-	        this._view = FewViewElement.createView( parseViewToDiv( view.viewHtml ), this );
+	        this._view = FewViewElement.createView( parseViewToDiv( view.template ), this );
 	        let elem = this._view.getDomElement();
 	        setComponent( elem, this );
 	        this._view.render( this._vm.model );
