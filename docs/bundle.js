@@ -21177,26 +21177,27 @@ define(['require'], function (require) { 'use strict';
 
 	/* eslint-env es6 */
 
-	class FewViewElement {
+	class FewDom {
 	    /**
-	     * Create FewViewElement structure based on input DOM
+	     * Create FewDom structure based on input DOM
 	     * @param {Element} elem DOM Element
+	     * @param {Function} parse string template parser function
 	     * @param {number} level level for current element input
-	     * @returns {Object} FewViewElement
+	     * @returns {Object} FewDom
 	     */
-	    static createView( elem, comp, level = 0 ) {
+	    static createView( elem, parse, level = 0 ) {
 	        if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE || FewBridge.hasBridgeClass( elem ) ) {
 	            return;
 	        }
 
-	        let node = new FewViewElement( elem.nodeName );
+	        let node = new FewDom( elem.nodeName );
 	        node.hasExpr = false;
 	        if ( elem.nodeType === Node.ELEMENT_NODE ) {
 	            for( let i = 0; i < elem.attributes.length; i++ ) {
 	                let name = elem.attributes[i].name;
 	                let value = elem.attributes[i].value;
 	                // TODO: we can do it better later
-	                let expr = comp.parseStringTemplate( value );
+	                let expr = parse( value );
 	                if( expr ) {
 	                    // if name is event like onclick
 	                    // TODO: make it as expression later
@@ -21212,7 +21213,7 @@ define(['require'], function (require) { 'use strict';
 	            let attr = 'textContent';
 	            let value = elem[attr];
 	            // TODO: we can do it better later
-	            let expr = comp.parseStringTemplate( value );
+	            let expr = parse( value );
 	            if( expr ) {
 	                node.addProperty( attr, expr );
 	                node.hasExpr = true;
@@ -21225,7 +21226,7 @@ define(['require'], function (require) { 'use strict';
 
 	        for ( let i = 0; i < elem.childNodes.length; i++ ) {
 	            let child = elem.childNodes[i];
-	            let childNode = FewViewElement.createView( child, comp, level + 1 );
+	            let childNode = FewDom.createView( child, parse, level + 1 );
 	            if( childNode ) {
 	                node.addChild( childNode );
 	                node.hasExpr = node.hasExpr ? node.hasExpr : childNode.hasExpr;
@@ -21524,7 +21525,7 @@ define(['require'], function (require) { 'use strict';
 	    async createView( view ) {
 	        await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-	        this._view = FewViewElement.createView( parseViewToDiv( view.template ), this );
+	        this._view = FewDom.createView( parseViewToDiv( view.template ), this.parseStringTemplate );
 	        let elem = this._view.getDomElement();
 	        setComponent( elem, this );
 	        this._view.render( this._vm.model );
