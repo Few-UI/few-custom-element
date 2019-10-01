@@ -125,7 +125,7 @@ export default class FewDom {
                 // TODO: maybe string comparison will be better?
                 if ( !_.isEqual( this.values[name], res ) ) {
                     this.values[name] = res;
-                    this.reference[name] = res;
+                    name === 'textContent' ? this.reference[name] = res : this.reference.setAttribute( name, res );
                 }
             } );
 

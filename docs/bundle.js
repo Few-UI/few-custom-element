@@ -21267,7 +21267,7 @@ define(['require'], function (require) { 'use strict';
                   // TODO: maybe string comparison will be better?
                   if ( !lodash.isEqual( this.values[name], res ) ) {
                       this.values[name] = res;
-                      this.reference[name] = res;
+                      name === 'textContent' ? this.reference[name] = res : this.reference.setAttribute( name, res );
                   }
               } );
 
@@ -21371,7 +21371,7 @@ define(['require'], function (require) { 'use strict';
           if ( !this._option.stringTemplate ) {
               this._option.stringTemplate = {
                   // eslint-disable-next-line no-template-curly-in-string
-                  pattern: '\/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$\/m',
+                  pattern: '/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$/m',
                   index: 1
               };
           }
@@ -21568,6 +21568,7 @@ define(['require'], function (require) { 'use strict';
           return [ 'view', 'scope' ];
       }
 
+      /*
       get view() {
           return this.getAttribute( 'view' );
       }
@@ -21582,6 +21583,7 @@ define(['require'], function (require) { 'use strict';
           // Better not use it if we don't want to tie up with custom element
           this._dummy;
       }
+      */
 
       constructor() {
           super();
@@ -21593,13 +21595,20 @@ define(['require'], function (require) { 'use strict';
       }
 
       async attributeChangedCallback( name, oldValue, newValue ) {
-          console.log( `${name}: ${oldValue} => ${newValue}` );
+          // console.log( `${name}: ${oldValue} => ${newValue}` );
 
           if ( name === 'view' && oldValue !== newValue ) {
               try {
+                  // clean up
+                  this.innerHTML = '';
+
+                  let scopeExpr = this.getAttribute( 'scope' );
+
+                  // load component definition
                   let componentDef = jsYaml$1.load( await http.get( `${newValue}.yml` ) );
 
-                  this._component = new FewComponent( getComponent( this ), componentDef, this.scope );
+
+                  this._component = new FewComponent( getComponent( this ), componentDef, scopeExpr );
 
                   // View has too be initialized separately since it is async
                   let viewElem = await this._component.createView( componentDef.view );

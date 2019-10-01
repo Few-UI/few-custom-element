@@ -64,7 +64,7 @@ export default class FewComponent {
         if ( !this._option.stringTemplate ) {
             this._option.stringTemplate = {
                 // eslint-disable-next-line no-template-curly-in-string
-                pattern: '\/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$\/m',
+                pattern: '/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$/m',
                 index: 1
             };
         }

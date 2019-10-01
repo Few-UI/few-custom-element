@@ -14,6 +14,7 @@ export default class FewView extends HTMLElement {
         return [ 'view', 'scope' ];
     }
 
+    /*
     get view() {
         return this.getAttribute( 'view' );
     }
@@ -28,6 +29,7 @@ export default class FewView extends HTMLElement {
         // Better not use it if we don't want to tie up with custom element
         this._dummy;
     }
+    */
 
     constructor() {
         super();
@@ -39,13 +41,20 @@ export default class FewView extends HTMLElement {
     }
 
     async attributeChangedCallback( name, oldValue, newValue ) {
-        console.log( `${name}: ${oldValue} => ${newValue}` );
+        // console.log( `${name}: ${oldValue} => ${newValue}` );
 
         if ( name === 'view' && oldValue !== newValue ) {
             try {
+                // clean up
+                this.innerHTML = '';
+
+                let scopeExpr = this.getAttribute( 'scope' );
+
+                // load component definition
                 let componentDef = yaml.load( await http.get( `${newValue}.yml` ) );
 
-                this._component = new FewComponent( getComponent( this ), componentDef, this.scope );
+
+                this._component = new FewComponent( getComponent( this ), componentDef, scopeExpr );
 
                 // View has too be initialized separately since it is async
                 let viewElem = await this._component.createView( componentDef.view );
