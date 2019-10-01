@@ -2,7 +2,8 @@
 
 import yaml from 'js-yaml';
 import FewComponent from './few-component';
-import { getComponent, httpGet, parseViewToDiv } from './few-utils';
+import http from './http';
+import { getComponent, parseViewToDiv } from './few-utils';
 
 export default class FewView extends HTMLElement {
     static get tag() {
@@ -42,7 +43,7 @@ export default class FewView extends HTMLElement {
 
         if ( name === 'view' && oldValue !== newValue ) {
             try {
-                let componentDef = yaml.load( await httpGet( `${newValue}.yml` ) );
+                let componentDef = yaml.load( await http.get( `${newValue}.yml` ) );
 
                 this._component = new FewComponent( getComponent( this ), componentDef, this.scope );
 
