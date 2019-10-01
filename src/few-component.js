@@ -189,7 +189,7 @@ export default class FewComponent {
     async createView( view ) {
         await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-        this._view = FewDom.createView( parseViewToDiv( view.template ), this.parseStringTemplate );
+        this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this.parseStringTemplate );
         let elem = this._view.getDomElement();
         setComponent( elem, this );
         this._view.render( this._vm.model );

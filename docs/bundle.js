@@ -21183,9 +21183,9 @@ define(['require'], function (require) { 'use strict';
 	     * @param {Element} elem DOM Element
 	     * @param {Function} parse string template parser function
 	     * @param {number} level level for current element input
-	     * @returns {Object} FewDom
+	     * @returns {Object} FewDom object
 	     */
-	    static createView( elem, parse, level = 0 ) {
+	    static createFewDom( elem, parse, level = 0 ) {
 	        if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE || FewBridge.hasBridgeClass( elem ) ) {
 	            return;
 	        }
@@ -21226,7 +21226,7 @@ define(['require'], function (require) { 'use strict';
 
 	        for ( let i = 0; i < elem.childNodes.length; i++ ) {
 	            let child = elem.childNodes[i];
-	            let childNode = FewDom.createView( child, parse, level + 1 );
+	            let childNode = FewDom.createFewDom( child, parse, level + 1 );
 	            if( childNode ) {
 	                node.addChild( childNode );
 	                node.hasExpr = node.hasExpr ? node.hasExpr : childNode.hasExpr;
@@ -21525,7 +21525,7 @@ define(['require'], function (require) { 'use strict';
 	    async createView( view ) {
 	        await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-	        this._view = FewDom.createView( parseViewToDiv( view.template ), this.parseStringTemplate );
+	        this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this.parseStringTemplate );
 	        let elem = this._view.getDomElement();
 	        setComponent( elem, this );
 	        this._view.render( this._vm.model );
