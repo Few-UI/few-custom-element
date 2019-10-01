@@ -1,6 +1,5 @@
 /* eslint-env es6 */
 
-import _ from 'lodash';
 import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import { getComponent, httpGet, parseViewToDiv } from './few-utils';
@@ -50,12 +49,8 @@ export default class FewView extends HTMLElement {
                 // View has too be initialized separately since it is async
                 let viewElem = await this._component.createView( componentDef.view );
 
-                // TODO: we can try catch and append error text to DOM if we want
                 this.appendChild( viewElem );
             } catch ( e ) {
-                let codeElem = document.createElement( 'code' );
-                codeElem.style.color = 'red';
-                codeElem.textContent = e;
                 this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
             }
         }
