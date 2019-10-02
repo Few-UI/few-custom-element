@@ -24,7 +24,16 @@ export default class FewDom {
 
         let node = new FewDom( elem.nodeName );
         node.hasExpr = false;
-        if ( elem.nodeType === Node.ELEMENT_NODE ) {
+        if ( node.isTextNode() ) {
+            let attr = 'textContent';
+            let value = elem[attr];
+            // TODO: we can do it better later
+            let expr = parser.parse( value );
+            if( expr ) {
+                node.addProperty( attr, expr );
+                node.hasExpr = true;
+            }
+        } else {
             for( let i = 0; i < elem.attributes.length; i++ ) {
                 let name = elem.attributes[i].name;
                 let value = elem.attributes[i].value;
@@ -41,17 +50,6 @@ export default class FewDom {
                     }
                 }
             }
-        } else if ( elem.nodeType === Node.TEXT_NODE ) {
-            let attr = 'textContent';
-            let value = elem[attr];
-            // TODO: we can do it better later
-            let expr = parser.parse( value );
-            if( expr ) {
-                node.addProperty( attr, expr );
-                node.hasExpr = true;
-            }
-        } else {
-            // do nothing
         }
 
         if ( node.hasExpr || level === 0 ) {
@@ -119,6 +117,15 @@ export default class FewDom {
     }
 
     /**
+     * Check if current FewDom object is text node
+     * @returns {boolean} return true if the FewDom object is for text node
+     */
+    isTextNode() {
+        return this.tagName === '#text';
+    }
+
+
+    /**
      * render view based on view model object
      * @param {FewComponent} vm view model object
      */
@@ -129,7 +136,9 @@ export default class FewDom {
                 // TODO: maybe string comparison will be better?
                 if ( !_.isEqual( this.values[name], res ) ) {
                     this.values[name] = res;
-                    name === 'textContent' ? this.reference[name] = res : this.reference.setAttribute( name, res );
+
+                    // For text node we only have text content currently and it is property
+                    this.isTextNode() ? this.reference[name] = res : this.reference.setAttribute( name, res );
                 }
             } );
 
@@ -141,24 +150,28 @@ export default class FewDom {
 
     /**
      * Print object for test purpose
-     * @returns {string}
+     * @returns {JSON} JSON object that presents the content of FewDom
      */
     toJson() {
         let refStr = '';
         if( this.reference ) {
-            let node = this.reference.cloneNode();
-            if( this.reference.children.length > 0 ) {
-                node.innerHTML = '';
+            if( this.isTextNode() ) {
+                refStr = this.reference.nodeValue;
             } else {
-                node.textContent = this.reference.textContent;
+                let node = this.reference.cloneNode();
+                if( this.reference.children && this.reference.children.length > 0 ) {
+                    node.innerHTML = '';
+                }
+                // nodeValue
+                refStr = node.outerHTML;
             }
-            refStr = node.outerHTML;
         }
 
         let obj = Object.assign( {}, this );
         obj.reference = refStr;
+        obj.children = this.children.map( ( o ) => o.toJson() );
 
         // wash out methods
-        return cloneDeepJsonObject( obj );
+        return obj;
     }
 }
