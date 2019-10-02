@@ -3,13 +3,14 @@ import './few-global';
 import _ from 'lodash';
 import FewDom from './few-dom';
 import moduleLoader from './few-module-loader';
+import StringTemplateParser from './string-template-parser';
+
 import {
     parseViewToDiv,
     setComponent,
     evalExpression,
     cloneDeepJsonObject
 } from './few-utils';
-import StringTemplateParser from './string-template-parser';
 
 export default class FewComponent {
     /**
@@ -42,6 +43,7 @@ export default class FewComponent {
 
         /**
          * method update view
+         * TODO: can we return promise here
          */
         this.updateView = _.debounce( () => {
             this._view.render( this._vm.model );
@@ -59,6 +61,11 @@ export default class FewComponent {
         if ( !this._option.scopePath ) {
             this._option.scopePath = 'scope';
         }
+
+        if( !this._option.actionPaths ) {
+            this._option.actionPaths = [ 'action' ];
+        }
+        this._option.actionPaths.push( [ '' ] );
 
         if ( !this._option.stringTemplate ) {
             this._option.stringTemplate = {
@@ -86,27 +93,27 @@ export default class FewComponent {
      */
     _updateValue( path, value ) {
         _.set( this._vm.model, path, value );
-        this.updateView();
-        // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
-        // to child, the child cannot diffrenciate the value has been changed or not.
-        // For now do a hard update for every child node, which is bad practice
-        _.forEach( this._children, ( c ) => {
-            c.updateView();
-        } );
+
+        if ( this._view ) {
+            this.updateView();
+            // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
+            // to child, the child cannot diffrenciate the value has been changed or not.
+            // For now do a hard update for every child node, which is bad practice
+            _.forEach( this._children, ( c ) => {
+                c.updateView();
+            } );
+        }
     }
 
     _getActionDefinition( key ) {
         let methodDef = null;
-        _.forEach( this._option.actionPaths || [], ( n ) => {
-            methodDef = _.get( this._vm, `${n}.${key}` );
+        _.forEach( this._option.actionPaths, ( p ) => {
+            methodDef = _.get( this._vm,  p && p.length > 0 ? `${p}.${key}` : key );
             if ( methodDef ) {
                 return false;
             }
         } );
 
-        if ( !methodDef ) {
-            methodDef = _.get( this._vm, key );
-        }
         return methodDef;
     }
 

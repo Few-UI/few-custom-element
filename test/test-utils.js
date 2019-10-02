@@ -97,3 +97,16 @@ export function printTick( count ) {
     }
     return Promise.all( promises );
 }
+
+/**
+ * Test util for wait specific time
+ * @param {number} millionseconds wait time in ms
+ * @returns {Promise} promise with result
+ */
+export function wait( millionseconds ) {
+    return new Promise( ( resolve, reject ) => {
+        setTimeout( () => {
+            resolve( null );
+        }, millionseconds );
+    } );
+}

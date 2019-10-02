@@ -3,22 +3,9 @@
 
 import http from '../src/http';
 import FewView from '../src/few-view';
-import { renderToSub } from './test-utils';
+import { renderToSub, wait } from './test-utils';
 
 describe( 'Test few-view', () => {
-    /**
-     * Test util for wait specific time
-     * @param {number} millionseconds wait time in ms
-     * @returns {Promise} promise with result
-     */
-    function wait( millionseconds ) {
-        return new Promise( ( resolve, reject ) => {
-            setTimeout( () => {
-                resolve( null );
-            }, millionseconds );
-        } );
-    }
-
     it( 'Verify few-view will display error when testView cannot be loaded', async() => {
         let actualType = null;
         let actualUrl = null;
@@ -143,9 +130,8 @@ describe( 'Test few-view', () => {
 
         elem.setAttribute( 'src', 'secondView' );
 
-        // TODO: No good way to assert for now, need to find a way later
+        // TODO: No good way to assert for now, need to find a way to avoid using wait later
         await wait( 1000 );
-
         expect( elem.outerHTML ).toEqual( '<few-view src="secondView"><div class="few-scope"><code style="color:red">7</code></div></few-view>' );
     } );
 

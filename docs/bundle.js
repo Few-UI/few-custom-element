@@ -21399,6 +21399,7 @@ define(['require'], function (require) { 'use strict';
 
           /**
            * method update view
+           * TODO: can we return promise here
            */
           this.updateView = lodash.debounce( () => {
               this._view.render( this._vm.model );
@@ -21416,6 +21417,11 @@ define(['require'], function (require) { 'use strict';
           if ( !this._option.scopePath ) {
               this._option.scopePath = 'scope';
           }
+
+          if( !this._option.actionPaths ) {
+              this._option.actionPaths = [ 'action' ];
+          }
+          this._option.actionPaths.push( [ '' ] );
 
           if ( !this._option.stringTemplate ) {
               this._option.stringTemplate = {
@@ -21443,27 +21449,27 @@ define(['require'], function (require) { 'use strict';
        */
       _updateValue( path, value ) {
           lodash.set( this._vm.model, path, value );
-          this.updateView();
-          // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
-          // to child, the child cannot diffrenciate the value has been changed or not.
-          // For now do a hard update for every child node, which is bad practice
-          lodash.forEach( this._children, ( c ) => {
-              c.updateView();
-          } );
+
+          if ( this._view ) {
+              this.updateView();
+              // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
+              // to child, the child cannot diffrenciate the value has been changed or not.
+              // For now do a hard update for every child node, which is bad practice
+              lodash.forEach( this._children, ( c ) => {
+                  c.updateView();
+              } );
+          }
       }
 
       _getActionDefinition( key ) {
           let methodDef = null;
-          lodash.forEach( this._option.actionPaths || [], ( n ) => {
-              methodDef = lodash.get( this._vm, `${n}.${key}` );
+          lodash.forEach( this._option.actionPaths, ( p ) => {
+              methodDef = lodash.get( this._vm,  p && p.length > 0 ? `${p}.${key}` : key );
               if ( methodDef ) {
                   return false;
               }
           } );
 
-          if ( !methodDef ) {
-              methodDef = lodash.get( this._vm, key );
-          }
           return methodDef;
       }
 
