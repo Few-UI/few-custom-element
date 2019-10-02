@@ -21578,7 +21578,10 @@ define(['require'], function (require) { 'use strict';
                   // clean up
                   this.innerHTML = '';
 
-                  // TODO: clean up model excep key model
+                  // TODO: clean up model except attribute defined by parent
+                  // also need to destroy its ref in parent
+                  // this._component.model = _.filter( modelPath );
+                  // this._component.parent.remove(this._component);
 
                   let modelPath = this.getAttribute( 'model' );
 

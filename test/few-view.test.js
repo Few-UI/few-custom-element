@@ -8,7 +8,7 @@ import { renderToSub } from './test-utils';
 describe( 'Test few-view', () => {
     /**
      * Test util for wait specific time
-     * @param {number} millionseconds
+     * @param {number} millionseconds wait time in ms
      * @returns {Promise} promise with result
      */
     function wait( millionseconds ) {
@@ -147,5 +147,37 @@ describe( 'Test few-view', () => {
         await wait( 1000 );
 
         expect( elem.outerHTML ).toEqual( '<few-view src="secondView"><div class="few-scope"><code style="color:red">7</code></div></few-view>' );
+    } );
+
+    it( 'Verify few-view can be rendered correctly with model from parent', async() => {
+        let parentViewContent = [
+            'view:',
+            '  template:',
+            '    <div>${ctx.testVal}</div>',
+            '    <few-view src="subView" model="ctx"></few-view>',
+            'model:',
+            '  ctx:',
+            '    testVal: 5'
+        ];
+
+        let subViewContent = [
+            'view:',
+            '  template:',
+            '    <code>${testVal}</div>',
+            'model:',
+            '  dummy: 7'
+        ];
+
+        spyOn( http, 'get' ).and.callFake( ( url ) => {
+            if ( url === 'parentView.yml' ) {
+                return Promise.resolve( parentViewContent.join( '\n' ) );
+            } else if ( url === 'subView.yml' ) {
+                return Promise.resolve( subViewContent.join( '\n' ) );
+            }
+        } );
+
+        const elem  = await renderToSub( FewView.tag, { src: 'parentView' } );
+
+        expect( elem.outerHTML ).toEqual( '<few-view src="parentView"><div class="few-scope"><div>5</div> <few-view src="subView" model="ctx"><div class="few-scope"><code>5</code></div></few-view></div></few-view>' );
     } );
 } );
