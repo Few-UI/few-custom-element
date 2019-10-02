@@ -3,9 +3,17 @@
 
 import FewDom from '../src/few-dom';
 import { parseViewToDiv } from '../src/few-utils';
+import StringTemplateParser from '../src/string-template-parser';
 
-xdescribe( 'Test few-dom', () => {
+describe( 'Test few-dom', () => {
     it( 'Verify few-dom create node correct for simple DOM', async() => {
-        expect( FewDom.createFewDom( parseViewToDiv( '' ) ) );
+        expect( FewDom.createFewDom( parseViewToDiv( '' ), new StringTemplateParser() ).toJson() ).toEqual( {
+            tagName: 'DIV',
+            props: {},
+            values: {},
+            children: [],
+            hasExpr: false,
+            reference: '<div></div>'
+        } );
     } );
 } );

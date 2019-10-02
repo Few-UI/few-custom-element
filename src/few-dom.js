@@ -1,7 +1,11 @@
 /* eslint-env es6 */
 
 import _ from 'lodash';
-import { evalExpression, hasScope } from './few-utils';
+import {
+    hasScope,
+    evalExpression,
+    cloneDeepJsonObject
+} from './few-utils';
 
 export default class FewDom {
     /**
@@ -133,5 +137,28 @@ export default class FewDom {
                 child.render( vm );
             }
         }
+    }
+
+    /**
+     * Print object for test purpose
+     * @returns {string}
+     */
+    toJson() {
+        let refStr = '';
+        if( this.reference ) {
+            let node = this.reference.cloneNode();
+            if( this.reference.children.length > 0 ) {
+                node.innerHTML = '';
+            } else {
+                node.textContent = this.reference.textContent;
+            }
+            refStr = node.outerHTML;
+        }
+
+        let obj = Object.assign( {}, this );
+        obj.reference = refStr;
+
+        // wash out methods
+        return cloneDeepJsonObject( obj );
     }
 }

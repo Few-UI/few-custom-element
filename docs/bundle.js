@@ -21254,6 +21254,29 @@ define(['require'], function (require) { 'use strict';
               }
           }
       }
+
+      /**
+       * Print object for test purpose
+       * @returns {string}
+       */
+      toJson() {
+          let refStr = '';
+          if( this.reference ) {
+              let node = this.reference.cloneNode();
+              if( this.reference.children.length > 0 ) {
+                  node.innerHTML = '';
+              } else {
+                  node.textContent = this.reference.textContent;
+              }
+              refStr = node.outerHTML;
+          }
+
+          let obj = Object.assign( {}, this );
+          obj.reference = refStr;
+
+          // wash out methods
+          return cloneDeepJsonObject( obj );
+      }
   }
 
   /* eslint-env es6 */
