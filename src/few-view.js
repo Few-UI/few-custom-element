@@ -31,11 +31,12 @@ export default class FewView extends HTMLElement {
                 // clean up
                 this.innerHTML = '';
 
+                // TODO: clean up model excep key model
+
                 let modelPath = this.getAttribute( 'model' );
 
                 // load component definition
                 let componentDef = yaml.load( await http.get( `${newValue}.yml` ) );
-
 
                 this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
 

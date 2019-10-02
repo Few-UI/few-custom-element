@@ -21390,14 +21390,12 @@ define(['require'], function (require) { 'use strict';
       _loadStringTemplate() {
           let templateDef = this._option.stringTemplate;
           let regExpObj = evalExpression( templateDef.pattern );
-          this._option.templateParser = function( str ) {
+          this.parseStringTemplate = function( str ) {
               let match = regExpObj.exec( str );
               if ( match ) {
                   return match[templateDef.index];
               }
           };
-
-          this.parseStringTemplate = this._option.templateParser.bind( this );
       }
 
 
@@ -21580,11 +21578,12 @@ define(['require'], function (require) { 'use strict';
                   // clean up
                   this.innerHTML = '';
 
+                  // TODO: clean up model excep key model
+
                   let modelPath = this.getAttribute( 'model' );
 
                   // load component definition
                   let componentDef = jsYaml$1.load( await http.get( `${newValue}.yml` ) );
-
 
                   this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
 
