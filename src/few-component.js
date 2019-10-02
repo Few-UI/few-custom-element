@@ -65,7 +65,7 @@ export default class FewComponent {
         if( !this._option.actionPaths ) {
             this._option.actionPaths = [ 'action' ];
         }
-        this._option.actionPaths.push( [ '' ] );
+        this._option.actionPaths.push( '' );
 
         if ( !this._option.stringTemplate ) {
             this._option.stringTemplate = {
@@ -189,7 +189,7 @@ export default class FewComponent {
      * @param {object} scope input from upstream
      * @returns {Promise} promise with scope value
      */
-    async update( methodName, scope ) {
+    update( methodName, scope ) {
         let actionDef = this._getActionDefinition( methodName );
 
         if ( _.isArray( actionDef ) ) {

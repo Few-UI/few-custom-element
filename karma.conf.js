@@ -22,13 +22,14 @@ module.exports = function( config ) {
       // NOTE: For only using chrome, no need to use any polyfill.
       // For Edge/FF/IE support, polyfill is needed.
       // 'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js',
-      { pattern: 'test/**/*.test.js', type: 'module', included: true, watched: false },
-      { pattern: 'src/**/*.js', type: 'module', included: false, watched: false },
-      { pattern: 'test/**/!(*.test).js', type: 'module', included: false, watched: false }
+      { pattern: 'test/main.test.js', type: 'module', included: true, watched: true },
+      { pattern: 'test/**/!(*main).test.js', type: 'module', included: false, watched: true },
+      { pattern: 'src/**/*.js', type: 'module', included: false, watched: true },
+      { pattern: 'test/**/!(*.test).js', type: 'module', included: false, watched: true }
     ],
     exclude: [],
     preprocessors: {
-        'test/**/*.test.js': [ 'rollup' ]
+        'test/main.test.js': [ 'rollup' ]
     },
     singleRun: true,
     port: 9876,
