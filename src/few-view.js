@@ -11,7 +11,7 @@ export default class FewView extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return [ 'view', 'model' ];
+        return [ 'src', 'model' ];
     }
 
     constructor() {
@@ -26,7 +26,7 @@ export default class FewView extends HTMLElement {
     async attributeChangedCallback( name, oldValue, newValue ) {
         // console.log( `${name}: ${oldValue} => ${newValue}` );
 
-        if ( name === 'view' && oldValue !== newValue ) {
+        if ( name === 'src' && oldValue !== newValue ) {
             try {
                 // clean up
                 this.innerHTML = '';

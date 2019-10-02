@@ -21560,7 +21560,7 @@ define(['require'], function (require) { 'use strict';
       }
 
       static get observedAttributes() {
-          return [ 'view', 'model' ];
+          return [ 'src', 'model' ];
       }
 
       constructor() {
@@ -21575,7 +21575,7 @@ define(['require'], function (require) { 'use strict';
       async attributeChangedCallback( name, oldValue, newValue ) {
           // console.log( `${name}: ${oldValue} => ${newValue}` );
 
-          if ( name === 'view' && oldValue !== newValue ) {
+          if ( name === 'src' && oldValue !== newValue ) {
               try {
                   // clean up
                   this.innerHTML = '';

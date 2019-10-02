@@ -40,11 +40,11 @@ describe( 'Test few-view', () => {
         };
 
         // There is no way to error out - the error is in Custom Element call back
-        let promise = renderToSub( FewView.tag, { view: 'testView' } );
+        let promise = renderToSub( FewView.tag, { src: 'testView' } );
         mockXHR.onloadend();
         const elem = await promise;
 
-        expect( elem.outerHTML ).toEqual( '<few-view view="testView"><div><code style="color:red">testView.yml: httpGet(testView.yml) =&gt; 404: Not Found</code></div></few-view>' );
+        expect( elem.outerHTML ).toEqual( '<few-view src="testView"><div><code style="color:red">testView.yml: httpGet(testView.yml) =&gt; 404: Not Found</code></div></few-view>' );
     } );
 
     it( 'Verify few-view will display error when component definition cannot be parsed', async() => {
@@ -59,8 +59,8 @@ describe( 'Test few-view', () => {
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent.join( '\n' ) ) );
 
         // There is no way to error out - the error is in Custom Element call back
-        const elem  = await renderToSub( FewView.tag, { view: 'testView' } );
-        expect( elem.outerHTML ).toMatch( /^<few-view view="testView"><div><code style="color:red">testView.yml: YAMLException:.*/ );
+        const elem  = await renderToSub( FewView.tag, { src: 'testView' } );
+        expect( elem.outerHTML ).toMatch( /^<few-view src="testView"><div><code style="color:red">testView.yml: YAMLException:.*/ );
     } );
 
     it( 'Verify few-view can be rendered correctly for simple value in model', async() => {
@@ -74,9 +74,9 @@ describe( 'Test few-view', () => {
 
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent.join( '\n' ) ) );
 
-        const elem  = await renderToSub( FewView.tag, { view: 'testView' } );
+        const elem  = await renderToSub( FewView.tag, { src: 'testView' } );
 
-        expect( elem.outerHTML ).toEqual( '<few-view view="testView"><div class="few-scope"><div>5</div></div></few-view>' );
+        expect( elem.outerHTML ).toEqual( '<few-view src="testView"><div class="few-scope"><div>5</div></div></few-view>' );
     } );
 
     it( 'Verify few-view can be rendered correctly for simple value in model', async() => {
@@ -90,9 +90,9 @@ describe( 'Test few-view', () => {
 
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent.join( '\n' ) ) );
 
-        const elem  = await renderToSub( FewView.tag, { view: 'testView' } );
+        const elem  = await renderToSub( FewView.tag, { src: 'testView' } );
 
-        expect( elem.outerHTML ).toEqual( '<few-view view="testView"><div class="few-scope"><div>5</div></div></few-view>' );
+        expect( elem.outerHTML ).toEqual( '<few-view src="testView"><div class="few-scope"><div>5</div></div></few-view>' );
     } );
 
     it( 'Verify few-view can be rendered correctly for simple value in model', async() => {
@@ -106,9 +106,9 @@ describe( 'Test few-view', () => {
 
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent.join( '\n' ) ) );
 
-        const elem  = await renderToSub( FewView.tag, { view: 'testView' } );
+        const elem  = await renderToSub( FewView.tag, { src: 'testView' } );
 
-        expect( elem.outerHTML ).toEqual( '<few-view view="testView"><div class="few-scope"><div>5</div></div></few-view>' );
+        expect( elem.outerHTML ).toEqual( '<few-view src="testView"><div class="few-scope"><div>5</div></div></few-view>' );
     } );
 
     it( 'Verify few-view can be updated while changing view attribute', async() => {
@@ -137,15 +137,15 @@ describe( 'Test few-view', () => {
             }
         } );
 
-        const elem  = await renderToSub( FewView.tag, { view: 'firstView' } );
+        const elem  = await renderToSub( FewView.tag, { src: 'firstView' } );
 
-        expect( elem.outerHTML ).toEqual( '<few-view view="firstView"><div class="few-scope"><div>5</div></div></few-view>' );
+        expect( elem.outerHTML ).toEqual( '<few-view src="firstView"><div class="few-scope"><div>5</div></div></few-view>' );
 
-        elem.setAttribute( 'view', 'secondView' );
+        elem.setAttribute( 'src', 'secondView' );
 
         // TODO: No good way to assert for now, need to find a way later
         await wait( 1000 );
 
-        expect( elem.outerHTML ).toEqual( '<few-view view="secondView"><div class="few-scope"><code style="color:red">7</code></div></few-view>' );
+        expect( elem.outerHTML ).toEqual( '<few-view src="secondView"><div class="few-scope"><code style="color:red">7</code></div></few-view>' );
     } );
 } );
