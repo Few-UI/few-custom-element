@@ -3,69 +3,68 @@
 import _ from 'lodash';
 import {
     hasScope,
-    evalExpression,
-    cloneDeepJsonObject
+    evalExpression
 } from './few-utils';
 
 export default class FewDom {
     /**
      * Create FewDom structure based on input DOM
-     * @param {Element} elem DOM Element
+     * @param {Node} node DOM Node
      * @param {StringTemplateParser} parser string template parser function
      * @param {number} level level for current element input
      * @returns {Object} FewDom object
      */
-    static createFewDom( elem, parser, level = 0 ) {
-        if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE ||
+    static createFewDom( node, parser, level = 0 ) {
+        if(  node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
             // has scope defined already
-            hasScope( elem ) ) {
+            hasScope( node ) ) {
             return;
         }
 
-        let node = new FewDom( elem.nodeName );
-        node.hasExpr = false;
-        if ( node.isTextNode() ) {
+        let obj = new FewDom( node.nodeName );
+        obj.hasExpr = false;
+        if ( obj.isTextNode() ) {
             let attr = 'textContent';
-            let value = elem[attr];
+            let value = node[attr];
             // TODO: we can do it better later
             let expr = parser.parse( value );
             if( expr ) {
-                node.addProperty( attr, expr );
-                node.hasExpr = true;
+                obj.addProperty( attr, expr );
+                obj.hasExpr = true;
             }
         } else {
-            for( let i = 0; i < elem.attributes.length; i++ ) {
-                let name = elem.attributes[i].name;
-                let value = elem.attributes[i].value;
+            for( let i = 0; i < node.attributes.length; i++ ) {
+                let name = node.attributes[i].name;
+                let value = node.attributes[i].value;
                 // TODO: we can do it better later
                 let expr = parser.parse( value );
                 if( expr ) {
                     // if name is event like onclick
                     // TODO: make it as expression later
                     if ( /^on.+/.test( name ) ) {
-                        elem.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
+                        node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
                     } else {
-                        node.addProperty( name, expr );
-                        node.hasExpr = true;
+                        obj.addProperty( name, expr );
+                        obj.hasExpr = true;
                     }
                 }
             }
         }
 
-        if ( node.hasExpr || level === 0 ) {
-            node.reference = elem;
+        if ( obj.hasExpr || level === 0 ) {
+            obj.reference = node;
         }
 
-        for ( let i = 0; i < elem.childNodes.length; i++ ) {
-            let child = elem.childNodes[i];
+        for ( let i = 0; i < node.childNodes.length; i++ ) {
+            let child = node.childNodes[i];
             let childNode = FewDom.createFewDom( child, parser, level + 1 );
             if( childNode ) {
-                node.addChild( childNode );
-                node.hasExpr = node.hasExpr ? node.hasExpr : childNode.hasExpr;
+                obj.addChild( childNode );
+                obj.hasExpr = obj.hasExpr ? obj.hasExpr : childNode.hasExpr;
             }
         }
 
-        return node;
+        return obj;
     }
 
     /**
