@@ -27,7 +27,7 @@ describe( 'Test few-component', () => {
             '    input:',
             '      val: 7',
             '    output:',
-            '      testVal: 7'
+            '      testVal: ""'
         ];
 
         let componentDef = yaml.load( componentContent.join( '\n' ) );
@@ -43,19 +43,20 @@ describe( 'Test few-component', () => {
         let componentContent = [
             'model:',
             '  testVal: 5',
+            '  scope: 9',
             'action:',
             '  testAction1:',
             '    name: "$few_test.setValue"',
             '    input:',
             '      val: 7',
             '    output:',
-            '      testVal: 7',
+            '      testVal: ""',
             '  testAction2:',
             '    name: "$few_test.plusOne"',
             '    input:',
             '      val: ${scope}',
             '    output:',
-            '      testVal: 7',
+            '      testVal: ""',
             '  testAction:',
             '    - action.testAction1',
             '    - action.testAction2'
@@ -68,6 +69,9 @@ describe( 'Test few-component', () => {
         expect( await component.update( 'action.testAction' ) ).toEqual( 8 );
 
         expect( component._vm.model.testVal ).toEqual( 8 );
+
+        // verify the default scope is not overwritten
+        expect( component._vm.model.scope ).toEqual( 9 );
     } );
 
     it( 'Verify few-component can execute action and update view', async() => {
@@ -83,7 +87,7 @@ describe( 'Test few-component', () => {
             '    input:',
             '      val: 7',
             '    output:',
-            '      testVal: 7'
+            '      testVal: ""'
         ];
 
         let componentDef = yaml.load( componentContent.join( '\n' ) );
@@ -100,5 +104,45 @@ describe( 'Test few-component', () => {
         // TODO: No good way to assert for now, need to find a way to avoid using wait later
         await wait( 500 );
         expect( viewElem.firstChild.outerHTML ).toEqual( '<div>7</div>' );
+    } );
+
+    it( 'Verify few-component can execute action with different options', async() => {
+        let pattern = '/^\\s*{{\\s*([\\S\\s\\r\\n]*)\\s*}}\\s*$/m';
+        let componentContent = [
+            'view:',
+            '  template:',
+            '    <div>{{testVal}}</div>',
+            'model:',
+            '  testVal: 5',
+            'provider:',
+            '  testAction:',
+            '    name: "$few_test.plusOne"',
+            '    input:',
+            '      val: "{{testVal}}"',
+            '    output:',
+            '      testVal: ""',
+            'option:',
+            '  stringTemplate:',
+            `    pattern: '${pattern}'`,
+            '    index: 1',
+            '  actionPaths:',
+            '    - action',
+            '    - provider'
+        ];
+
+        let componentDef = yaml.load( componentContent.join( '\n' ) );
+
+        let component = new FewComponent( null, componentDef );
+
+        // View has too be initialized separately since it is async
+        let viewElem = await component.createView( componentDef.view );
+
+        expect( await component.update( 'testAction' ) ).toEqual( 6 );
+
+        expect( component._vm.model.testVal ).toEqual( 6 );
+
+        // TODO: No good way to assert for now, need to find a way to avoid using wait later
+        await wait( 500 );
+        expect( viewElem.firstChild.outerHTML ).toEqual( '<div>6</div>' );
     } );
 } );
