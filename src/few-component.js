@@ -74,7 +74,9 @@ export default class FewComponent {
 
         // Load Scope
         if ( scopeExpr ) {
-            this._vm.model[this._option.scopePath] = evalExpression( this.parseStringTemplate( scopeExpr ), this._parent._vm.model );
+            let parentScope = evalExpression( scopeExpr, this._parent._vm.model );
+            Object.assign( parentScope, this._vm.model );
+            this._vm.model = parentScope;
         }
     }
 
@@ -107,13 +109,6 @@ export default class FewComponent {
             c.updateView();
         } );
     }
-
-    /*
-    parseStringTemplate( str ) {
-        return this._option.templateParser( str );
-    }
-    */
-
 
     _getActionDefinition( key ) {
         let methodDef = null;

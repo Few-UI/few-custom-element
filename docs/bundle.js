@@ -21381,7 +21381,9 @@ define(['require'], function (require) { 'use strict';
 
           // Load Scope
           if ( scopeExpr ) {
-              this._vm.model[this._option.scopePath] = evalExpression( this.parseStringTemplate( scopeExpr ), this._parent._vm.model );
+              let parentScope = evalExpression( scopeExpr, this._parent._vm.model );
+              Object.assign( parentScope, this._vm.model );
+              this._vm.model = parentScope;
           }
       }
 
@@ -21414,13 +21416,6 @@ define(['require'], function (require) { 'use strict';
               c.updateView();
           } );
       }
-
-      /*
-      parseStringTemplate( str ) {
-          return this._option.templateParser( str );
-      }
-      */
-
 
       _getActionDefinition( key ) {
           let methodDef = null;
@@ -21565,25 +21560,8 @@ define(['require'], function (require) { 'use strict';
       }
 
       static get observedAttributes() {
-          return [ 'view', 'scope' ];
+          return [ 'view', 'model' ];
       }
-
-      /*
-      get view() {
-          return this.getAttribute( 'view' );
-      }
-
-      get scope() {
-          return this.getAttribute( 'scope' );
-      }
-
-      set scope( value ) {
-          // do nothing
-          // TODO: skip this update or reuse this update in refresh
-          // Better not use it if we don't want to tie up with custom element
-          this._dummy;
-      }
-      */
 
       constructor() {
           super();
@@ -21602,13 +21580,13 @@ define(['require'], function (require) { 'use strict';
                   // clean up
                   this.innerHTML = '';
 
-                  let scopeExpr = this.getAttribute( 'scope' );
+                  let modelPath = this.getAttribute( 'model' );
 
                   // load component definition
                   let componentDef = jsYaml$1.load( await http.get( `${newValue}.yml` ) );
 
 
-                  this._component = new FewComponent( getComponent( this ), componentDef, scopeExpr );
+                  this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
 
                   // View has too be initialized separately since it is async
                   let viewElem = await this._component.createView( componentDef.view );

@@ -6,7 +6,7 @@ view:
       <label for="name">Name:</label>
       <input type="text" name="user_name" onKeyPress="if (event.which == 13) return false;">
       <button type="submit">${testMsg}</button>
-      <div>${scope.valueFromParent}</div>
+      <div>${valueFromParent}</div>
     </form>
   import:
     - sample/sample-button
