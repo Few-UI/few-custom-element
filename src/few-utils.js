@@ -80,6 +80,16 @@ export function getFormInput( elem ) {
 }
 
 /**
+ * Check if element has scope defined
+ *
+ * @param {Element} element Current DOM Element
+ * @returns {boolean} true if element has scope defined
+ */
+export function hasScope( element ) {
+    return element && element.classList && element.classList.contains( 'few-scope' );
+}
+
+/**
  * Get closest parent element which has view model context
  * NOTE: IE may need polyfill below -
  * https://github.com/jonathantneal/closest

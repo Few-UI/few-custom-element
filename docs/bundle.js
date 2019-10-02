@@ -3898,6 +3898,16 @@ define(['require'], function (require) { 'use strict';
   }
 
   /**
+   * Check if element has scope defined
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {boolean} true if element has scope defined
+   */
+  function hasScope( element ) {
+      return element && element.classList && element.classList.contains( 'few-scope' );
+  }
+
+  /**
    * Get closest parent element which has view model context
    * NOTE: IE may need polyfill below -
    * https://github.com/jonathantneal/closest
@@ -21115,49 +21125,18 @@ define(['require'], function (require) { 'use strict';
 
   /* eslint-env es6 */
 
-  class FewBridge extends HTMLElement {
-      static isBridge( elem ) {
-          if ( elem ) {
-              if ( elem.nodeType === Node.TEXT_NODE ) {
-                  elem = elem.parentElement;
-              }
-              return elem.closest( '.few-bridge' );
-          }
-      }
-
-      static hasBridgeClass( elem ) {
-          return elem && elem.classList && elem.classList.contains( 'few-bridge' );
-      }
-
-      static get tag() {
-          return 'few-bridge';
-      }
-
-      constructor() {
-          super();
-
-          const shadowRoot = this.attachShadow( { mode: 'open' } );
-          shadowRoot.appendChild( document.createElement( 'slot' ) );
-
-          this.classList.add( 'few-bridge' );
-      }
-  }
-
-  // test code, will comment out later
-  customElements.define( FewBridge.tag, FewBridge );
-
-  /* eslint-env es6 */
-
   class FewDom {
       /**
        * Create FewDom structure based on input DOM
        * @param {Element} elem DOM Element
-       * @param {Function} parse string template parser function
+       * @param {StringTemplateParser} parser string template parser function
        * @param {number} level level for current element input
        * @returns {Object} FewDom object
        */
-      static createFewDom( elem, parse, level = 0 ) {
-          if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE || FewBridge.hasBridgeClass( elem ) ) {
+      static createFewDom( elem, parser, level = 0 ) {
+          if(  elem.nodeType !== Node.TEXT_NODE && elem.nodeType !== Node.ELEMENT_NODE ||
+              // has scope defined already
+              hasScope( elem ) ) {
               return;
           }
 
@@ -21168,7 +21147,7 @@ define(['require'], function (require) { 'use strict';
                   let name = elem.attributes[i].name;
                   let value = elem.attributes[i].value;
                   // TODO: we can do it better later
-                  let expr = parse( value );
+                  let expr = parser.parse( value );
                   if( expr ) {
                       // if name is event like onclick
                       // TODO: make it as expression later
@@ -21184,7 +21163,7 @@ define(['require'], function (require) { 'use strict';
               let attr = 'textContent';
               let value = elem[attr];
               // TODO: we can do it better later
-              let expr = parse( value );
+              let expr = parser.parse( value );
               if( expr ) {
                   node.addProperty( attr, expr );
                   node.hasExpr = true;
@@ -21197,7 +21176,7 @@ define(['require'], function (require) { 'use strict';
 
           for ( let i = 0; i < elem.childNodes.length; i++ ) {
               let child = elem.childNodes[i];
-              let childNode = FewDom.createFewDom( child, parse, level + 1 );
+              let childNode = FewDom.createFewDom( child, parser, level + 1 );
               if( childNode ) {
                   node.addChild( childNode );
                   node.hasExpr = node.hasExpr ? node.hasExpr : childNode.hasExpr;
@@ -21260,8 +21239,7 @@ define(['require'], function (require) { 'use strict';
        * @param {FewComponent} vm view model object
        */
       render( vm ) {
-          // We can cut FewBridge here or cut it at VDOM creation
-          if( this.hasExpr /*&& !FewBridge.isBridge( this.reference )*/ ) {
+          if( this.hasExpr ) {
               lodash.forEach( this.props, ( value, name ) => {
                   let res = evalExpression( value, vm );
                   // TODO: maybe string comparison will be better?
@@ -21317,6 +21295,41 @@ define(['require'], function (require) { 'use strict';
 
   /* eslint-env es6 */
 
+  /**
+   * String Template Parser
+   */
+  class StringTemplateParser {
+      constructor( template ) {
+          let tpl = template ? template : this.constructor.defaultTemplate;
+
+          // regular expression object
+          this._regExpObj = evalExpression( tpl.pattern );
+
+          // match index
+          this._matchIdx = tpl.index;
+      }
+
+      /**
+       * Parse string with template
+       * @param {string} str input string
+       * @returns {string} expression define by input string
+       */
+      parse( str ) {
+          let match = this._regExpObj.exec( str );
+          if ( match ) {
+              return match[this._matchIdx];
+          }
+      }
+  }
+
+  StringTemplateParser.defaultTemplate = {
+      // eslint-disable-next-line no-template-curly-in-string
+      pattern: '/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$/m',
+      index: 1
+  };
+
+  /* eslint-env es6 */
+
   class FewComponent {
       /**
        * Constructor for View Model Object
@@ -21353,8 +21366,6 @@ define(['require'], function (require) { 'use strict';
               this._view.render( this._vm.model );
           }, 100 );
 
-          this.parseStringTemplate = null;
-
           /**
            * Default options
            */
@@ -21377,7 +21388,7 @@ define(['require'], function (require) { 'use strict';
           }
 
           // Load string template
-          this._loadStringTemplate();
+          this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
 
           // Load Scope
           if ( scopeExpr ) {
@@ -21386,18 +21397,6 @@ define(['require'], function (require) { 'use strict';
               this._vm.model = parentScope;
           }
       }
-
-      _loadStringTemplate() {
-          let templateDef = this._option.stringTemplate;
-          let regExpObj = evalExpression( templateDef.pattern );
-          this.parseStringTemplate = function( str ) {
-              let match = regExpObj.exec( str );
-              if ( match ) {
-                  return match[templateDef.index];
-              }
-          };
-      }
-
 
       /**
        * Update value and trigger view update
@@ -21442,7 +21441,7 @@ define(['require'], function (require) { 'use strict';
               // TODO: we can do it at compile to save performance
               let value = obj[key];
               if ( typeof value === 'string' ) {
-                  let template = this.parseStringTemplate( value );
+                  let template = this._strTplParser.parse( value );
                   if ( template ) {
                       obj[key] = evalExpression( template, this._vm.model );
                   }
@@ -21489,7 +21488,7 @@ define(['require'], function (require) { 'use strict';
       async createView( view ) {
           await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-          this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this.parseStringTemplate );
+          this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this._strTplParser );
           let elem = this._view.getDomElement();
           setComponent( elem, this );
           this._view.render( this._vm.model );
@@ -21601,6 +21600,26 @@ define(['require'], function (require) { 'use strict';
       }
   }
   customElements.define( FewView.tag, FewView );
+
+  /* eslint-env es6 */
+
+  class FewBridge extends HTMLElement {
+      static get tag() {
+          return 'few-bridge';
+      }
+
+      constructor() {
+          super();
+
+          const shadowRoot = this.attachShadow( { mode: 'open' } );
+          shadowRoot.appendChild( document.createElement( 'slot' ) );
+
+          this.classList.add( 'few-scope' );
+      }
+  }
+
+  // test code, will comment out later
+  customElements.define( FewBridge.tag, FewBridge );
 
   /* eslint-env es6 */
   // https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements

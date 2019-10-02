@@ -9,6 +9,7 @@ import {
     evalExpression,
     cloneDeepJsonObject
 } from './few-utils';
+import StringTemplateParser from './string-template-parser';
 
 export default class FewComponent {
     /**
@@ -46,8 +47,6 @@ export default class FewComponent {
             this._view.render( this._vm.model );
         }, 100 );
 
-        this.parseStringTemplate = null;
-
         /**
          * Default options
          */
@@ -70,7 +69,7 @@ export default class FewComponent {
         }
 
         // Load string template
-        this._loadStringTemplate();
+        this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
 
         // Load Scope
         if ( scopeExpr ) {
@@ -79,18 +78,6 @@ export default class FewComponent {
             this._vm.model = parentScope;
         }
     }
-
-    _loadStringTemplate() {
-        let templateDef = this._option.stringTemplate;
-        let regExpObj = evalExpression( templateDef.pattern );
-        this.parseStringTemplate = function( str ) {
-            let match = regExpObj.exec( str );
-            if ( match ) {
-                return match[templateDef.index];
-            }
-        };
-    }
-
 
     /**
      * Update value and trigger view update
@@ -135,7 +122,7 @@ export default class FewComponent {
             // TODO: we can do it at compile to save performance
             let value = obj[key];
             if ( typeof value === 'string' ) {
-                let template = this.parseStringTemplate( value );
+                let template = this._strTplParser.parse( value );
                 if ( template ) {
                     obj[key] = evalExpression( template, this._vm.model );
                 }
@@ -182,7 +169,7 @@ export default class FewComponent {
     async createView( view ) {
         await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-        this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this.parseStringTemplate );
+        this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this._strTplParser );
         let elem = this._view.getDomElement();
         setComponent( elem, this );
         this._view.render( this._vm.model );
