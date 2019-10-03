@@ -21269,7 +21269,7 @@ define(['require'], function (require) { 'use strict';
                           if( res ) {
                               parentNode.replaceChild( this.createHtmlDom( vm ), currNode );
                           } else {
-                             let newNode = document.createComment( `${value} = ${res}` );
+                             let newNode = document.createComment( `v-if ${value} = ${res}` );
                               parentNode.replaceChild( newNode, currNode );
                               this.reference = newNode;
                           }
