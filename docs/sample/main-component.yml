@@ -14,7 +14,7 @@ view:
       <h2>Condition</h2>
       <div>${ "testCond:" + testCond }</div>
       <button onclick="${flipTestCond}">Flip Condition</button>
-      <div v-if="${testCond}">Display if testCond=true</div>
+      <div v-if="${testCond}"><code style="color:blue">${testMsg}</code></div>
     </div>
     <div>
       <h2>Output</h2>

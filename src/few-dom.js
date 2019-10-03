@@ -175,7 +175,7 @@ export default class FewDom {
             newNode = document.createTextNode( this.values.textContent );
         } else {
             newNode = document.createElement( this.tagName );
-            _.forEach( this.props, ( expr, attr ) => {
+            _.forEach( this.values, ( expr, attr ) => {
                 newNode.setAttribute( attr, this.values[attr] );
             } );
             _.forEach( this.children, ( c ) => {

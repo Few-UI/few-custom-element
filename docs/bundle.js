@@ -21296,7 +21296,7 @@ define(['require'], function (require) { 'use strict';
               newNode = document.createTextNode( this.values.textContent );
           } else {
               newNode = document.createElement( this.tagName );
-              lodash.forEach( this.props, ( expr, attr ) => {
+              lodash.forEach( this.values, ( expr, attr ) => {
                   newNode.setAttribute( attr, this.values[attr] );
               } );
               lodash.forEach( this.children, ( c ) => {
