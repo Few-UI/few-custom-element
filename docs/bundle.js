@@ -21398,10 +21398,15 @@ define(['require'], function (require) { 'use strict';
           this._vm = componentDef;
 
           /**
+           * Dirty flag, we can put it to model, for now put it here
+           */
+          this._isDirty = false;
+
+          /**
            * method update view
            * TODO: can we return promise here
            */
-          this.updateView = lodash.debounce( () => {
+          this._updateViewDebounce = lodash.debounce( () => {
               this._view.render( this._vm.model );
           }, 100 );
 
@@ -21421,7 +21426,7 @@ define(['require'], function (require) { 'use strict';
           if( !this._option.actionPaths ) {
               this._option.actionPaths = [ 'action' ];
           }
-          this._option.actionPaths.push( [ '' ] );
+          this._option.actionPaths.push( '' );
 
           if ( !this._option.stringTemplate ) {
               this._option.stringTemplate = {
@@ -21441,24 +21446,46 @@ define(['require'], function (require) { 'use strict';
               this._vm.model = parentScope;
           }
       }
+      ///////////////////////////////////////////////////////////////////////////////////////
+      _updateView() {
+          if ( this._view ) {
+              this._updateViewDebounce();
+              this._isDirty = false;
+          }
+
+          // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
+          // to child, the child cannot diffrenciate the value has been changed or not.
+          // For now do a hard update for every child node, which is bad practice
+          lodash.forEach( this._children, ( c ) => {
+              c._updateViewDebounce();
+          } );
+      }
+
+      /**
+       * set view for current view model
+       * @param {Object} view view input
+       * @returns {Promise} promise with view element
+       */
+      async createView( view ) {
+          await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
+
+          this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this._strTplParser );
+          let elem = this._view.getDomElement();
+          setComponent( elem, this );
+          this._view.render( this._vm.model );
+          return elem;
+      }
+
+      /////////////////////////////////////////////////////////////////////////////////////////
 
       /**
        * Update value and trigger view update
        * @param {string} path value path on model
        * @param {string} value value itself
        */
-      _updateValue( path, value ) {
+      _updateModel( path, value ) {
           lodash.set( this._vm.model, path, value );
-
-          if ( this._view ) {
-              this.updateView();
-              // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
-              // to child, the child cannot diffrenciate the value has been changed or not.
-              // For now do a hard update for every child node, which is bad practice
-              lodash.forEach( this._children, ( c ) => {
-                  c.updateView();
-              } );
-          }
+          this._isDirty = true;
       }
 
       _getActionDefinition( key ) {
@@ -21516,7 +21543,7 @@ define(['require'], function (require) { 'use strict';
           }
 
           lodash.forEach( actionDef.output, ( valPath, vmPath ) => {
-              this._updateValue( vmPath, valPath && valPath.length > 0 ? lodash.get( res, valPath ) : res );
+              this._updateModel( vmPath, valPath && valPath.length > 0 ? lodash.get( res, valPath ) : res );
           } );
 
           // scope as next input
@@ -21524,36 +21551,31 @@ define(['require'], function (require) { 'use strict';
           return res ? res : scope;
       }
 
-      /**
-       * set view for current view model
-       * @param {Object} view view input
-       * @returns {Promise} promise with view element
-       */
-      async createView( view ) {
-          await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
-
-          this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this._strTplParser );
-          let elem = this._view.getDomElement();
-          setComponent( elem, this );
-          this._view.render( this._vm.model );
-          return elem;
-      }
 
       /**
        * evaluate method in view model
        * @param {string} methodName method name in view model
        * @param {object} scope input from upstream
+       * @param {boolean} updateView if true will update view
        * @returns {Promise} promise with scope value
        */
-      async update( methodName, scope ) {
+      async update( methodName, scope, updateView = true ) {
           let actionDef = this._getActionDefinition( methodName );
 
+          let res = null;
           if ( lodash.isArray( actionDef ) ) {
-              return actionDef.reduce( async( scope, name ) => {
-                  return this.update( name, await scope );
+              res = await actionDef.reduce( async( scope, name ) => {
+                  return this.update( name, await scope, false );
               }, scope );
+          } else {
+              res = await this._executeAction( actionDef, scope );
           }
-          return this._executeAction( actionDef, scope );
+
+          if( updateView ) {
+              this._updateView();
+          }
+
+          return res;
       }
   }
 
