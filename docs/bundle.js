@@ -21449,14 +21449,6 @@ define(['require'], function (require) { 'use strict';
       }
 
       ///////////////////////////////////////////////////////////////////////////////////////
-      _requestViewUpdate() {
-          if ( this._parent ) {
-              this._parent._requestViewUpdate();
-          } else {
-              this._updateViewDebounce();
-          }
-      }
-
       _updateView() {
           if ( this._view ) {
               this._view.render( this._vm.model );
@@ -21469,6 +21461,14 @@ define(['require'], function (require) { 'use strict';
           lodash.forEach( this._children, ( c ) => {
               c._updateView();
          } );
+      }
+
+      _requestViewUpdate() {
+          if ( this._parent ) {
+              this._parent._requestViewUpdate();
+          } else {
+              this._updateViewDebounce();
+          }
       }
 
       /**
