@@ -31,6 +31,8 @@ export default class FewDom {
             if( expr ) {
                 obj.addProperty( attr, expr );
                 obj.hasExpr = true;
+            } else {
+                obj.values[attr] = value;
             }
         } else {
             for( let i = 0; i < node.attributes.length; i++ ) {
@@ -47,6 +49,8 @@ export default class FewDom {
                         obj.addProperty( name, expr );
                         obj.hasExpr = true;
                     }
+                } else {
+                    obj.values[name] = value;
                 }
             }
         }
@@ -142,14 +146,9 @@ export default class FewDom {
                         let currNode = this.reference;
                         let parentNode = currNode.parentNode;
                         if( res ) {
-                            let newNode = document.createComment( `${value} = ${res}` );
-                            parentNode.replaceChild( newNode, currNode );
-                            this.reference = newNode;
+                            parentNode.replaceChild( this.createHtmlDom( vm ), currNode );
                         } else {
-                            let newNode = document.createElement( this.tagName );
-                            _.forEach( this.props, ( expr, attr ) => {
-                                newNode.setAttribute( attr, this.values[attr] );
-                            } );
+                           let newNode = document.createComment( `${value} = ${res}` );
                             parentNode.replaceChild( newNode, currNode );
                             this.reference = newNode;
                         }
@@ -163,6 +162,29 @@ export default class FewDom {
                 child.render( vm );
             }
         }
+    }
+
+    /**
+     * Refresh/create HTML DOM for current FewDOM
+     * @param {FewComponent} vm view model object
+     * @returns {Node} HTML dom Node
+     */
+    createHtmlDom( vm ) {
+        let newNode = null;
+        if( this.isTextNode() ) {
+            newNode = document.createTextNode( this.values.textContent );
+        } else {
+            newNode = document.createElement( this.tagName );
+            _.forEach( this.props, ( expr, attr ) => {
+                newNode.setAttribute( attr, this.values[attr] );
+            } );
+            _.forEach( this.children, ( c ) => {
+                newNode.appendChild( c.createHtmlDom( vm ) );
+            } );
+        }
+
+        this.reference = newNode;
+        return newNode;
     }
 
     /**

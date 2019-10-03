@@ -21152,6 +21152,8 @@ define(['require'], function (require) { 'use strict';
               if( expr ) {
                   obj.addProperty( attr, expr );
                   obj.hasExpr = true;
+              } else {
+                  obj.values[attr] = value;
               }
           } else {
               for( let i = 0; i < node.attributes.length; i++ ) {
@@ -21168,6 +21170,8 @@ define(['require'], function (require) { 'use strict';
                           obj.addProperty( name, expr );
                           obj.hasExpr = true;
                       }
+                  } else {
+                      obj.values[name] = value;
                   }
               }
           }
@@ -21263,14 +21267,9 @@ define(['require'], function (require) { 'use strict';
                           let currNode = this.reference;
                           let parentNode = currNode.parentNode;
                           if( res ) {
-                              let newNode = document.createComment( `${value} = ${res}` );
-                              parentNode.replaceChild( newNode, currNode );
-                              this.reference = newNode;
+                              parentNode.replaceChild( this.createHtmlDom( vm ), currNode );
                           } else {
-                              let newNode = document.createElement( this.tagName );
-                              lodash.forEach( this.props, ( expr, attr ) => {
-                                  newNode.setAttribute( attr, this.values[attr] );
-                              } );
+                             let newNode = document.createComment( `${value} = ${res}` );
                               parentNode.replaceChild( newNode, currNode );
                               this.reference = newNode;
                           }
@@ -21284,6 +21283,29 @@ define(['require'], function (require) { 'use strict';
                   child.render( vm );
               }
           }
+      }
+
+      /**
+       * Refresh/create HTML DOM for current FewDOM
+       * @param {FewComponent} vm view model object
+       * @returns {Node} HTML dom Node
+       */
+      createHtmlDom( vm ) {
+          let newNode = null;
+          if( this.isTextNode() ) {
+              newNode = document.createTextNode( this.values.textContent );
+          } else {
+              newNode = document.createElement( this.tagName );
+              lodash.forEach( this.props, ( expr, attr ) => {
+                  newNode.setAttribute( attr, this.values[attr] );
+              } );
+              lodash.forEach( this.children, ( c ) => {
+                  newNode.appendChild( c.createHtmlDom( vm ) );
+              } );
+          }
+
+          this.reference = newNode;
+          return newNode;
       }
 
       /**
