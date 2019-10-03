@@ -1,6 +1,6 @@
 // main entrance for debug test site
 /* eslint-env es6 */
-import '../src/few-view';
+import '../src/few-view-element';
 import '../src/few-bridge';
 import '../src/popup-info';
 

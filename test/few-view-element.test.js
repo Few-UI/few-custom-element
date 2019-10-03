@@ -2,7 +2,7 @@
 /* eslint-env es6, jasmine */
 
 import http from '../src/http';
-import FewView from '../src/few-view';
+import FewView from '../src/few-view-element';
 import { renderToSub, wait } from './test-utils';
 
 describe( 'Test few-view', () => {
