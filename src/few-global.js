@@ -44,7 +44,9 @@ export function handleEvent( elem, methodName, e ) {
 export function requestUpdate( elem, data ) {
     let viewElem = getViewElement( elem );
     let component = getComponent( viewElem );
-    return component.update( viewElem.id, data );
+    // View update is not needed in requestUpdate case since it will flow up
+    // in sub action
+    return component.update( viewElem.id, data, false );
 }
 
 /**

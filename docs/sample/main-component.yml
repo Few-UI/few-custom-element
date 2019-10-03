@@ -11,6 +11,12 @@ view:
       <few-view id="dialog" src="sample/sub-component" model="dialogContext"></few-view>
     </div>
     <div>
+      <h2>Condition</h2>
+      <div>${ "testCond:" + testCond }</div>
+      <button onclick="${flipTestCond}">Flip Condition</button>
+      <div v-if="${testCond}">Display if testCond=true</div>
+    </div>
+    <div>
       <h2>Output</h2>
       <div>${testMsg}</div>
     </div>
@@ -20,6 +26,7 @@ view:
 # model
 model:
   testMsg: Hello World!
+  testCond: true
   dialogContext:
     valueFromParent: Text from parent!
 
@@ -35,11 +42,19 @@ action:
 
   setValue:
     import: sample/sample-utils
-    name: log
+    name: setValue
     input:
       message: '${scope}'
     output:
       testMsg: ''
+
+  flipTestCond:
+    import: sample/sample-utils
+    name: setValue
+    input:
+      message: '${!testCond}'
+    output:
+      testCond: ''
 
   updateDialogContext:
     import: sample/sample-utils

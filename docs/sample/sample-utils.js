@@ -16,6 +16,10 @@ define( [], () => {
         return msg;
     };
 
+    exports.setValue = function( msg ) {
+        return msg;
+    };
+
     exports.testAccu = function() {
         return `count ${_counter++}`;
     };

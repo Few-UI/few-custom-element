@@ -20,7 +20,7 @@ model:
 action:
   setValue:
     import: sample/sample-utils
-    name: log
+    name: setValue
     input:
       value:
         element: '${scope.element}'

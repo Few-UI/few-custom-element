@@ -136,8 +136,26 @@ export default class FewDom {
                 if ( !_.isEqual( this.values[name], res ) ) {
                     this.values[name] = res;
 
-                    // For text node we only have text content currently and it is property
-                    this.isTextNode() ? this.reference[name] = res : this.reference.setAttribute( name, res );
+                    if( name === 'textContent' ) {
+                        this.reference[name] = res;
+                    } else if ( name === 'v-if' ) {
+                        let currNode = this.reference;
+                        let parentNode = currNode.parentNode;
+                        if( res ) {
+                            let newNode = document.createComment( `${value} = ${res}` );
+                            parentNode.replaceChild( newNode, currNode );
+                            this.reference = newNode;
+                        } else {
+                            let newNode = document.createElement( this.tagName );
+                            _.forEach( this.props, ( expr, attr ) => {
+                                newNode.setAttribute( attr, this.values[attr] );
+                            } );
+                            parentNode.replaceChild( newNode, currNode );
+                            this.reference = newNode;
+                        }
+                    } else {
+                        this.reference.setAttribute( name, res );
+                    }
                 }
             } );
 
