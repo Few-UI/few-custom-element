@@ -21402,13 +21402,6 @@ define(['require'], function (require) { 'use strict';
            */
           this._isDirty = false;
 
-          /**
-           * method update view
-           * TODO: can we return promise here
-           */
-          this._updateViewDebounce = lodash.debounce( () => {
-              this._view.render( this._vm.model );
-          }, 100 );
 
           /**
            * Default options
@@ -21445,11 +21438,28 @@ define(['require'], function (require) { 'use strict';
               Object.assign( parentScope, this._vm.model );
               this._vm.model = parentScope;
           }
+
+          /**
+           * method update view
+           * TODO: can we return promise here
+           */
+          this._updateViewDebounce = lodash.debounce( () => {
+              this._updateView();
+          }, 100 );
       }
+
       ///////////////////////////////////////////////////////////////////////////////////////
+      _requestViewUpdate() {
+          if ( this._parent ) {
+              this._parent._requestViewUpdate();
+          } else {
+              this._updateViewDebounce();
+          }
+      }
+
       _updateView() {
           if ( this._view ) {
-              this._updateViewDebounce();
+              this._view.render( this._vm.model );
               this._isDirty = false;
           }
 
@@ -21457,8 +21467,8 @@ define(['require'], function (require) { 'use strict';
           // to child, the child cannot diffrenciate the value has been changed or not.
           // For now do a hard update for every child node, which is bad practice
           lodash.forEach( this._children, ( c ) => {
-              c._updateViewDebounce();
-          } );
+              c._updateView();
+         } );
       }
 
       /**
@@ -21572,7 +21582,7 @@ define(['require'], function (require) { 'use strict';
           }
 
           if( updateView ) {
-              this._updateView();
+              this._requestViewUpdate();
           }
 
           return res;
