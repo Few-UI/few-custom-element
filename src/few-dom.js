@@ -3,7 +3,8 @@
 import _ from 'lodash';
 import {
     hasScope,
-    evalExpression
+    evalExpression,
+    parseViewToDiv
 } from './few-utils';
 
 export default class FewDom {
@@ -31,18 +32,49 @@ export default class FewDom {
             let vSetName = match[3];
             node.removeAttribute( 'v-for' );
             // obj._renderFuncExpr = `${vSetName}.map((${vVarName}) => { return \`` + node.outerHTML + '`; }).join("");';
+            obj.hasExpr = true;
             obj._renderFunc = ( vm ) => {
-                return vm[vSetName].map( ( o ) => {
+                let content = vm[vSetName].map( ( o ) => {
                     let vVar = {};
                     vVar[vVarName] = o;
+                    // TODO: If the pattern is not ${}, it will break
                     return evalExpression( '`' + node.outerHTML + '`', Object.assign( Object.assign( {}, vm ), vVar ), true );
                 } ).join( '' );
+
+                content = content ? content : '<!-- v-for is empty -->';
+                let parent = obj.reference.parentNode;
+                let oldHtml = parent.innerHTML;
+                if ( !_.isEqual( oldHtml, content ) ) {
+                    parent.innerHTML = content;
+                    obj.reference = parent.firstChild;
+                }
             };
             // For now not set hasExpr = true.
+        } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
+            let vIfExpr = node.getAttribute( 'v-if' );
+            node.removeAttribute( 'v-if' );
             obj.hasExpr = true;
-        } /*else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
-
-        }*/ else if ( obj.isTextNode() ) {
+            obj._renderFunc = ( vm ) => {
+                let currNode = obj.reference;
+                let parentNode = currNode.parentNode;
+                let vIfRes = evalExpression( vIfExpr, vm, true );
+                if ( obj.values['v-if'] === undefined || obj.values['v-if'] !== Boolean( vIfRes ) ) {
+                    if( vIfRes ) {
+                        // TODO: If the pattern is not ${}, it will break
+                        let content = evalExpression( '`' + node.outerHTML + '`', vm, true );
+                        let newNode = parseViewToDiv( content ).firstChild;
+                        parentNode.replaceChild( newNode, currNode );
+                        obj.reference = newNode;
+                    } else {
+                       let newNode = document.createComment( `v-if ${vIfExpr} = ${vIfRes}` );
+                        parentNode.replaceChild( newNode, currNode );
+                        obj.reference = newNode;
+                    }
+                }
+                obj.values['v-if'] = Boolean( vIfRes );
+            };
+            obj.reference = node;
+        } else if ( obj.isTextNode() ) {
             let attr = 'textContent';
             let value = node[attr];
             // TODO: we can do it better later
@@ -156,14 +188,7 @@ export default class FewDom {
             if( this._renderFunc ) {
                 // v-for case, force overwrite
                 // TODO: for now assume v-for doen't have sibling
-                let res = this._renderFunc( vm );
-                res = res ? res : '<!-- v-for is empty -->';
-                let parent = this.reference.parentNode;
-                let oldHtml = parent.innerHTML;
-                if ( !_.isEqual( oldHtml, res ) ) {
-                    parent.innerHTML = res;
-                    this.reference = parent.firstChild;
-                }
+                this._renderFunc( vm );
             } else {
                 _.forEach( this.props, ( value, name ) => {
                     let res = evalExpression( value, vm, true );
@@ -173,7 +198,7 @@ export default class FewDom {
 
                         if( name === 'textContent' ) {
                             this.reference[name] = res;
-                        } else if ( name === 'v-if' ) {
+                        } /*else if ( name === 'v-if' ) {
                             let currNode = this.reference;
                             let parentNode = currNode.parentNode;
                             if( res ) {
@@ -183,7 +208,7 @@ export default class FewDom {
                                 parentNode.replaceChild( newNode, currNode );
                                 this.reference = newNode;
                             }
-                        } else {
+                        }*/ else {
                             this.reference.setAttribute( name, res );
                         }
                     }

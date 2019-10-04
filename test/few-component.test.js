@@ -165,7 +165,7 @@ describe( 'Test v-if in few-view', () => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div v-if="${testBoolean}">Hello</div>',
+            '    <div v-if="testBoolean">Hello</div>',
             'model:',
             '  testBoolean: false',
             'action:',
@@ -189,7 +189,7 @@ describe( 'Test v-if in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<div v-if="true">Hello</div>' );
+        expect( viewElem.innerHTML ).toEqual( '<div>Hello</div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
@@ -201,7 +201,7 @@ describe( 'Test v-if in few-view', () => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div v-if="${testBoolean}">${testVal}</div>',
+            '    <div v-if="testBoolean">${testVal}</div>',
             'model:',
             '  testBoolean: true',
             '  testVal: 5',
@@ -229,7 +229,7 @@ describe( 'Test v-if in few-view', () => {
 
         let viewElem = await component.createView( componentDef.view );
 
-        expect( viewElem.innerHTML ).toEqual( '<div v-if="true">5</div>' );
+        expect( viewElem.innerHTML ).toEqual( '<div>5</div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
@@ -239,14 +239,14 @@ describe( 'Test v-if in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<div v-if="true">7</div>' );
+        expect( viewElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
     it( 'Verify v-if works corretly for nested element', async() => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div v-if="${testBoolean}"><code style="color:blue">${testMsg}</code></div>',
+            '    <div v-if="testBoolean"><code style="color:blue">${testMsg}</code></div>',
             'model:',
             '  testBoolean: false',
             '  testMsg: hello',
@@ -270,7 +270,7 @@ describe( 'Test v-if in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<div v-if="true"><code style="color:blue">hello</code></div>' );
+        expect( viewElem.innerHTML ).toEqual( '<div><code style="color:blue">hello</code></div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
