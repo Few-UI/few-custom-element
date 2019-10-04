@@ -1,70 +1,51 @@
 # view
 view:
   template:
-    <sample-button onclick="${testAction}">${testMsg}</sample-button>
-    <few-bridge>
-      <sample-button onclick="${action.testAction}">${testMsg}</sample-button>
-    </few-bridge>
     <div>
-      <h2>view in view</h2>
-      <!-- need to find a way to drive sub-view -->
+      <h2>Basic Binding</h2>
+      <sample-button onclick="${updateSimpleText}">${simpleText}</sample-button>
+      <code>${simpleText}</code>
+      <h3>Isolate Scope</h3>
+      <few-bridge>
+        <sample-button onclick="${action.updateSimpleText}">${simpleText}</sample-button>
+      </few-bridge>
+    </div>
+    <div>
+      <h2>Child View</h2>
       <few-view id="dialog" src="sample/sub-component" model="dialogContext"></few-view>
-    </div>
-    <div>
-      <h2>Condition</h2>
-      <div>${ "testCond:" + testCond }</div>
-      <button onclick="${flipTestCond}">Flip Condition</button>
-      <div v-if="${testCond}"><code style="color:blue">${testMsg}</code></div>
-    </div>
-    <div>
-      <h2>Loop</h2>
-      <div>${ "testCond:" + testCond }</div>
-      <button onclick="${increaseCount}">Add Count</button>
-      <ul id="example-1">
-        <li v-for="item in items">
-          ${ item.message }
-        </li>
-      </ul>
-    </div>
-    <div>
-      <h2>Output</h2>
+      <h3>Update from Child View</h3>
       <div>${testMsg}</div>
     </div>
+    <few-view src="sample/cond-component"></few-view>
+    <few-view src="sample/loop-component"></few-view>
+
   import:
     - sample/sample-button
 
 # model
 model:
+  simpleText: Hello World!
   testMsg: Hello World!
-  testCond: true
   dialogContext:
     valueFromParent: Text from parent!
 
 # update
 action:
-  testAction:
+  updateSimpleText:
     import: sample/sample-utils
     name: testAccu
     input:
-      message: '${testMsg}'
+      message: '${simpleText}'
     output:
-      testMsg: ''
+      simpleText: ''
 
-  setValue:
+  updateParentModel:
     import: sample/sample-utils
     name: setValue
     input:
       message: '${scope}'
     output:
       testMsg: ''
-
-  flipTestCond:
-    import: sample/sample-utils
-    name: setValue
-    input:
-      message: '${!testCond}'
-    output:
-      testCond: ''
 
   updateDialogContext:
     import: sample/sample-utils
@@ -75,7 +56,7 @@ action:
       dialogContext.valueFromParent: ''
 
   dialog:
-    - setValue
+    - updateParentModel
     - updateDialogContext
 
 #option

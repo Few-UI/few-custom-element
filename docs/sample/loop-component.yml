@@ -1,0 +1,29 @@
+# view
+view:
+  template:
+    <h2>Loop</h2>
+    <div>${ "loopCount:" + loopCount }</div>
+    <button onclick="${increaseCount}">Add Count</button>
+    <ul>
+      <li v-for="item in items">
+        ${ simpleText + item.message }
+      </li>
+    </ul>
+
+# model
+model:
+  loopCount: 1
+  simpleText: ''
+  item:
+    message: 'test'
+
+# update
+action:
+  increaseCount:
+    import: sample/sample-utils
+    name: testAccu
+    input:
+      message: '${simpleText}'
+    output:
+      simpleText: ''
+

@@ -1,0 +1,22 @@
+# view
+view:
+  template:
+    <h2>Condition</h2>
+    <div>${ "testCond:" + testCond }</div>
+    <button onclick="${flipTestCond}">Flip Condition</button>
+    <div v-if="${testCond}"><code style="color:blue">${testMsg}</code></div>
+
+# model
+model:
+  testMsg: Beats me!
+  testCond: true
+
+# update
+action:
+  flipTestCond:
+    import: sample/sample-utils
+    name: setValue
+    input:
+      message: '${!testCond}'
+    output:
+      testCond: ''
