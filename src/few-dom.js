@@ -95,7 +95,6 @@ export default class FewDom {
         this.children = children;
         this.hasExpr = false;
         this.reference = null;
-        this._renderFuncExpr = null;
     }
 
     /**

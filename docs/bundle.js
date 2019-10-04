@@ -21221,7 +21221,6 @@ define(['require'], function (require) { 'use strict';
           this.children = children;
           this.hasExpr = false;
           this.reference = null;
-          this._renderFuncExpr = null;
       }
 
       /**
