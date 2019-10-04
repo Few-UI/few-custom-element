@@ -58,3 +58,5 @@ No, we should treat sub component as black box. It doesn't has flexibility like 
 - [Web Component Example fro Google - Tabs](https://developers.google.com/web/fundamentals/web-components/examples/howto-tabs)
 - [Unidirectional User Interface Architectures](https://staltz.com/unidirectional-user-interface-architectures.html)
 - [ShieldsIO(for badge)](https://shields.io/category/build)
+- [VDOM](https://github.com/livoras/blog/issues/13)
+- [MV*](https://github.com/livoras/blog/issues/11)

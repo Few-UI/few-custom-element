@@ -42,11 +42,11 @@ export default class FewDom {
                 } ).join( '' );
 
                 content = content ? content : '<!-- v-for is empty -->';
-                let parent = obj.reference.parentNode;
+                let parent = obj._htmlDomReference.parentNode;
                 let oldHtml = parent.innerHTML;
                 if ( !_.isEqual( oldHtml, content ) ) {
                     parent.innerHTML = content;
-                    obj.reference = parent.firstChild;
+                    obj._htmlDomReference = parent.firstChild;
                 }
             };
             // For now not set hasExpr = true.
@@ -55,7 +55,7 @@ export default class FewDom {
             node.removeAttribute( 'v-if' );
             obj.hasExpr = true;
             obj._renderFunc = ( vm ) => {
-                let currNode = obj.reference;
+                let currNode = obj._htmlDomReference;
                 let parentNode = currNode.parentNode;
                 let vIfRes = evalExpression( vIfExpr, vm, true );
                 if ( obj.values['v-if'] === undefined || obj.values['v-if'] !== Boolean( vIfRes ) ) {
@@ -64,16 +64,16 @@ export default class FewDom {
                         let content = evalExpression( '`' + node.outerHTML + '`', vm, true );
                         let newNode = parseViewToDiv( content ).firstChild;
                         parentNode.replaceChild( newNode, currNode );
-                        obj.reference = newNode;
+                        obj._htmlDomReference = newNode;
                     } else {
                        let newNode = document.createComment( `v-if ${vIfExpr} = ${vIfRes}` );
                         parentNode.replaceChild( newNode, currNode );
-                        obj.reference = newNode;
+                        obj._htmlDomReference = newNode;
                     }
                 }
                 obj.values['v-if'] = Boolean( vIfRes );
             };
-            obj.reference = node;
+            obj._htmlDomReference = node;
         } else if ( obj.isTextNode() ) {
             let attr = 'textContent';
             let value = node[attr];
@@ -107,7 +107,7 @@ export default class FewDom {
         }
 
         if ( obj.hasExpr || level === 0 ) {
-            obj.reference = node;
+            obj._htmlDomReference = node;
         }
 
         for ( let i = 0; !obj._renderFunc && i < node.childNodes.length; i++ ) {
@@ -134,7 +134,7 @@ export default class FewDom {
         this.values = {};
         this.children = children;
         this.hasExpr = false;
-        this.reference = null;
+        this._htmlDomReference = null;
     }
 
     /**
@@ -167,7 +167,7 @@ export default class FewDom {
      * @returns {Element} DOM element for current view element
      */
     getDomElement() {
-        return this.reference;
+        return this._htmlDomReference;
     }
 
     /**
@@ -194,7 +194,7 @@ export default class FewDom {
                 let res = evalExpression( this.props[name], vm, true );
                 if ( !_.isEqual( this.values[name], res ) ) {
                     this.values[name] = res;
-                    this.reference[name] = res;
+                    this._htmlDomReference[name] = res;
                 }
             } else {
                 _.forEach( this.props, ( value, name ) => {
@@ -202,17 +202,17 @@ export default class FewDom {
                     // TODO: maybe string comparison will be better?
                     if ( !_.isEqual( this.values[name], res ) ) {
                         this.values[name] = res;
-                        this.reference.setAttribute( name, res );
+                        this._htmlDomReference.setAttribute( name, res );
                         /*
                         if ( name === 'v-if' ) {
-                            let currNode = this.reference;
+                            let currNode = this._htmlDomReference;
                             let parentNode = currNode.parentNode;
                             if( res ) {
                                 parentNode.replaceChild( this.createHtmlDom( vm ), currNode );
                             } else {
                                let newNode = document.createComment( `v-if ${value} = ${res}` );
                                 parentNode.replaceChild( newNode, currNode );
-                                this.reference = newNode;
+                                this._htmlDomReference = newNode;
                             }
                         } else {
                         */
@@ -245,7 +245,7 @@ export default class FewDom {
             } );
         }
 
-        this.reference = newNode;
+        this._htmlDomReference = newNode;
         return newNode;
     }
 
@@ -255,12 +255,12 @@ export default class FewDom {
      */
     toJson() {
         let refStr = '';
-        if( this.reference ) {
+        if( this._htmlDomReference ) {
             if( this.isTextNode() ) {
-                refStr = this.reference.nodeValue;
+                refStr = this._htmlDomReference.nodeValue;
             } else {
-                let node = this.reference.cloneNode();
-                if( this.reference.children && this.reference.children.length > 0 ) {
+                let node = this._htmlDomReference.cloneNode();
+                if( this._htmlDomReference.children && this._htmlDomReference.children.length > 0 ) {
                     node.innerHTML = '';
                 }
                 // nodeValue
@@ -269,7 +269,7 @@ export default class FewDom {
         }
 
         let obj = Object.assign( {}, this );
-        obj.reference = refStr;
+        obj._htmlDomReference = refStr;
         obj.children = this.children.map( ( o ) => o.toJson() );
 
         // wash out methods

@@ -10,14 +10,14 @@ describe( 'Test few-dom', () => {
         expect( FewDom.createFewDom( parseViewToDiv( '<code id="ouch"></code>' ), new StringTemplateParser() ).toJson() ).toEqual( {
             tagName: 'DIV',
             hasExpr: false,
-            reference: '<div></div>',
+            _htmlDomReference: '<div></div>',
             props: {},
             values: {},
             children: [
                 {
                     tagName: 'CODE',
                     hasExpr: false,
-                    reference: '',
+                    _htmlDomReference: '',
                     props: {},
                     values: {
                         id: 'ouch'
@@ -32,14 +32,14 @@ describe( 'Test few-dom', () => {
         expect( FewDom.createFewDom( parseViewToDiv( '<code id="ouch"><div>${test1}</div></code><code id="${test2}"><div></div></code>' ), new StringTemplateParser() ).toJson() ).toEqual( {
             tagName: 'DIV',
             hasExpr: true,
-            reference: '<div></div>',
+            _htmlDomReference: '<div></div>',
             props: {},
             values: {},
             children: [
                 {
                     tagName: 'CODE',
                     hasExpr: true,
-                    reference: '',
+                    _htmlDomReference: '',
                     props: {},
                     values: {
                         id: 'ouch'
@@ -48,14 +48,14 @@ describe( 'Test few-dom', () => {
                         {
                             tagName: 'DIV',
                             hasExpr: true,
-                            reference: '',
+                            _htmlDomReference: '',
                             props: {},
                             values: {},
                             children: [
                                 {
                                     tagName: '#text',
                                     hasExpr: true,
-                                    reference: '${test1}',
+                                    _htmlDomReference: '${test1}',
                                     props: {
                                         textContent: 'test1'
                                     },
@@ -71,7 +71,7 @@ describe( 'Test few-dom', () => {
                 {
                     tagName: 'CODE',
                     hasExpr: true,
-                    reference: '<code id="${test2}"></code>',
+                    _htmlDomReference: '<code id="${test2}"></code>',
                     props: {
                         id: 'test2'
                     },
@@ -82,7 +82,7 @@ describe( 'Test few-dom', () => {
                         {
                             tagName: 'DIV',
                             hasExpr: false,
-                            reference: '',
+                            _htmlDomReference: '',
                             props: {},
                             values: {},
                             children: []
