@@ -202,7 +202,7 @@ export default class FewComponent {
 
         // scope as next input
         // return Object.assign( scope, res );
-        return res ? res : scope;
+        return res !== undefined ? res : scope;
     }
 
 

@@ -19,7 +19,9 @@ describe( 'Test few-dom', () => {
                     hasExpr: false,
                     reference: '',
                     props: {},
-                    values: {},
+                    values: {
+                        id: 'ouch'
+                    },
                     children:[]
                 }
             ]
@@ -39,7 +41,9 @@ describe( 'Test few-dom', () => {
                     hasExpr: true,
                     reference: '',
                     props: {},
-                    values: {},
+                    values: {
+                        id: 'ouch'
+                    },
                     children:[
                         {
                             tagName: 'DIV',

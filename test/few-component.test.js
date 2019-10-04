@@ -17,6 +17,10 @@ describe( 'Test few-component', () => {
         };
     } );
 
+    afterEach( () =>{
+        delete window.$few_test;
+    } );
+
     it( 'Verify few-component can execute action without view', async() => {
         let componentContent = [
             'model:',
@@ -94,7 +98,6 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        // View has too be initialized separately since it is async
         let viewElem = await component.createView( componentDef.view );
 
         expect( await component.update( 'action.testAction' ) ).toEqual( 7 );
@@ -103,7 +106,7 @@ describe( 'Test few-component', () => {
 
         // TODO: No good way to assert for now, need to find a way to avoid using wait later
         await wait( 500 );
-        expect( viewElem.firstChild.outerHTML ).toEqual( '<div>7</div>' );
+        expect( viewElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
     it( 'Verify few-component can execute action with different options', async() => {
@@ -134,7 +137,6 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        // View has too be initialized separately since it is async
         let viewElem = await component.createView( componentDef.view );
 
         expect( await component.update( 'testAction' ) ).toEqual( 6 );
@@ -142,7 +144,137 @@ describe( 'Test few-component', () => {
         expect( component._vm.model.testVal ).toEqual( 6 );
 
         // TODO: No good way to assert for now, need to find a way to avoid using wait later
-        await wait( 500 );
-        expect( viewElem.firstChild.outerHTML ).toEqual( '<div>6</div>' );
+        await wait( 200 );
+        expect( viewElem.innerHTML ).toEqual( '<div>6</div>' );
+    } );
+} );
+
+describe( 'Test v-if in few-view', () => {
+    beforeEach( () =>{
+        window.$few_test = {
+            setValue: ( val ) => {
+                return val;
+            },
+            plusOne: ( val ) => {
+                return val + 1;
+            }
+        };
+    } );
+
+    it( 'Verify v-if works corretly for simple element', async() => {
+        let componentContent = [
+            'view:',
+            '  template:',
+            '    <div v-if="${testBoolean}">Hello</div>',
+            'model:',
+            '  testBoolean: false',
+            'action:',
+            '  testAction:',
+            '    name: "$few_test.setValue"',
+            '    input:',
+            '      val: "${!testBoolean}"',
+            '    output:',
+            '      testBoolean: ""'
+
+        ];
+
+        let componentDef = yaml.load( componentContent.join( '\n' ) );
+
+        let component = new FewComponent( null, componentDef );
+
+        let viewElem = await component.createView( componentDef.view );
+
+        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+
+        // toggle
+        expect( await component.update( 'testAction' ) ).toEqual( true );
+        await wait( 200 );
+        expect( viewElem.innerHTML ).toEqual( '<div v-if="true">Hello</div>' );
+
+        // toggle
+        expect( await component.update( 'testAction' ) ).toEqual( false );
+        await wait( 200 );
+        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+    } );
+
+    it( 'Verify v-if works corretly for element with expression', async() => {
+        let componentContent = [
+            'view:',
+            '  template:',
+            '    <div v-if="${testBoolean}">${testVal}</div>',
+            'model:',
+            '  testBoolean: true',
+            '  testVal: 5',
+            'action:',
+            '  toggle:',
+            '    name: "$few_test.setValue"',
+            '    input:',
+            '      val: "${!testBoolean}"',
+            '    output:',
+            '      testBoolean: ""',
+            '  updateVal:',
+            '    name: "$few_test.plusOne"',
+            '    input:',
+            '      val: "${testVal}"',
+            '    output:',
+            '      testVal: ""',
+            '  testAction:',
+            '    - updateVal',
+            '    - toggle'
+        ];
+
+        let componentDef = yaml.load( componentContent.join( '\n' ) );
+
+        let component = new FewComponent( null, componentDef );
+
+        let viewElem = await component.createView( componentDef.view );
+
+        expect( viewElem.innerHTML ).toEqual( '<div v-if="true">5</div>' );
+
+        // toggle
+        expect( await component.update( 'testAction' ) ).toEqual( false );
+        await wait( 200 );
+        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+
+        // toggle
+        expect( await component.update( 'testAction' ) ).toEqual( true );
+        await wait( 200 );
+        expect( viewElem.innerHTML ).toEqual( '<div v-if="true">7</div>' );
+    } );
+
+    it( 'Verify v-if works corretly for nested element', async() => {
+        let componentContent = [
+            'view:',
+            '  template:',
+            '    <div v-if="${testBoolean}"><code style="color:blue">${testMsg}</code></div>',
+            'model:',
+            '  testBoolean: false',
+            '  testMsg: hello',
+            'action:',
+            '  testAction:',
+            '    name: "$few_test.setValue"',
+            '    input:',
+            '      val: "${!testBoolean}"',
+            '    output:',
+            '      testBoolean: ""'
+        ];
+
+        let componentDef = yaml.load( componentContent.join( '\n' ) );
+
+        let component = new FewComponent( null, componentDef );
+
+        let viewElem = await component.createView( componentDef.view );
+
+        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+
+        // toggle
+        expect( await component.update( 'testAction' ) ).toEqual( true );
+        await wait( 200 );
+        expect( viewElem.innerHTML ).toEqual( '<div v-if="true"><code style="color:blue">hello</code></div>' );
+
+        // toggle
+        expect( await component.update( 'testAction' ) ).toEqual( false );
+        await wait( 200 );
+        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
     } );
 } );

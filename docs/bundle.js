@@ -21600,7 +21600,7 @@ define(['require'], function (require) { 'use strict';
 
           // scope as next input
           // return Object.assign( scope, res );
-          return res ? res : scope;
+          return res !== undefined ? res : scope;
       }
 
 
