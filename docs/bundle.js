@@ -21162,7 +21162,7 @@ define(['require'], function (require) { 'use strict';
                   let content = vm[vSetName].map( ( o ) => {
                       let vVar = {};
                       vVar[vVarName] = o;
-                      // TODO: If the pattern is not ${}, it will break
+                      // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
                       return evalExpression( '`' + node.outerHTML + '`', Object.assign( Object.assign( {}, vm ), vVar ), true );
                   } ).join( '' );
 
@@ -21185,7 +21185,7 @@ define(['require'], function (require) { 'use strict';
                   let vIfRes = evalExpression( vIfExpr, vm, true );
                   if ( obj.values['v-if'] === undefined || obj.values['v-if'] !== Boolean( vIfRes ) ) {
                       if( vIfRes ) {
-                          // TODO: If the pattern is not ${}, it will break
+                          // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
                           let content = evalExpression( '`' + node.outerHTML + '`', vm, true );
                           let newNode = parseViewToDiv( content ).firstChild;
                           parentNode.replaceChild( newNode, currNode );
@@ -21314,16 +21314,22 @@ define(['require'], function (require) { 'use strict';
                   // v-for case, force overwrite
                   // TODO: for now assume v-for doen't have sibling
                   this._renderFunc( vm );
+              } else if ( this.isTextNode() ) {
+                  let name = 'textContent';
+                  let res = evalExpression( this.props[name], vm, true );
+                  if ( !lodash.isEqual( this.values[name], res ) ) {
+                      this.values[name] = res;
+                      this.reference[name] = res;
+                  }
               } else {
                   lodash.forEach( this.props, ( value, name ) => {
                       let res = evalExpression( value, vm, true );
                       // TODO: maybe string comparison will be better?
                       if ( !lodash.isEqual( this.values[name], res ) ) {
                           this.values[name] = res;
-
-                          if( name === 'textContent' ) {
-                              this.reference[name] = res;
-                          } /*else if ( name === 'v-if' ) {
+                          this.reference.setAttribute( name, res );
+                          /*
+                          if ( name === 'v-if' ) {
                               let currNode = this.reference;
                               let parentNode = currNode.parentNode;
                               if( res ) {
@@ -21333,9 +21339,8 @@ define(['require'], function (require) { 'use strict';
                                   parentNode.replaceChild( newNode, currNode );
                                   this.reference = newNode;
                               }
-                          }*/ else {
-                              this.reference.setAttribute( name, res );
-                          }
+                          } else {
+                          */
                       }
                   } );
 
