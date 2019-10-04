@@ -31,9 +31,9 @@ export default class FewDom {
             if( expr ) {
                 obj.addProperty( attr, expr );
                 obj.hasExpr = true;
-            } else {
+            } /*else {*/
                 obj.values[attr] = value;
-            }
+            //}
         } else {
             for( let i = 0; i < node.attributes.length; i++ ) {
                 let name = node.attributes[i].name;
@@ -49,9 +49,9 @@ export default class FewDom {
                         obj.addProperty( name, expr );
                         obj.hasExpr = true;
                     }
-                } else {
+                } /*else {*/
                     obj.values[name] = value;
-                }
+                //}
             }
         }
 
@@ -135,7 +135,7 @@ export default class FewDom {
     render( vm ) {
         if( this.hasExpr ) {
             _.forEach( this.props, ( value, name ) => {
-                let res = evalExpression( value, vm );
+                let res = evalExpression( value, vm, true );
                 // TODO: maybe string comparison will be better?
                 if ( !_.isEqual( this.values[name], res ) ) {
                     this.values[name] = res;

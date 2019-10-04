@@ -50,6 +50,22 @@ describe( 'Test few-view', () => {
         expect( elem.outerHTML ).toMatch( /^<few-view src="testView"><div><code style="color:red">testView.yml: YAMLException:.*/ );
     } );
 
+    it( 'Verify few-view still display when value is undefined', async() => {
+        let ymlContent = [
+            'view:',
+            '  template:',
+            '    <div>${testVal}</div>',
+            'model:',
+            ' testVal3: 5'
+        ];
+
+        spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent.join( '\n' ) ) );
+
+        // There is no way to error out - the error is in Custom Element call back
+        const elem  = await renderToSub( FewView.tag, { src: 'testView' } );
+        expect( elem.outerHTML ).toMatch( '<few-view src="testView"><div class="few-scope"><div></div></div></few-view>' );
+    } );
+
     it( 'Verify few-view can be rendered correctly for simple value in model', async() => {
         let ymlContent = [
             'view:',

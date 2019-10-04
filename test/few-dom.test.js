@@ -59,7 +59,9 @@ describe( 'Test few-dom', () => {
                                     props: {
                                         textContent: 'test1'
                                     },
-                                    values: {},
+                                    values: {
+                                        textContent: '${test1}'
+                                    },
                                     children: []
                                 }
                             ]
@@ -73,7 +75,9 @@ describe( 'Test few-dom', () => {
                     props: {
                         id: 'test2'
                     },
-                    values: {},
+                    values: {
+                        id: '${test2}'
+                    },
                     children: [
                         {
                             tagName: 'DIV',

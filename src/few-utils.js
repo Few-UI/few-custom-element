@@ -27,18 +27,23 @@ export function parseViewToDiv( str ) {
  * evaluate string as Javascript expression
  * @param {string} input string as expression
  * @param {Object} params parameters as name value pair
+ * @param {boolean} ignoreError if true the error is not thrown
  * @return {*} evaluation result
  *
  * TODO: match name with function parameters
  * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
  */
-export let evalExpression = function( input, params ) {
+export let evalExpression = function( input, params, ignoreError ) {
   const names = params ? Object.keys( params ) : [];
   const vals = params ? Object.values( params ) : [];
   try {
       return new Function( ...names, `return ${input};` )( ...vals );
   } catch( e ) {
-      throw new Error( `evalExpression('${input}') => ${e.message}` );
+      if ( !ignoreError ) {
+          throw new Error( `evalExpression('${input}') => ${e.message}` );
+      } else {
+          return undefined;
+      }
   }
 };
 

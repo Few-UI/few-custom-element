@@ -17,6 +17,16 @@ view:
       <div v-if="${testCond}"><code style="color:blue">${testMsg}</code></div>
     </div>
     <div>
+      <h2>Loop</h2>
+      <div>${ "testCond:" + testCond }</div>
+      <button onclick="${increaseCount}">Add Count</button>
+      <ul id="example-1">
+        <li v-for="item in items">
+          ${ item.message }
+        </li>
+      </ul>
+    </div>
+    <div>
       <h2>Output</h2>
       <div>${testMsg}</div>
     </div>

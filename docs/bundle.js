@@ -3845,18 +3845,23 @@ define(['require'], function (require) { 'use strict';
    * evaluate string as Javascript expression
    * @param {string} input string as expression
    * @param {Object} params parameters as name value pair
+   * @param {boolean} ignoreError if true the error is not thrown
    * @return {*} evaluation result
    *
    * TODO: match name with function parameters
    * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
    */
-  let evalExpression = function( input, params ) {
+  let evalExpression = function( input, params, ignoreError ) {
     const names = params ? Object.keys( params ) : [];
     const vals = params ? Object.values( params ) : [];
     try {
         return new Function( ...names, `return ${input};` )( ...vals );
     } catch( e ) {
-        throw new Error( `evalExpression('${input}') => ${e.message}` );
+        if ( !ignoreError ) {
+            throw new Error( `evalExpression('${input}') => ${e.message}` );
+        } else {
+            return undefined;
+        }
     }
   };
 
@@ -21152,9 +21157,9 @@ define(['require'], function (require) { 'use strict';
               if( expr ) {
                   obj.addProperty( attr, expr );
                   obj.hasExpr = true;
-              } else {
+              } /*else {*/
                   obj.values[attr] = value;
-              }
+              //}
           } else {
               for( let i = 0; i < node.attributes.length; i++ ) {
                   let name = node.attributes[i].name;
@@ -21170,9 +21175,9 @@ define(['require'], function (require) { 'use strict';
                           obj.addProperty( name, expr );
                           obj.hasExpr = true;
                       }
-                  } else {
+                  } /*else {*/
                       obj.values[name] = value;
-                  }
+                  //}
               }
           }
 
@@ -21256,7 +21261,7 @@ define(['require'], function (require) { 'use strict';
       render( vm ) {
           if( this.hasExpr ) {
               lodash.forEach( this.props, ( value, name ) => {
-                  let res = evalExpression( value, vm );
+                  let res = evalExpression( value, vm, true );
                   // TODO: maybe string comparison will be better?
                   if ( !lodash.isEqual( this.values[name], res ) ) {
                       this.values[name] = res;
