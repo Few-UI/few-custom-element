@@ -21149,7 +21149,18 @@ define(['require'], function (require) { 'use strict';
 
           let obj = new FewDom( node.nodeName );
           obj.hasExpr = false;
-          if ( obj.isTextNode() ) {
+
+          if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
+              let vForExpr = node.getAttribute( 'v-for' );
+              let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
+              let vVar = match[1];
+              let vSet = match[3];
+              node.removeAttribute( 'v-for' );
+              // TODO: use ES6 inline string will make it incompatible with IE
+              obj._renderFuncExpr = `${vSet}.map((${vVar}) => { return \`` + node.outerHTML + '`; }).join("");';
+              // For now not set hasExpr = true.
+              obj.hasExpr = true;
+          } else if ( obj.isTextNode() ) {
               let attr = 'textContent';
               let value = node[attr];
               // TODO: we can do it better later
@@ -21185,7 +21196,7 @@ define(['require'], function (require) { 'use strict';
               obj.reference = node;
           }
 
-          for ( let i = 0; i < node.childNodes.length; i++ ) {
+          for ( let i = 0; !obj._renderFuncExpr && i < node.childNodes.length; i++ ) {
               let child = node.childNodes[i];
               let childNode = FewDom.createFewDom( child, parser, level + 1 );
               if( childNode ) {
@@ -21210,6 +21221,7 @@ define(['require'], function (require) { 'use strict';
           this.children = children;
           this.hasExpr = false;
           this.reference = null;
+          this._renderFuncExpr = null;
       }
 
       /**
@@ -21260,32 +21272,42 @@ define(['require'], function (require) { 'use strict';
        */
       render( vm ) {
           if( this.hasExpr ) {
-              lodash.forEach( this.props, ( value, name ) => {
-                  let res = evalExpression( value, vm, true );
-                  // TODO: maybe string comparison will be better?
-                  if ( !lodash.isEqual( this.values[name], res ) ) {
-                      this.values[name] = res;
+              if( this._renderFuncExpr ) {
+                  // v-for case, force overwrite
+                  // TODO: for now assume v-for doen't have sibling
+                  let res = evalExpression( this._renderFuncExpr, vm, true );
+                  res = res ? res : '<!-- v-for is empty -->';
+                  let parent = this.reference.parentNode;
+                  parent.innerHTML = res;
+                  this.reference = parent.firstChild;
+              } else {
+                  lodash.forEach( this.props, ( value, name ) => {
+                      let res = evalExpression( value, vm, true );
+                      // TODO: maybe string comparison will be better?
+                      if ( !lodash.isEqual( this.values[name], res ) ) {
+                          this.values[name] = res;
 
-                      if( name === 'textContent' ) {
-                          this.reference[name] = res;
-                      } else if ( name === 'v-if' ) {
-                          let currNode = this.reference;
-                          let parentNode = currNode.parentNode;
-                          if( res ) {
-                              parentNode.replaceChild( this.createHtmlDom( vm ), currNode );
+                          if( name === 'textContent' ) {
+                              this.reference[name] = res;
+                          } else if ( name === 'v-if' ) {
+                              let currNode = this.reference;
+                              let parentNode = currNode.parentNode;
+                              if( res ) {
+                                  parentNode.replaceChild( this.createHtmlDom( vm ), currNode );
+                              } else {
+                                 let newNode = document.createComment( `v-if ${value} = ${res}` );
+                                  parentNode.replaceChild( newNode, currNode );
+                                  this.reference = newNode;
+                              }
                           } else {
-                             let newNode = document.createComment( `v-if ${value} = ${res}` );
-                              parentNode.replaceChild( newNode, currNode );
-                              this.reference = newNode;
+                              this.reference.setAttribute( name, res );
                           }
-                      } else {
-                          this.reference.setAttribute( name, res );
                       }
-                  }
-              } );
+                  } );
 
-              for( let child of this.children ) {
-                  child.render( vm );
+                  for( let child of this.children ) {
+                      child.render( vm );
+                  }
               }
           }
       }

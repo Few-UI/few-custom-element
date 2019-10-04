@@ -2,11 +2,11 @@
 view:
   template:
     <h2>Loop</h2>
-    <div>${ "loopCount:" + loopCount }</div>
-    <button onclick="${increaseCount}">Add Count</button>
+    <div>${ "loopCount:" + items.length }</div>
+    <button onclick="${updateText}">Update Text</button>
     <ul>
-      <li v-for="item in items">
-        ${ simpleText + items[0].message }
+      <li v-for="item of items">
+        ${ item.message + ' => ' + simpleText }
       </li>
     </ul>
 
@@ -21,7 +21,7 @@ model:
 
 # update
 action:
-  increaseCount:
+  updateText:
     import: sample/sample-utils
     name: testAccu
     input:
