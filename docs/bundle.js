@@ -21153,14 +21153,22 @@ define(['require'], function (require) { 'use strict';
           if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
               let vForExpr = node.getAttribute( 'v-for' );
               let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
-              let vVar = match[1];
-              let vSet = match[3];
+              let vVarName = match[1];
+              let vSetName = match[3];
               node.removeAttribute( 'v-for' );
-              // TODO: use ES6 inline string will make it incompatible with IE
-              obj._renderFuncExpr = `${vSet}.map((${vVar}) => { return \`` + node.outerHTML + '`; }).join("");';
+              // obj._renderFuncExpr = `${vSetName}.map((${vVarName}) => { return \`` + node.outerHTML + '`; }).join("");';
+              obj._renderFunc = ( vm ) => {
+                  return vm[vSetName].map( ( o ) => {
+                      let vVar = {};
+                      vVar[vVarName] = o;
+                      return evalExpression( '`' + node.outerHTML + '`', Object.assign( Object.assign( {}, vm ), vVar ), true );
+                  } ).join( '' );
+              };
               // For now not set hasExpr = true.
               obj.hasExpr = true;
-          } else if ( obj.isTextNode() ) {
+          } /*else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
+
+          }*/ else if ( obj.isTextNode() ) {
               let attr = 'textContent';
               let value = node[attr];
               // TODO: we can do it better later
@@ -21196,7 +21204,7 @@ define(['require'], function (require) { 'use strict';
               obj.reference = node;
           }
 
-          for ( let i = 0; !obj._renderFuncExpr && i < node.childNodes.length; i++ ) {
+          for ( let i = 0; !obj._renderFunc && i < node.childNodes.length; i++ ) {
               let child = node.childNodes[i];
               let childNode = FewDom.createFewDom( child, parser, level + 1 );
               if( childNode ) {
@@ -21271,14 +21279,17 @@ define(['require'], function (require) { 'use strict';
        */
       render( vm ) {
           if( this.hasExpr ) {
-              if( this._renderFuncExpr ) {
+              if( this._renderFunc ) {
                   // v-for case, force overwrite
                   // TODO: for now assume v-for doen't have sibling
-                  let res = evalExpression( this._renderFuncExpr, vm, true );
+                  let res = this._renderFunc( vm );
                   res = res ? res : '<!-- v-for is empty -->';
                   let parent = this.reference.parentNode;
-                  parent.innerHTML = res;
-                  this.reference = parent.firstChild;
+                  let oldHtml = parent.innerHTML;
+                  if ( !lodash.isEqual( oldHtml, res ) ) {
+                      parent.innerHTML = res;
+                      this.reference = parent.firstChild;
+                  }
               } else {
                   lodash.forEach( this.props, ( value, name ) => {
                       let res = evalExpression( value, vm, true );
