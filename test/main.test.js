@@ -7,6 +7,7 @@ import './few-component.test.js';
 import './few-dom.test.js';
 import './few-utils.test.js';
 import './few-view-element.test.js';
+import './few-view.test.js';
 import './http.test.js';
 import './test-utils.js';
 import './text-component.test.js';
