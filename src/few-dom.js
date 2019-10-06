@@ -28,7 +28,25 @@ export default class FewDom {
         // TODO: need to refactor
         let skipChild = false;
 
-        if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
+        if ( obj.isTextNode() ) {
+            let name = 'textContent';
+            let value = node[name];
+            // TODO: we can do it better later
+            let expr = parser.parse( value );
+            if( expr ) {
+                obj.addProperty( name, expr );
+                obj.hasExpr = true;
+
+                obj._renderFunc = ( vm ) => {
+                    let res = evalExpression( obj.props[name], vm, true );
+                    if ( !_.isEqual( obj.values[name], res ) ) {
+                        obj.values[name] = res;
+                        obj._htmlDomReference[name] = res;
+                    }
+                };
+            }
+            obj.values[name] = value;
+        } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
             let vForExpr = node.getAttribute( 'v-for' );
             let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
             let vVarName = match[1];
@@ -79,25 +97,7 @@ export default class FewDom {
                 obj.values['v-if'] = Boolean( vIfRes );
             };
             obj._htmlDomReference = node;
-        } else if ( obj.isTextNode() ) {
-            let name = 'textContent';
-            let value = node[name];
-            // TODO: we can do it better later
-            let expr = parser.parse( value );
-            if( expr ) {
-                obj.addProperty( name, expr );
-                obj.hasExpr = true;
-
-                obj._renderFunc = ( vm ) => {
-                    let res = evalExpression( obj.props[name], vm, true );
-                    if ( !_.isEqual( obj.values[name], res ) ) {
-                        obj.values[name] = res;
-                        obj._htmlDomReference[name] = res;
-                    }
-                };
-            }
-            obj.values[name] = value;
-        } else {
+        }  else {
             for( let i = 0; i < node.attributes.length; i++ ) {
                 let name = node.attributes[i].name;
                 let value = node.attributes[i].value;
