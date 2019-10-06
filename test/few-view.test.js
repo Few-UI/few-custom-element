@@ -4,7 +4,7 @@
 import { FewHtmlViewParser } from '../src/few-view';
 import StringTemplateParser from '../src/string-template-parser';
 
-fdescribe( 'Test FewHtmlViewParser', () => {
+describe( 'Test FewHtmlViewParser', () => {
     it( 'Verify FewHtmlViewParser can proceed simple dom', async() => {
         let parser = new FewHtmlViewParser( new StringTemplateParser() );
         expect( parser.parse( '<div id="test"></div>' ).toJSON() ).toEqual( {

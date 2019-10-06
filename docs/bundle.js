@@ -21150,6 +21150,9 @@ define(['require'], function (require) { 'use strict';
           let obj = new FewDom( node.nodeName );
           obj.hasExpr = false;
 
+          // TODO: need to refactor
+          let skipChild = false;
+
           if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
               let vForExpr = node.getAttribute( 'v-for' );
               let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
@@ -21158,6 +21161,7 @@ define(['require'], function (require) { 'use strict';
               node.removeAttribute( 'v-for' );
               // obj._renderFuncExpr = `${vSetName}.map((${vVarName}) => { return \`` + node.outerHTML + '`; }).join("");';
               obj.hasExpr = true;
+              skipChild = true;
               obj._renderFunc = ( vm ) => {
                   let content = vm[vSetName].map( ( o ) => {
                       let vVar = {};
@@ -21179,6 +21183,7 @@ define(['require'], function (require) { 'use strict';
               let vIfExpr = node.getAttribute( 'v-if' );
               node.removeAttribute( 'v-if' );
               obj.hasExpr = true;
+              skipChild = true;
               obj._renderFunc = ( vm ) => {
                   let currNode = obj._htmlDomReference;
                   let parentNode = currNode.parentNode;
@@ -21200,16 +21205,23 @@ define(['require'], function (require) { 'use strict';
               };
               obj._htmlDomReference = node;
           } else if ( obj.isTextNode() ) {
-              let attr = 'textContent';
-              let value = node[attr];
+              let name = 'textContent';
+              let value = node[name];
               // TODO: we can do it better later
               let expr = parser.parse( value );
               if( expr ) {
-                  obj.addProperty( attr, expr );
+                  obj.addProperty( name, expr );
                   obj.hasExpr = true;
-              } /*else {*/
-                  obj.values[attr] = value;
-              //}
+
+                  obj._renderFunc = ( vm ) => {
+                      let res = evalExpression( obj.props[name], vm, true );
+                      if ( !lodash.isEqual( obj.values[name], res ) ) {
+                          obj.values[name] = res;
+                          obj._htmlDomReference[name] = res;
+                      }
+                  };
+              }
+              obj.values[name] = value;
           } else {
               for( let i = 0; i < node.attributes.length; i++ ) {
                   let name = node.attributes[i].name;
@@ -21225,17 +21237,32 @@ define(['require'], function (require) { 'use strict';
                           obj.addProperty( name, expr );
                           obj.hasExpr = true;
                       }
-                  } /*else {*/
-                      obj.values[name] = value;
-                  //}
+                  }
+                  obj.values[name] = value;
               }
+
+
+              obj._renderFunc = ( vm ) => {
+                  lodash.forEach( obj.props, ( value, name ) => {
+                      let res = evalExpression( value, vm, true );
+                      // TODO: maybe string comparison will be better?
+                      if ( !lodash.isEqual( obj.values[name], res ) ) {
+                          obj.values[name] = res;
+                          obj._htmlDomReference.setAttribute( name, res );
+                      }
+                  } );
+
+                  for( let child of obj.children ) {
+                      child.render( vm );
+                  }
+              };
           }
 
           if ( obj.hasExpr || level === 0 ) {
               obj._htmlDomReference = node;
           }
 
-          for ( let i = 0; !obj._renderFunc && i < node.childNodes.length; i++ ) {
+          for ( let i = 0; !skipChild && i < node.childNodes.length; i++ ) {
               let child = node.childNodes[i];
               let childNode = FewDom.createFewDom( child, parser, level + 1 );
               if( childNode ) {
@@ -21309,45 +21336,8 @@ define(['require'], function (require) { 'use strict';
        * @param {FewComponent} vm view model object
        */
       render( vm ) {
-          if( this.hasExpr ) {
-              if( this._renderFunc ) {
-                  // v-for case, force overwrite
-                  // TODO: for now assume v-for doen't have sibling
-                  this._renderFunc( vm );
-              } else if ( this.isTextNode() ) {
-                  let name = 'textContent';
-                  let res = evalExpression( this.props[name], vm, true );
-                  if ( !lodash.isEqual( this.values[name], res ) ) {
-                      this.values[name] = res;
-                      this._htmlDomReference[name] = res;
-                  }
-              } else {
-                  lodash.forEach( this.props, ( value, name ) => {
-                      let res = evalExpression( value, vm, true );
-                      // TODO: maybe string comparison will be better?
-                      if ( !lodash.isEqual( this.values[name], res ) ) {
-                          this.values[name] = res;
-                          this._htmlDomReference.setAttribute( name, res );
-                          /*
-                          if ( name === 'v-if' ) {
-                              let currNode = this._htmlDomReference;
-                              let parentNode = currNode.parentNode;
-                              if( res ) {
-                                  parentNode.replaceChild( this.createHtmlDom( vm ), currNode );
-                              } else {
-                                 let newNode = document.createComment( `v-if ${value} = ${res}` );
-                                  parentNode.replaceChild( newNode, currNode );
-                                  this._htmlDomReference = newNode;
-                              }
-                          } else {
-                          */
-                      }
-                  } );
-
-                  for( let child of this.children ) {
-                      child.render( vm );
-                  }
-              }
+          if( this.hasExpr && this._renderFunc ) {
+              this._renderFunc( vm );
           }
       }
 
@@ -21396,6 +21386,7 @@ define(['require'], function (require) { 'use strict';
           let obj = Object.assign( {}, this );
           obj._htmlDomReference = refStr;
           obj.children = this.children.map( ( o ) => o.toJson() );
+          delete obj._renderFunc;
 
           // wash out methods
           return obj;
