@@ -3,23 +3,56 @@
 import _ from 'lodash';
 import {
     hasScope,
-    evalExpression,
     parseView
 } from './few-utils';
 
-class FewViewNode {
+class FewViewTemplate {
     /**
-     * Create FewViewNode
+     * Create FewViewTemplate
      * @param {string} nodeName DOM Element tag name
      * @param {Object} props DOM attributes
      * @param {Array} children child elements
      */
     constructor( nodeName ) {
+        /**
+         * node type
+         */
         this.nodeName = nodeName;
-        this.variables = {};
-        this.constants = {};
-        this.children = [];
+
+        /**
+         * boolean
+         */
         this.hasExpr = false;
+
+        // For typical ES6 practice, we should put all member variable
+        // in constructor as a good practice. But for thi atom type, we
+        // break the rule for better performance. But still we list here
+        // for better readability
+
+        /**
+         * directive attributes
+         * this.directives = {}
+         */
+
+        /**
+         * variables attributes
+         * this.variables = {}
+         */
+
+        /**
+         * constant attributes
+         * this.constants = {};
+         */
+
+        /**
+         * child nodes
+         * this.children = [];
+         */
+
+        /**
+         * reference to source snippet
+         * this.reference = <dom?>
+         */
     }
 
     /**
@@ -28,6 +61,7 @@ class FewViewNode {
      * @param {string} expr variable expression
      */
     addVariable( name, expr ) {
+        this.variables = this.variables || {};
         this.variables[name] = expr;
         this.hasExpr = true;
     }
@@ -38,6 +72,7 @@ class FewViewNode {
      * @param {string} value constant value
      */
     addConstant( name, value ) {
+        this.constants = this.constants || {};
         this.constants[name] = value;
     }
 
@@ -46,23 +81,9 @@ class FewViewNode {
      * @param {VirtualDomElement} child child element
      */
     addChild( child ) {
+        this.children = this.children || [];
         this.children.push( child );
-    }
-
-    /**
-     * Add child elements
-     * @param {VirtualDomElement} children child elements
-     */
-    addChildren( children ) {
-        this.children = this.children.concat( children );
-    }
-
-    /**
-     * get DOM element for current view element
-     * @returns {Element} DOM element for current view element
-     */
-    getDomElement() {
-        return this._htmlDomReference;
+        this.hasExpr = this.hasExpr || child.hasExpr;
     }
 
     /**
@@ -77,12 +98,12 @@ class FewViewNode {
      * Print object for test purpose
      * @returns {JSON} JSON object that presents the content of FewDom
      */
-    toJson() {
-        let obj = Object.assign( {}, this );
-        obj.children = this.children.map( ( o ) => o.toJson() );
-
-        // wash out methods
-        return obj;
+    toJSON() {
+        let res = Object.assign( {}, this );
+        if ( this.children ) {
+            res.children = this.children.map( ( o ) => o.toJSON() );
+        }
+        return res;
     }
 }
 
@@ -98,21 +119,21 @@ export class FewHtmlViewParser {
     /**
      * Create View Node Object by pasing HTML Template
      * @param {string} templateString HTML Template as Sting
-     * @returns {FewViewNode} View Node Object
+     * @returns {FewViewTemplate} View Node Object
      */
-    createView( templateString ) {
+    parse( templateString ) {
         let templateNode = parseView( templateString );
-        return this._createViewNode( templateNode );
+        return this._createTemplate( templateNode );
     }
 
-    _createViewNode( node, level = 0 ) {
+    _createTemplate( node, level = 0 ) {
         if(  node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
             // has scope defined already
             hasScope( node ) ) {
             return;
         }
 
-        let vNode = new FewViewNode( node.nodeName );
+        let vNode = new FewViewTemplate( node.nodeName );
         vNode.hasExpr = false;
 
         if( vNode.isTextNode() ) {
@@ -141,10 +162,9 @@ export class FewHtmlViewParser {
 
         for ( let i = 0; i < node.childNodes.length; i++ ) {
             let child = node.childNodes[i];
-            let childNode = this._createViewNode( child, level + 1 );
+            let childNode = this._createTemplate( child, level + 1 );
             if( childNode ) {
                 vNode.addChild( childNode );
-                vNode.hasExpr = vNode.hasExpr ? vNode.hasExpr : childNode.hasExpr;
             }
         }
 

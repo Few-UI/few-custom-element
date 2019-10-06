@@ -7,30 +7,6 @@
 
 * attribute and property are not parsed too in constructor, it will be done by no early than `connectedCallback()`.
 
-## Procedure Graph
-```
-                          +---------------------+
-                          | Button Click (View) +<-------------+
-                          +----------+----------+              |
-                                     |                         |
-                                     |                         |
-                                     |                         |
-                                     v                         |
-     +-----------+        +----------+----------+        +-----+-----+
-     |           |   In   |                     |  Out   |           |
-     |           +------->+      Procedure      +------->+           |
-     |           |        |                     |        |           |
-     |           |        +----------+----------+        |           |
-     |           |                   |                   |           |
-     | ViewModel |                   |                   | ViewModel |
-     |           |                   |                   | (Updated) |
-     |           |                   v                   |           |
-     |           |        +----------+----------+        |           |
-     |           |   In   |                     |  Out   |           |
-     |           +------->+      Procedure      +------->+           |
-     |           |        |                     |        |           |
-     +-----------+        +---------------------+        +-----------+
-```
 ## Design Note
 ### How is ELM
 - ELM concept:
