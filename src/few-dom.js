@@ -37,15 +37,16 @@ export default class FewDom {
                 obj.addProperty( name, expr );
                 obj.hasExpr = true;
 
-                obj._renderFunc = ( vm ) => {
+                obj.render = ( vm ) => {
                     let res = evalExpression( obj.props[name], vm, true );
-                    if ( !_.isEqual( obj.values[name], res ) ) {
-                        obj.values[name] = res;
+                    let last = obj.getAttrValue( name );
+                    if ( last === undefined || !_.isEqual( last, res ) ) {
+                        obj.setAttrValue( name, res );
                         obj._htmlDomReference[name] = res;
                     }
                 };
             }
-            obj.values[name] = value;
+            obj.setAttrValue( name, value );
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
             let vForExpr = node.getAttribute( 'v-for' );
             let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
@@ -55,7 +56,7 @@ export default class FewDom {
             // obj._renderFuncExpr = `${vSetName}.map((${vVarName}) => { return \`` + node.outerHTML + '`; }).join("");';
             obj.hasExpr = true;
             skipChild = true;
-            obj._renderFunc = ( vm ) => {
+            obj.render = ( vm ) => {
                 let content = vm[vSetName].map( ( o ) => {
                     let vVar = {};
                     vVar[vVarName] = o;
@@ -77,11 +78,12 @@ export default class FewDom {
             node.removeAttribute( 'v-if' );
             obj.hasExpr = true;
             skipChild = true;
-            obj._renderFunc = ( vm ) => {
+            obj.render = ( vm ) => {
                 let currNode = obj._htmlDomReference;
                 let parentNode = currNode.parentNode;
                 let vIfRes = evalExpression( vIfExpr, vm, true );
-                if ( obj.values['v-if'] === undefined || obj.values['v-if'] !== Boolean( vIfRes ) ) {
+                let vIfLast = obj.getAttrValue( 'v-if' );
+                if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
                     if( vIfRes ) {
                         // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
                         let content = evalExpression( '`' + node.outerHTML + '`', vm, true );
@@ -94,7 +96,7 @@ export default class FewDom {
                         obj._htmlDomReference = newNode;
                     }
                 }
-                obj.values['v-if'] = Boolean( vIfRes );
+                obj.setAttrValue( 'v-if', Boolean( vIfRes ) );
             };
             obj._htmlDomReference = node;
         }  else {
@@ -113,22 +115,24 @@ export default class FewDom {
                         obj.hasExpr = true;
                     }
                 }
-                obj.values[name] = value;
+                obj.setAttrValue( name, value );
             }
 
+            obj.render = ( vm ) => {
+                if ( obj.hasExpr ) {
+                    _.forEach( obj.props, ( value, name ) => {
+                        let res = evalExpression( value, vm, true );
+                        let last = obj.getAttrValue( name );
+                        // TODO: maybe string comparison will be better?
+                        if ( !_.isEqual( last, res ) ) {
+                            obj.setAttrValue( name, res );
+                            obj._htmlDomReference.setAttribute( name, res );
+                        }
+                    } );
 
-            obj._renderFunc = ( vm ) => {
-                _.forEach( obj.props, ( value, name ) => {
-                    let res = evalExpression( value, vm, true );
-                    // TODO: maybe string comparison will be better?
-                    if ( !_.isEqual( obj.values[name], res ) ) {
-                        obj.values[name] = res;
-                        obj._htmlDomReference.setAttribute( name, res );
+                    for( let child of obj.children ) {
+                        child.render( vm );
                     }
-                } );
-
-                for( let child of obj.children ) {
-                    child.render( vm );
                 }
             };
         }
@@ -142,7 +146,6 @@ export default class FewDom {
             let childNode = FewDom.createFewDom( child, parser, level + 1 );
             if( childNode ) {
                 obj.addChild( childNode );
-                obj.hasExpr = obj.hasExpr ? obj.hasExpr : childNode.hasExpr;
             }
         }
 
@@ -155,13 +158,47 @@ export default class FewDom {
      * @param {Object} props DOM attributes
      * @param {Array} children child elements
      */
-    constructor( tagName, props = {}, children = [] ) {
+    constructor( tagName ) {
+        /**
+         * type name
+         */
         this.tagName = tagName;
-        this.props = props;
-        this.values = {};
-        this.children = children;
+
+        /**
+         * if true, means current node or its children has variable attributes
+         */
         this.hasExpr = false;
-        this._htmlDomReference = null;
+
+        /**
+         * default render function
+         * @param {Object} vm model object
+         */
+        this.render = ( vm ) => {};
+
+        // For typical ES6 practice, we better put all member variable
+        // in constructor as a good practice. But for thi atom type, we
+        // break the rule for better performance. But still we list here
+        // for better readability
+
+        /**
+         * variable attributes
+         * this.props = {};
+         */
+
+        /**
+         * constant attributes or evaluation result for variable attrbutes
+         * this.values = {};
+         */
+
+        /**
+         * child nodes
+         * this.children = [];
+         */
+
+        /**
+         * reference to actual DOM Element
+         * this._htmlDomReference = <DOMElement>;
+         */
     }
 
     /**
@@ -170,7 +207,28 @@ export default class FewDom {
      * @param {string} val attribute value
      */
     addProperty( name, val ) {
+        this.props = this.props || {};
         this.props[name] = val;
+        this.hasExpr = true;
+    }
+
+    /**
+     * Set value for constant attribute or evaluation result of variable attribute
+     * @param {string} name attribute name
+     * @param {string} val attribute value
+     */
+    setAttrValue( name, val ) {
+        this.values = this.values || {};
+        this.values[name] = val;
+    }
+
+    /**
+     * Get value for constant attribute or evaluation result of variable attribute
+     * @param {string} name attribute name
+     * @returns {string} return value
+     */
+    getAttrValue( name ) {
+        return this.values ? this.values[name] : undefined;
     }
 
     /**
@@ -178,15 +236,9 @@ export default class FewDom {
      * @param {VirtualDomElement} child child element
      */
     addChild( child ) {
+        this.children = this.children || [];
         this.children.push( child );
-    }
-
-    /**
-     * Add child elements
-     * @param {VirtualDomElement} children child elements
-     */
-    addChildren( children ) {
-        this.children = this.children.concat( children );
+        this.hasExpr = this.hasExpr || child.hasExpr;
     }
 
     /**
@@ -203,17 +255,6 @@ export default class FewDom {
      */
     isTextNode() {
         return this.tagName === '#text';
-    }
-
-
-    /**
-     * render view based on view model object
-     * @param {FewComponent} vm view model object
-     */
-    render( vm ) {
-        if( this.hasExpr && this._renderFunc ) {
-            this._renderFunc( vm );
-        }
     }
 
     /**
@@ -260,8 +301,10 @@ export default class FewDom {
 
         let obj = Object.assign( {}, this );
         obj._htmlDomReference = refStr;
-        obj.children = this.children.map( ( o ) => o.toJson() );
-        delete obj._renderFunc;
+        if ( this.children ) {
+            obj.children = this.children.map( ( o ) => o.toJson() );
+        }
+        delete obj.render;
 
         // wash out methods
         return obj;

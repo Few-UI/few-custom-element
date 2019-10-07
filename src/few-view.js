@@ -87,8 +87,8 @@ class FewViewTemplate {
     }
 
     /**
-     * Check if current FewDom object is text node
-     * @returns {boolean} return true if the FewDom object is for text node
+     * Check if current object is text node
+     * @returns {boolean} return true if the object is for text node
      */
     isTextNode() {
         return this.nodeName === '#text';
@@ -96,7 +96,7 @@ class FewViewTemplate {
 
     /**
      * Print object for test purpose
-     * @returns {JSON} JSON object that presents the content of FewDom
+     * @returns {JSON} JSON object that presents the content of
      */
     toJSON() {
         let res = Object.assign( {}, this );

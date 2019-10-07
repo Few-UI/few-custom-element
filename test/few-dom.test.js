@@ -11,18 +11,14 @@ describe( 'Test few-dom', () => {
             tagName: 'DIV',
             hasExpr: false,
             _htmlDomReference: '<div></div>',
-            props: {},
-            values: {},
             children: [
                 {
                     tagName: 'CODE',
                     hasExpr: false,
                     _htmlDomReference: '',
-                    props: {},
                     values: {
                         id: 'ouch'
-                    },
-                    children:[]
+                    }
                 }
             ]
         } );
@@ -33,14 +29,11 @@ describe( 'Test few-dom', () => {
             tagName: 'DIV',
             hasExpr: true,
             _htmlDomReference: '<div></div>',
-            props: {},
-            values: {},
             children: [
                 {
                     tagName: 'CODE',
                     hasExpr: true,
                     _htmlDomReference: '',
-                    props: {},
                     values: {
                         id: 'ouch'
                     },
@@ -49,8 +42,6 @@ describe( 'Test few-dom', () => {
                             tagName: 'DIV',
                             hasExpr: true,
                             _htmlDomReference: '',
-                            props: {},
-                            values: {},
                             children: [
                                 {
                                     tagName: '#text',
@@ -61,8 +52,7 @@ describe( 'Test few-dom', () => {
                                     },
                                     values: {
                                         textContent: '${test1}'
-                                    },
-                                    children: []
+                                    }
                                 }
                             ]
                         }
@@ -82,10 +72,7 @@ describe( 'Test few-dom', () => {
                         {
                             tagName: 'DIV',
                             hasExpr: false,
-                            _htmlDomReference: '',
-                            props: {},
-                            values: {},
-                            children: []
+                            _htmlDomReference: ''
                         }
                     ]
                 }
