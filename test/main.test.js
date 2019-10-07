@@ -4,6 +4,8 @@
 import './click-count.test.js';
 import './custom-element.test.js';
 import './few-component.test.js';
+import './few-condition.directive.test.js';
+import './few-loop.directive.test.js';
 import './few-dom.test.js';
 import './few-utils.test.js';
 import './few-view-element.test.js';

@@ -265,6 +265,8 @@ export class FewHtmlViewParser {
             let fragment = document.createDocumentFragment();
 
             // TODO: This is where we really need vDOM
+            // https://github.com/snabbdom/snabbdom
+            // https://github.com/creeperyang/blog/tree/master/codes/snabbdom
             vm[vSetName].forEach( ( o ) => {
                 let vVar = {};
                 vVar[vVarName] = o;
