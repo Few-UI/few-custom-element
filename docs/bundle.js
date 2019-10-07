@@ -21322,6 +21322,30 @@ define(['require'], function (require) { 'use strict';
           return this._createTemplate( templateNode );
       }
 
+      _createTextTemplateNote( node ) {
+          let obj = new FewDom( node.nodeName );
+          let name = 'textContent';
+          let value = node[name];
+          // TODO: we can do it better later by supporting "aaa {bbb} ccc"
+          let expr = this._parser.parse( value );
+          if( expr ) {
+              obj.addProperty( name, expr );
+              obj.hasExpr = true;
+
+              obj.render = ( vm ) => {
+                  let res = evalExpression( obj.props[name], vm, true );
+                  let last = obj.getAttrValue( name );
+                  if ( last === undefined || !lodash.isEqual( last, res ) ) {
+                      obj.setAttrValue( name, res );
+                      obj._htmlDomReference[name] = res;
+                  }
+              };
+          }
+          obj._htmlDomReference = node;
+          obj.setAttrValue( name, value );
+          return obj;
+      }
+
 
       _createCondTemplateNode( node ) {
           let obj = new FewDom( node.nodeName );
@@ -21329,7 +21353,7 @@ define(['require'], function (require) { 'use strict';
           node.removeAttribute( 'v-if' );
           obj.hasExpr = true;
 
-          let vIfStatementObj = this._createSimpleTemplateNode( node );
+          let vIfStatementObj = this._createTemplate( node );
 
           obj.render = ( vm ) => {
               let currNode = obj._htmlDomReference;
@@ -21359,6 +21383,49 @@ define(['require'], function (require) { 'use strict';
           this._parser;
 
           return obj;
+      }
+
+      _createLoopTemplateNode( node ) {
+          let obj = new FewDom( node.nodeName );
+          let vForExpr = node.getAttribute( 'v-for' );
+          let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
+          let vVarName = match[1];
+          let vSetName = match[3];
+          node.removeAttribute( 'v-for' );
+
+          let vForStatementObj = this._createTemplate( node );
+
+          obj.hasExpr = true;
+          obj.render = ( vm ) => {
+              let fragment = document.createDocumentFragment();
+
+              // TODO: This is where we really need vDOM
+              vm[vSetName].forEach( ( o ) => {
+                  let vVar = {};
+                  vVar[vVarName] = o;
+                  let newNode = vForStatementObj.render( Object.assign( Object.assign( {}, vm ), vVar ) );
+                  fragment.appendChild( newNode.cloneNode( true ) );
+              } );
+
+              // TODO: assume no sibling for now, need to be ehance to support <div v-for="xxx"></div><div id="other"></div>
+              if ( fragment.children.length === 0 ) {
+                  fragment.appendChild( document.createComment( 'v-for is empty ' ) );
+              }
+
+              let parent = obj._htmlDomReference.parentNode;
+              if ( !lodash.isEqual( parent.innerHTML, fragment.innerHTML ) ) {
+                  parent.innerHTML = '';
+                  parent.appendChild( fragment );
+                  obj._htmlDomReference = parent.firstChild;
+              }
+          };
+
+          // Use current node as anchor
+          // TODO: we can put a global comment anchor later rather than use node
+          obj._htmlDomReference = node;
+
+          return obj;
+          // For now not set hasExpr = true.
       }
 
       /**
@@ -21424,7 +21491,7 @@ define(['require'], function (require) { 'use strict';
        * @param {number} level level for current element input
        * @returns {FewDom} FewDom object
        */
-      _createTemplate( node, level = 0 ) {
+      _createTemplate( node ) {
           if(  node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
               // has scope defined already
               hasScope( node ) ) {
@@ -21434,52 +21501,9 @@ define(['require'], function (require) { 'use strict';
           let obj = null;
 
           if ( node.nodeType === Node.TEXT_NODE ) {
-              obj = new FewDom( node.nodeName );
-              let name = 'textContent';
-              let value = node[name];
-              // TODO: we can do it better later
-              let expr = this._parser.parse( value );
-              if( expr ) {
-                  obj.addProperty( name, expr );
-                  obj.hasExpr = true;
-
-                  obj.render = ( vm ) => {
-                      let res = evalExpression( obj.props[name], vm, true );
-                      let last = obj.getAttrValue( name );
-                      if ( last === undefined || !lodash.isEqual( last, res ) ) {
-                          obj.setAttrValue( name, res );
-                          obj._htmlDomReference[name] = res;
-                      }
-                  };
-              }
-              obj._htmlDomReference = node;
-              obj.setAttrValue( name, value );
+              obj = this._createTextTemplateNote( node );
           } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
-              obj = new FewDom( node.nodeName );
-              let vForExpr = node.getAttribute( 'v-for' );
-              let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
-              let vVarName = match[1];
-              let vSetName = match[3];
-              node.removeAttribute( 'v-for' );
-              // obj._renderFuncExpr = `${vSetName}.map((${vVarName}) => { return \`` + node.outerHTML + '`; }).join("");';
-              obj.hasExpr = true;
-              obj.render = ( vm ) => {
-                  let content = vm[vSetName].map( ( o ) => {
-                      let vVar = {};
-                      vVar[vVarName] = o;
-                      // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
-                      return evalExpression( '`' + node.outerHTML + '`', Object.assign( Object.assign( {}, vm ), vVar ), true );
-                  } ).join( '' );
-
-                  content = content ? content : '<!-- v-for is empty -->';
-                  let parent = obj._htmlDomReference.parentNode;
-                  let oldHtml = parent.innerHTML;
-                  if ( !lodash.isEqual( oldHtml, content ) ) {
-                      parent.innerHTML = content;
-                      obj._htmlDomReference = parent.firstChild;
-                  }
-              };
-              // For now not set hasExpr = true.
+              obj = this._createLoopTemplateNode( node );
           } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
               obj = this._createCondTemplateNode( node );
           }  else {
