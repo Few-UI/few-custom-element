@@ -3829,6 +3829,17 @@ define(['require'], function (require) { 'use strict';
 
   /* eslint-env es6 */
 
+  /**
+   * Parse view string as DOM without interpret it
+   * TODO no for now and needs to be enahanced
+   * @param {string} str view template as string
+   * @returns {Element} DOM Element
+   */
+  function parseView( str ) {
+      let parser = new DOMParser();
+      return parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild;
+  }
+
 
   /**
    * Parse view string as DOM with interpretion
@@ -21134,150 +21145,6 @@ define(['require'], function (require) { 'use strict';
 
   class FewDom {
       /**
-       * Create FewDom structure based on input DOM
-       * @param {Node} node DOM Node
-       * @param {StringTemplateParser} parser string template parser function
-       * @param {number} level level for current element input
-       * @returns {Object} FewDom object
-       */
-      static createFewDom( node, parser, level = 0 ) {
-          if(  node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
-              // has scope defined already
-              hasScope( node ) ) {
-              return;
-          }
-
-          let obj = new FewDom( node.nodeName );
-          obj.hasExpr = false;
-
-          // TODO: need to refactor
-          let skipChild = false;
-
-          if ( obj.isTextNode() ) {
-              let name = 'textContent';
-              let value = node[name];
-              // TODO: we can do it better later
-              let expr = parser.parse( value );
-              if( expr ) {
-                  obj.addProperty( name, expr );
-                  obj.hasExpr = true;
-
-                  obj.render = ( vm ) => {
-                      let res = evalExpression( obj.props[name], vm, true );
-                      let last = obj.getAttrValue( name );
-                      if ( last === undefined || !lodash.isEqual( last, res ) ) {
-                          obj.setAttrValue( name, res );
-                          obj._htmlDomReference[name] = res;
-                      }
-                  };
-              }
-              obj.setAttrValue( name, value );
-          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
-              let vForExpr = node.getAttribute( 'v-for' );
-              let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
-              let vVarName = match[1];
-              let vSetName = match[3];
-              node.removeAttribute( 'v-for' );
-              // obj._renderFuncExpr = `${vSetName}.map((${vVarName}) => { return \`` + node.outerHTML + '`; }).join("");';
-              obj.hasExpr = true;
-              skipChild = true;
-              obj.render = ( vm ) => {
-                  let content = vm[vSetName].map( ( o ) => {
-                      let vVar = {};
-                      vVar[vVarName] = o;
-                      // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
-                      return evalExpression( '`' + node.outerHTML + '`', Object.assign( Object.assign( {}, vm ), vVar ), true );
-                  } ).join( '' );
-
-                  content = content ? content : '<!-- v-for is empty -->';
-                  let parent = obj._htmlDomReference.parentNode;
-                  let oldHtml = parent.innerHTML;
-                  if ( !lodash.isEqual( oldHtml, content ) ) {
-                      parent.innerHTML = content;
-                      obj._htmlDomReference = parent.firstChild;
-                  }
-              };
-              // For now not set hasExpr = true.
-          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
-              let vIfExpr = node.getAttribute( 'v-if' );
-              node.removeAttribute( 'v-if' );
-              obj.hasExpr = true;
-              skipChild = true;
-              obj.render = ( vm ) => {
-                  let currNode = obj._htmlDomReference;
-                  let parentNode = currNode.parentNode;
-                  let vIfRes = evalExpression( vIfExpr, vm, true );
-                  let vIfLast = obj.getAttrValue( 'v-if' );
-                  if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
-                      if( vIfRes ) {
-                          // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
-                          let content = evalExpression( '`' + node.outerHTML + '`', vm, true );
-                          let newNode = parseViewToDiv( content ).firstChild;
-                          parentNode.replaceChild( newNode, currNode );
-                          obj._htmlDomReference = newNode;
-                      } else {
-                         let newNode = document.createComment( `v-if ${vIfExpr} = ${vIfRes}` );
-                          parentNode.replaceChild( newNode, currNode );
-                          obj._htmlDomReference = newNode;
-                      }
-                  }
-                  obj.setAttrValue( 'v-if', Boolean( vIfRes ) );
-              };
-              obj._htmlDomReference = node;
-          }  else {
-              for( let i = 0; i < node.attributes.length; i++ ) {
-                  let name = node.attributes[i].name;
-                  let value = node.attributes[i].value;
-                  // TODO: we can do it better later
-                  let expr = parser.parse( value );
-                  if( expr ) {
-                      // if name is event like onclick
-                      // TODO: make it as expression later
-                      if ( /^on.+/.test( name ) ) {
-                          node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
-                      } else {
-                          obj.addProperty( name, expr );
-                          obj.hasExpr = true;
-                      }
-                  }
-                  obj.setAttrValue( name, value );
-              }
-
-              obj.render = ( vm ) => {
-                  if ( obj.hasExpr ) {
-                      lodash.forEach( obj.props, ( value, name ) => {
-                          let res = evalExpression( value, vm, true );
-                          let last = obj.getAttrValue( name );
-                          // TODO: maybe string comparison will be better?
-                          if ( !lodash.isEqual( last, res ) ) {
-                              obj.setAttrValue( name, res );
-                              obj._htmlDomReference.setAttribute( name, res );
-                          }
-                      } );
-
-                      for( let child of obj.children ) {
-                          child.render( vm );
-                      }
-                  }
-              };
-          }
-
-          if ( obj.hasExpr || level === 0 ) {
-              obj._htmlDomReference = node;
-          }
-
-          for ( let i = 0; !skipChild && i < node.childNodes.length; i++ ) {
-              let child = node.childNodes[i];
-              let childNode = FewDom.createFewDom( child, parser, level + 1 );
-              if( childNode ) {
-                  obj.addChild( childNode );
-              }
-          }
-
-          return obj;
-      }
-
-      /**
        * Create VirtualDomElement
        * @param {string} tagName DOM Element tag name
        * @param {Object} props DOM attributes
@@ -21432,6 +21299,169 @@ define(['require'], function (require) { 'use strict';
           delete obj.render;
 
           // wash out methods
+          return obj;
+      }
+  }
+
+  class FewHtmlViewParser {
+      /**
+       * View Parser for Few Component
+       * @param {StringTemplateParser} exprTemplateParser Sting Expression Template Parser in Template
+       */
+      constructor( exprTemplateParser ) {
+          this._parser = exprTemplateParser;
+      }
+
+      /**
+       * Create View Node Object by pasing HTML Template
+       * @param {string} templateString HTML Template as Sting
+       * @returns {FewViewTemplate} View Node Object
+       */
+      parse( templateString ) {
+          let templateNode = parseView( templateString );
+          return this._createTemplate( templateNode );
+      }
+
+      /**
+       * Create FewDom structure based on input DOM
+       * @param {Node} node DOM Node
+       * @param {number} level level for current element input
+       * @returns {FewDom} FewDom object
+       */
+      _createTemplate( node, level = 0 ) {
+          if(  node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
+              // has scope defined already
+              hasScope( node ) ) {
+              return;
+          }
+
+          let obj = new FewDom( node.nodeName );
+          obj.hasExpr = false;
+
+          // TODO: need to refactor
+          let skipChild = false;
+
+          if ( obj.isTextNode() ) {
+              let name = 'textContent';
+              let value = node[name];
+              // TODO: we can do it better later
+              let expr = this._parser.parse( value );
+              if( expr ) {
+                  obj.addProperty( name, expr );
+                  obj.hasExpr = true;
+
+                  obj.render = ( vm ) => {
+                      let res = evalExpression( obj.props[name], vm, true );
+                      let last = obj.getAttrValue( name );
+                      if ( last === undefined || !lodash.isEqual( last, res ) ) {
+                          obj.setAttrValue( name, res );
+                          obj._htmlDomReference[name] = res;
+                      }
+                  };
+              }
+              obj.setAttrValue( name, value );
+          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
+              let vForExpr = node.getAttribute( 'v-for' );
+              let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
+              let vVarName = match[1];
+              let vSetName = match[3];
+              node.removeAttribute( 'v-for' );
+              // obj._renderFuncExpr = `${vSetName}.map((${vVarName}) => { return \`` + node.outerHTML + '`; }).join("");';
+              obj.hasExpr = true;
+              skipChild = true;
+              obj.render = ( vm ) => {
+                  let content = vm[vSetName].map( ( o ) => {
+                      let vVar = {};
+                      vVar[vVarName] = o;
+                      // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
+                      return evalExpression( '`' + node.outerHTML + '`', Object.assign( Object.assign( {}, vm ), vVar ), true );
+                  } ).join( '' );
+
+                  content = content ? content : '<!-- v-for is empty -->';
+                  let parent = obj._htmlDomReference.parentNode;
+                  let oldHtml = parent.innerHTML;
+                  if ( !lodash.isEqual( oldHtml, content ) ) {
+                      parent.innerHTML = content;
+                      obj._htmlDomReference = parent.firstChild;
+                  }
+              };
+              // For now not set hasExpr = true.
+          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
+              let vIfExpr = node.getAttribute( 'v-if' );
+              node.removeAttribute( 'v-if' );
+              obj.hasExpr = true;
+              skipChild = true;
+              obj.render = ( vm ) => {
+                  let currNode = obj._htmlDomReference;
+                  let parentNode = currNode.parentNode;
+                  let vIfRes = evalExpression( vIfExpr, vm, true );
+                  let vIfLast = obj.getAttrValue( 'v-if' );
+                  if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
+                      if( vIfRes ) {
+                          // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
+                          let content = evalExpression( '`' + node.outerHTML + '`', vm, true );
+                          let newNode = parseViewToDiv( content ).firstChild;
+                          parentNode.replaceChild( newNode, currNode );
+                          obj._htmlDomReference = newNode;
+                      } else {
+                         let newNode = document.createComment( `v-if ${vIfExpr} = ${vIfRes}` );
+                          parentNode.replaceChild( newNode, currNode );
+                          obj._htmlDomReference = newNode;
+                      }
+                  }
+                  obj.setAttrValue( 'v-if', Boolean( vIfRes ) );
+              };
+              obj._htmlDomReference = node;
+          }  else {
+              for( let i = 0; i < node.attributes.length; i++ ) {
+                  let name = node.attributes[i].name;
+                  let value = node.attributes[i].value;
+                  // TODO: we can do it better later
+                  let expr = this._parser.parse( value );
+                  if( expr ) {
+                      // if name is event like onclick
+                      // TODO: make it as expression later
+                      if ( /^on.+/.test( name ) ) {
+                          node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
+                      } else {
+                          obj.addProperty( name, expr );
+                          obj.hasExpr = true;
+                      }
+                  }
+                  obj.setAttrValue( name, value );
+              }
+
+              obj.render = ( vm ) => {
+                  if ( obj.hasExpr ) {
+                      lodash.forEach( obj.props, ( value, name ) => {
+                          let res = evalExpression( value, vm, true );
+                          let last = obj.getAttrValue( name );
+                          // TODO: maybe string comparison will be better?
+                          if ( !lodash.isEqual( last, res ) ) {
+                              obj.setAttrValue( name, res );
+                              obj._htmlDomReference.setAttribute( name, res );
+                          }
+                      } );
+
+                      for( let child of obj.children ) {
+                          child.render( vm );
+                      }
+                  }
+              };
+          }
+
+          if ( obj.hasExpr || level === 0 ) {
+              obj._htmlDomReference = node;
+          }
+
+          for ( let i = 0; !skipChild && i < node.childNodes.length; i++ ) {
+              let child = node.childNodes[i];
+              let childNode = this._createTemplate( child, level + 1 );
+              if( childNode ) {
+                  obj.addChild( childNode );
+              }
+          }
+
           return obj;
       }
   }
@@ -21621,7 +21651,9 @@ define(['require'], function (require) { 'use strict';
       async createView( view ) {
           await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-          this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this._strTplParser );
+          let parser = new FewHtmlViewParser( this._strTplParser );
+          this._view = parser.parse( view.template );
+
           let elem = this._view.getDomElement();
           setComponent( elem, this );
           this._view.render( this._vm.model );

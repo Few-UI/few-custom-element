@@ -1,12 +1,11 @@
 /* eslint-env es6 */
 import './few-global';
 import _ from 'lodash';
-import FewDom from './few-dom';
+import { FewHtmlViewParser } from './few-dom';
 import moduleLoader from './few-module-loader';
 import StringTemplateParser from './string-template-parser';
 
 import {
-    parseViewToDiv,
     setComponent,
     evalExpression,
     cloneDeepJsonObject
@@ -123,7 +122,9 @@ export default class FewComponent {
     async createView( view ) {
         await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-        this._view = FewDom.createFewDom( parseViewToDiv( view.template ), this._strTplParser );
+        let parser = new FewHtmlViewParser( this._strTplParser );
+        this._view = parser.parse( view.template );
+
         let elem = this._view.getDomElement();
         setComponent( elem, this );
         this._view.render( this._vm.model );
