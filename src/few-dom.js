@@ -133,7 +133,7 @@ class FewDom {
             } );
         }
 
-        this._htmlDomReference = newNode;
+        // this._htmlDomReference = newNode;
         return newNode;
     }
 
@@ -187,6 +187,102 @@ export class FewHtmlViewParser {
         return this._createTemplate( templateNode );
     }
 
+
+    _createCondTemplateNode( node ) {
+        let obj = new FewDom( node.nodeName );
+        let vIfExpr = node.getAttribute( 'v-if' );
+        node.removeAttribute( 'v-if' );
+        obj.hasExpr = true;
+
+        let vIfStatementObj = this._createSimpleTemplateNode( node );
+
+        obj.render = ( vm ) => {
+            let currNode = obj._htmlDomReference;
+            let parentNode = currNode.parentNode;
+            let vIfRes = evalExpression( vIfExpr, vm, true );
+            let vIfLast = obj.getAttrValue( 'v-if' );
+            if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
+                if( vIfRes ) {
+                    let newNode = vIfStatementObj.render( vm );
+                    parentNode.replaceChild( newNode, currNode );
+                    obj._htmlDomReference = newNode;
+                } else {
+                   let newNode = document.createComment( `v-if ${vIfExpr} = ${vIfRes}` );
+                    parentNode.replaceChild( newNode, currNode );
+                    obj._htmlDomReference = newNode;
+                }
+            }
+            obj.setAttrValue( 'v-if', Boolean( vIfRes ) );
+            return obj._htmlDomReference;
+        };
+
+        // Use current node as anchor
+        // TODO: we can put a global comment anchor later rather than use node
+        obj._htmlDomReference = node;
+
+        // TODO: skip lint for now
+        this._parser;
+
+        return obj;
+    }
+
+    /**
+     * create Simple Template Node
+     * @param {Node} node DOM Node in input template
+     * @returns {FewDom} Template Node
+     */
+    _createSimpleTemplateNode( node ) {
+        let obj = new FewDom( node.nodeName );
+        for( let i = 0; i < node.attributes.length; i++ ) {
+            let name = node.attributes[i].name;
+            let value = node.attributes[i].value;
+            // TODO: we can do it better later
+            let expr = this._parser.parse( value );
+            if( expr ) {
+                // if name is event like onclick
+                // TODO: make it as expression later
+                if ( /^on.+/.test( name ) ) {
+                    node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
+                } else {
+                    obj.addProperty( name, expr );
+                    obj.hasExpr = true;
+                }
+            }
+            obj.setAttrValue( name, value );
+        }
+
+        obj.render = ( vm ) => {
+            if ( obj.hasExpr ) {
+                _.forEach( obj.props, ( value, name ) => {
+                    let res = evalExpression( value, vm, true );
+                    let last = obj.getAttrValue( name );
+                    // TODO: maybe string comparison will be better?
+                    if ( !_.isEqual( last, res ) ) {
+                        obj.setAttrValue( name, res );
+                        obj._htmlDomReference.setAttribute( name, res );
+                    }
+                } );
+
+                for( let child of obj.children ) {
+                    child.render( vm );
+                }
+            }
+            return obj._htmlDomReference;
+        };
+
+        obj._htmlDomReference = node;
+
+        for ( let i = 0; i < node.childNodes.length; i++ ) {
+            let child = node.childNodes[i];
+            let childNode = this._createTemplate( child );
+            if( childNode ) {
+                obj.addChild( childNode );
+            }
+        }
+
+        return obj;
+    }
+
     /**
      * Create FewDom structure based on input DOM
      * @param {Node} node DOM Node
@@ -200,13 +296,10 @@ export class FewHtmlViewParser {
             return;
         }
 
-        let obj = new FewDom( node.nodeName );
-        obj.hasExpr = false;
+        let obj = null;
 
-        // TODO: need to refactor
-        let skipChild = false;
-
-        if ( obj.isTextNode() ) {
+        if ( node.nodeType === Node.TEXT_NODE ) {
+            obj = new FewDom( node.nodeName );
             let name = 'textContent';
             let value = node[name];
             // TODO: we can do it better later
@@ -224,8 +317,10 @@ export class FewHtmlViewParser {
                     }
                 };
             }
+            obj._htmlDomReference = node;
             obj.setAttrValue( name, value );
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
+            obj = new FewDom( node.nodeName );
             let vForExpr = node.getAttribute( 'v-for' );
             let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
             let vVarName = match[1];
@@ -233,7 +328,6 @@ export class FewHtmlViewParser {
             node.removeAttribute( 'v-for' );
             // obj._renderFuncExpr = `${vSetName}.map((${vVarName}) => { return \`` + node.outerHTML + '`; }).join("");';
             obj.hasExpr = true;
-            skipChild = true;
             obj.render = ( vm ) => {
                 let content = vm[vSetName].map( ( o ) => {
                     let vVar = {};
@@ -252,79 +346,9 @@ export class FewHtmlViewParser {
             };
             // For now not set hasExpr = true.
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
-            let vIfExpr = node.getAttribute( 'v-if' );
-            node.removeAttribute( 'v-if' );
-            obj.hasExpr = true;
-            skipChild = true;
-            obj.render = ( vm ) => {
-                let currNode = obj._htmlDomReference;
-                let parentNode = currNode.parentNode;
-                let vIfRes = evalExpression( vIfExpr, vm, true );
-                let vIfLast = obj.getAttrValue( 'v-if' );
-                if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
-                    if( vIfRes ) {
-                        // TODO: If the pattern is not ${}, it will break. Need to use this.createHtmlDom( vm )
-                        let content = evalExpression( '`' + node.outerHTML + '`', vm, true );
-                        let newNode = parseViewToDiv( content ).firstChild;
-                        parentNode.replaceChild( newNode, currNode );
-                        obj._htmlDomReference = newNode;
-                    } else {
-                       let newNode = document.createComment( `v-if ${vIfExpr} = ${vIfRes}` );
-                        parentNode.replaceChild( newNode, currNode );
-                        obj._htmlDomReference = newNode;
-                    }
-                }
-                obj.setAttrValue( 'v-if', Boolean( vIfRes ) );
-            };
-            obj._htmlDomReference = node;
+            obj = this._createCondTemplateNode( node );
         }  else {
-            for( let i = 0; i < node.attributes.length; i++ ) {
-                let name = node.attributes[i].name;
-                let value = node.attributes[i].value;
-                // TODO: we can do it better later
-                let expr = this._parser.parse( value );
-                if( expr ) {
-                    // if name is event like onclick
-                    // TODO: make it as expression later
-                    if ( /^on.+/.test( name ) ) {
-                        node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
-                    } else {
-                        obj.addProperty( name, expr );
-                        obj.hasExpr = true;
-                    }
-                }
-                obj.setAttrValue( name, value );
-            }
-
-            obj.render = ( vm ) => {
-                if ( obj.hasExpr ) {
-                    _.forEach( obj.props, ( value, name ) => {
-                        let res = evalExpression( value, vm, true );
-                        let last = obj.getAttrValue( name );
-                        // TODO: maybe string comparison will be better?
-                        if ( !_.isEqual( last, res ) ) {
-                            obj.setAttrValue( name, res );
-                            obj._htmlDomReference.setAttribute( name, res );
-                        }
-                    } );
-
-                    for( let child of obj.children ) {
-                        child.render( vm );
-                    }
-                }
-            };
-        }
-
-        if ( obj.hasExpr || level === 0 ) {
-            obj._htmlDomReference = node;
-        }
-
-        for ( let i = 0; !skipChild && i < node.childNodes.length; i++ ) {
-            let child = node.childNodes[i];
-            let childNode = this._createTemplate( child, level + 1 );
-            if( childNode ) {
-                obj.addChild( childNode );
-            }
+            obj = this._createSimpleTemplateNode( node );
         }
 
         return obj;

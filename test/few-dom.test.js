@@ -16,7 +16,7 @@ describe( 'Test few-dom', () => {
                 {
                     tagName: 'CODE',
                     hasExpr: false,
-                    _htmlDomReference: '',
+                    _htmlDomReference: '<code id="ouch"></code>',
                     values: {
                         id: 'ouch'
                     }
@@ -35,7 +35,7 @@ describe( 'Test few-dom', () => {
                 {
                     tagName: 'CODE',
                     hasExpr: true,
-                    _htmlDomReference: '',
+                    _htmlDomReference: '<code id="ouch"></code>',
                     values: {
                         id: 'ouch'
                     },
@@ -43,7 +43,7 @@ describe( 'Test few-dom', () => {
                         {
                             tagName: 'DIV',
                             hasExpr: true,
-                            _htmlDomReference: '',
+                            _htmlDomReference: '<div></div>',
                             children: [
                                 {
                                     tagName: '#text',
@@ -74,7 +74,7 @@ describe( 'Test few-dom', () => {
                         {
                             tagName: 'DIV',
                             hasExpr: false,
-                            _htmlDomReference: ''
+                            _htmlDomReference: '<div></div>'
                         }
                     ]
                 }
