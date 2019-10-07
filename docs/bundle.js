@@ -21409,7 +21409,7 @@ define(['require'], function (require) { 'use strict';
        * Print object for test purpose
        * @returns {JSON} JSON object that presents the content of FewDom
        */
-      toJson() {
+      toJSON() {
           let refStr = '';
           if( this._htmlDomReference ) {
               if( this.isTextNode() ) {
@@ -21427,7 +21427,7 @@ define(['require'], function (require) { 'use strict';
           let obj = Object.assign( {}, this );
           obj._htmlDomReference = refStr;
           if ( this.children ) {
-              obj.children = this.children.map( ( o ) => o.toJson() );
+              obj.children = this.children.map( ( o ) => o.toJSON() );
           }
           delete obj.render;
 

@@ -7,7 +7,7 @@ import StringTemplateParser from '../src/string-template-parser';
 
 describe( 'Test few-dom', () => {
     it( 'Verify few-dom create node correct for simple DOM', async() => {
-        expect( FewDom.createFewDom( parseViewToDiv( '<code id="ouch"></code>' ), new StringTemplateParser() ).toJson() ).toEqual( {
+        expect( FewDom.createFewDom( parseViewToDiv( '<code id="ouch"></code>' ), new StringTemplateParser() ).toJSON() ).toEqual( {
             tagName: 'DIV',
             hasExpr: false,
             _htmlDomReference: '<div></div>',
@@ -25,7 +25,7 @@ describe( 'Test few-dom', () => {
     } );
 
     it( 'Verify few-dom create node correct for DOM with expression', async() => {
-        expect( FewDom.createFewDom( parseViewToDiv( '<code id="ouch"><div>${test1}</div></code><code id="${test2}"><div></div></code>' ), new StringTemplateParser() ).toJson() ).toEqual( {
+        expect( FewDom.createFewDom( parseViewToDiv( '<code id="ouch"><div>${test1}</div></code><code id="${test2}"><div></div></code>' ), new StringTemplateParser() ).toJSON() ).toEqual( {
             tagName: 'DIV',
             hasExpr: true,
             _htmlDomReference: '<div></div>',
