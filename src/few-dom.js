@@ -204,10 +204,11 @@ export class FewHtmlViewParser {
     _createCondTemplateNode( node ) {
         let obj = new FewDom( node.nodeName );
         let vIfExpr = node.getAttribute( 'f-cond' );
-        node.removeAttribute( 'f-cond' );
         obj.hasExpr = true;
 
+        node.removeAttribute( 'f-cond' );
         let vIfStatementObj = this._createTemplate( node );
+        // node.addAttribute( 'f-cond' , vIfExpr );
 
         obj.render = ( vm ) => {
             let vIfRes = evalExpression( vIfExpr, vm, true );
@@ -238,38 +239,68 @@ export class FewHtmlViewParser {
 
     _createLoopTemplateNode( node ) {
         let obj = new FewDom( node.nodeName );
+        obj.hasExpr = true;
+
+        // Process f-each clause
         let vForExpr = node.getAttribute( 'f-each' );
         let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
         let vVarName = match[1];
         let vSetName = match[3];
+
+        // create f-each statement template
         node.removeAttribute( 'f-each' );
+        // let vForStatementTemplate = this._createTemplate( node );
 
-        let vForStatementObj = this._createTemplate( node );
+        // TODO: couple with HTML/DOM, can be abstract later
+        // Backup node input for for purpose
+        let comment = document.createComment( `f-each(${vForExpr})` );
+        if ( node.parentNode ) {
+            node.parentNode.replaceChild( comment, node );
+        }
+        let vForStatementTemplates = [];
+        let vForRawNode = node;
 
-        obj.hasExpr = true;
+        // node.addAttribute( 'f-each', vForExpr );
+
         obj.render = ( vm ) => {
-            let fragment = document.createDocumentFragment();
+            let currNode = obj._htmlDomReference;
+            let parentNode = currNode.parentNode;
+            let vForLst = vForStatementTemplates.length;
+            let vForRes = vm[vSetName] ? vm[vSetName].length : 0;
 
-            // TODO: This is where we really need vDOM
-            // https://github.com/snabbdom/snabbdom
-            // https://github.com/creeperyang/blog/tree/master/codes/snabbdom
-            vm[vSetName].forEach( ( o ) => {
-                let vVar = {};
-                vVar[vVarName] = o;
-                let newNode = vForStatementObj.render( Object.assign( Object.assign( {}, vm ), vVar ) );
-                fragment.appendChild( newNode.cloneNode( true ) );
-            } );
+            // TODO:we can do either length check, order check, shallow compare...
+            if ( vForLst  > vForRes ) {
+                // Remove exceeded template
+                // TODO: Make sure no memory leak later
+                vForStatementTemplates.splice( vForRes );
 
-            // TODO: assume no sibling for now, need to be ehance to support <div f-each="xxx"></div><div id="other"></div>
-            if ( fragment.children.length === 0 ) {
-                fragment.appendChild( document.createComment( 'f-each is empty ' ) );
+                // Update DOM
+                for( let i = vForRes; i < vForLst; i++ ) {
+                    let prevNode = currNode.previousSibling;
+                    parentNode.removeChild( currNode );
+                    currNode = prevNode;
+                }
+            } else if ( vForLst < vForRes ) {
+                // Append new template
+                for( let i = vForLst; i < vForRes; i++ ) {
+                    let newNode = vForRawNode.cloneNode( true );
+                    vForStatementTemplates.push( this._createTemplate( newNode ) );
+                    parentNode.insertBefore( newNode, currNode.nextSibling );
+                    currNode = newNode;
+                }
+            } else {
+                // No change and do nothing
             }
+            obj._htmlDomReference = currNode;
 
-            let parent = obj._htmlDomReference.parentNode;
-            if ( !_.isEqual( parent.innerHTML, fragment.innerHTML ) ) {
-                parent.innerHTML = '';
-                parent.appendChild( fragment );
-                obj._htmlDomReference = parent.firstChild;
+            // Re-render template set
+            if ( vForRes > 0 ) {
+                let iCount = 0;
+                vm[vSetName].map( ( o ) => {
+                    let vVar = {};
+                    vVar[vVarName] = o;
+                    return vForStatementTemplates[iCount++].render( Object.assign( Object.assign( {}, vm ), vVar ) );
+                } );
             }
 
             // This is not really required since f-each will be the top processor
@@ -278,7 +309,7 @@ export class FewHtmlViewParser {
 
         // Use current node as anchor
         // TODO: we can put a global comment anchor later rather than use node
-        obj._htmlDomReference = node;
+        obj._htmlDomReference = comment;
 
         return obj;
         // For now not set hasExpr = true.

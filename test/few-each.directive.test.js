@@ -34,10 +34,10 @@ describe( 'Test f-each in few-view', () => {
 
         let viewElem = await component.createView( componentDef.view );
 
-        expect( viewElem.innerHTML ).toEqual( '<div>apple</div><div>banana</div>' );
+        expect( viewElem.innerHTML ).toEqual( '<!--f-each(item of items)--><div>apple</div><div>banana</div>' );
     } );
 
-    xit( 'Verify f-each can be rendered with siblings', async() => {
+    it( 'Verify f-each can be rendered with siblings', async() => {
         let componentContent = [
             'view:',
             '  template:',
@@ -56,6 +56,6 @@ describe( 'Test f-each in few-view', () => {
 
         let viewElem = await component.createView( componentDef.view );
 
-        expect( viewElem.innerHTML ).toEqual( '<div>apple</div><div>banana</div><div>sibling</div>' );
+        expect( viewElem.innerHTML ).toEqual( '<!--f-each(item of items)--><div>apple</div><div>banana</div> <div>sibling</div>' );
     } );
 } );
