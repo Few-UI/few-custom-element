@@ -125,9 +125,8 @@ export default class FewComponent {
         let parser = new FewHtmlViewParser( this._strTplParser );
         this._view = parser.parse( view.template );
 
-        let elem = this._view.getDomElement();
+        let elem = this._view.render( this._vm.model );
         setComponent( elem, this );
-        this._view.render( this._vm.model );
         return elem;
     }
 

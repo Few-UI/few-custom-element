@@ -82,6 +82,40 @@ describe( 'Test few-view', () => {
         expect( elem.outerHTML ).toEqual( '<few-view src="testView"><div class="few-scope"><div>5</div></div></few-view>' );
     } );
 
+    it( 'Verify few-view will leave isolate scope not to be evaluated', async() => {
+        let ymlContent = [
+            'view:',
+            '  template:',
+            '    <div>${testVal}</div>',
+            '    <div class="few-scope"><div>${testVal}</div></div>',
+            'model:',
+            ' testVal: 5'
+        ];
+
+        spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent.join( '\n' ) ) );
+
+        const elem  = await renderToSub( FewView.tag, { src: 'testView' } );
+
+        expect( elem.firstChild.innerHTML ).toEqual( '<div>5</div> <div class="few-scope"><div>${testVal}</div></div>' );
+    } );
+
+    it( 'Verify few-view will ignore element with f-ignore', async() => {
+        let ymlContent = [
+            'view:',
+            '  template:',
+            '    <div>${testVal}</div>',
+            '    <div f-ignore><div>${testVal}</div></div>',
+            'model:',
+            ' testVal: 5'
+        ];
+
+        spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent.join( '\n' ) ) );
+
+        const elem  = await renderToSub( FewView.tag, { src: 'testView' } );
+
+        expect( elem.firstChild.innerHTML ).toEqual( '<div>5</div> <div f-ignore=""><div>${testVal}</div></div>' );
+    } );
+
     it( 'Verify few-view can be updated while changing view attribute', async() => {
         let firstViewContent = [
             'view:',

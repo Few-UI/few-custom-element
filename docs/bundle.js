@@ -21322,7 +21322,7 @@ define(['require'], function (require) { 'use strict';
           return this._createTemplate( templateNode );
       }
 
-      _createTextTemplateNote( node ) {
+      _createTextTemplateNode( node ) {
           let obj = new FewDom( node.nodeName );
           let name = 'textContent';
           let value = node[name];
@@ -21342,7 +21342,7 @@ define(['require'], function (require) { 'use strict';
               };
           }
           obj._htmlDomReference = node;
-          obj.setAttrValue( name, value );
+          // obj.setAttrValue( name, value );
           return obj;
       }
 
@@ -21378,9 +21378,6 @@ define(['require'], function (require) { 'use strict';
           // Use current node as anchor
           // TODO: we can put a global comment anchor later rather than use node
           obj._htmlDomReference = node;
-
-          // TODO: skip lint for now
-          this._parser;
 
           return obj;
       }
@@ -21420,6 +21417,9 @@ define(['require'], function (require) { 'use strict';
                   parent.appendChild( fragment );
                   obj._htmlDomReference = parent.firstChild;
               }
+
+              // This is not really required since v-for will be the top processor
+              return obj._htmlDomReference;
           };
 
           // Use current node as anchor
@@ -21451,8 +21451,9 @@ define(['require'], function (require) { 'use strict';
                       obj.addProperty( name, expr );
                       obj.hasExpr = true;
                   }
+              } else {
+                  obj.setAttrValue( name, value );
               }
-              obj.setAttrValue( name, value );
           }
 
           obj.render = ( vm ) => {
@@ -21476,14 +21477,6 @@ define(['require'], function (require) { 'use strict';
 
           obj._htmlDomReference = node;
 
-          for ( let i = 0; i < node.childNodes.length; i++ ) {
-              let child = node.childNodes[i];
-              let childNode = this._createTemplate( child );
-              if( childNode ) {
-                  obj.addChild( childNode );
-              }
-          }
-
           return obj;
       }
 
@@ -21495,6 +21488,8 @@ define(['require'], function (require) { 'use strict';
        */
       _createTemplate( node ) {
           if(  node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
+              // f-ignore
+              node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( 'f-ignore' ) ||
               // has scope defined already
               hasScope( node ) ) {
               return;
@@ -21503,13 +21498,21 @@ define(['require'], function (require) { 'use strict';
           let obj = null;
 
           if ( node.nodeType === Node.TEXT_NODE ) {
-              obj = this._createTextTemplateNote( node );
+              obj = this._createTextTemplateNode( node );
           } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
               obj = this._createLoopTemplateNode( node );
           } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
               obj = this._createCondTemplateNode( node );
           }  else {
               obj = this._createSimpleTemplateNode( node );
+          }
+
+          for ( let i = 0; i < node.childNodes.length; i++ ) {
+              let child = node.childNodes[i];
+              let childNode = this._createTemplate( child );
+              if( childNode ) {
+                  obj.addChild( childNode );
+              }
           }
 
           return obj;
@@ -21704,9 +21707,8 @@ define(['require'], function (require) { 'use strict';
           let parser = new FewHtmlViewParser( this._strTplParser );
           this._view = parser.parse( view.template );
 
-          let elem = this._view.getDomElement();
+          let elem = this._view.render( this._vm.model );
           setComponent( elem, this );
-          this._view.render( this._vm.model );
           return elem;
       }
 

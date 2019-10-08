@@ -51,9 +51,6 @@ describe( 'Test few-dom', () => {
                                     _htmlDomReference: '${test1}',
                                     props: {
                                         textContent: 'test1'
-                                    },
-                                    values: {
-                                        textContent: '${test1}'
                                     }
                                 }
                             ]
@@ -66,9 +63,6 @@ describe( 'Test few-dom', () => {
                     _htmlDomReference: '<code id="${test2}"></code>',
                     props: {
                         id: 'test2'
-                    },
-                    values: {
-                        id: '${test2}'
                     },
                     children: [
                         {
