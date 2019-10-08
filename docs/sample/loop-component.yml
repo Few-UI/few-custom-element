@@ -5,7 +5,7 @@ view:
     <div>${ "loopCount:" + items.length }</div>
     <button onclick="${updateText}">Update Text</button>
     <ul>
-      <li v-for="item of items">
+      <li f-each="item of items">
         ${ item.message + ' => ' + simpleText }
       </li>
     </ul>

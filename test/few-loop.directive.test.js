@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import FewComponent from '../src/few-component';
 import { wait } from './test-utils';
 
-describe( 'Test v-for in few-view', () => {
+describe( 'Test f-each in few-view', () => {
     beforeEach( () =>{
         window.$few_test = {
             setValue: ( val ) => {
@@ -17,11 +17,11 @@ describe( 'Test v-for in few-view', () => {
         };
     } );
 
-    it( 'Verify v-for can render data array correctly', async() => {
+    it( 'Verify f-each can render data array correctly', async() => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div v-for="item of items">${item.type}</div>',
+            '    <div f-each="item of items">${item.type}</div>',
             'model:',
             '  items:',
             '    - type: apple',

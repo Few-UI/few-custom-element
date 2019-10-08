@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import FewComponent from '../src/few-component';
 import { wait } from './test-utils';
 
-describe( 'Test v-if in few-view', () => {
+describe( 'Test f-cond in few-view', () => {
     beforeEach( () =>{
         window.$few_test = {
             setValue: ( val ) => {
@@ -17,11 +17,11 @@ describe( 'Test v-if in few-view', () => {
         };
     } );
 
-    it( 'Verify v-if works corretly for simple element', async() => {
+    it( 'Verify f-cond works corretly for simple element', async() => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div v-if="testBoolean">Hello</div>',
+            '    <div f-cond="testBoolean">Hello</div>',
             'model:',
             '  testBoolean: false',
             'action:',
@@ -40,7 +40,7 @@ describe( 'Test v-if in few-view', () => {
 
         let viewElem = await component.createView( componentDef.view );
 
-        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
@@ -50,14 +50,14 @@ describe( 'Test v-if in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
     } );
 
-    it( 'Verify v-if works corretly for element with expression', async() => {
+    it( 'Verify f-cond works corretly for element with expression', async() => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div v-if="testBoolean">${testVal}</div>',
+            '    <div f-cond="testBoolean">${testVal}</div>',
             'model:',
             '  testBoolean: true',
             '  testVal: 5',
@@ -90,7 +90,7 @@ describe( 'Test v-if in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
@@ -98,11 +98,11 @@ describe( 'Test v-if in few-view', () => {
         expect( viewElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
-    it( 'Verify v-if works corretly for nested element', async() => {
+    it( 'Verify f-cond works corretly for nested element', async() => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div v-if="testBoolean"><code style="color:blue">${testMsg}</code></div>',
+            '    <div f-cond="testBoolean"><code style="color:blue">${testMsg}</code></div>',
             'model:',
             '  testBoolean: false',
             '  testMsg: hello',
@@ -121,7 +121,7 @@ describe( 'Test v-if in few-view', () => {
 
         let viewElem = await component.createView( componentDef.view );
 
-        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
@@ -131,6 +131,6 @@ describe( 'Test v-if in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<!--v-if testBoolean = false-->' );
+        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
     } );
 } );

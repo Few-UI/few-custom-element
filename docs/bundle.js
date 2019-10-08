@@ -21349,8 +21349,8 @@ define(['require'], function (require) { 'use strict';
 
       _createCondTemplateNode( node ) {
           let obj = new FewDom( node.nodeName );
-          let vIfExpr = node.getAttribute( 'v-if' );
-          node.removeAttribute( 'v-if' );
+          let vIfExpr = node.getAttribute( 'f-cond' );
+          node.removeAttribute( 'f-cond' );
           obj.hasExpr = true;
 
           let vIfStatementObj = this._createTemplate( node );
@@ -21359,19 +21359,19 @@ define(['require'], function (require) { 'use strict';
               let currNode = obj._htmlDomReference;
               let parentNode = currNode.parentNode;
               let vIfRes = evalExpression( vIfExpr, vm, true );
-              let vIfLast = obj.getAttrValue( 'v-if' );
+              let vIfLast = obj.getAttrValue( 'f-cond' );
               if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
                   if( vIfRes ) {
                       let newNode = vIfStatementObj.render( vm );
                       parentNode.replaceChild( newNode, currNode );
                       obj._htmlDomReference = newNode;
                   } else {
-                     let newNode = document.createComment( `v-if ${vIfExpr} = ${vIfRes}` );
+                     let newNode = document.createComment( `f-cond ${vIfExpr} = ${vIfRes}` );
                       parentNode.replaceChild( newNode, currNode );
                       obj._htmlDomReference = newNode;
                   }
               }
-              obj.setAttrValue( 'v-if', Boolean( vIfRes ) );
+              obj.setAttrValue( 'f-cond', Boolean( vIfRes ) );
               return obj._htmlDomReference;
           };
 
@@ -21384,11 +21384,11 @@ define(['require'], function (require) { 'use strict';
 
       _createLoopTemplateNode( node ) {
           let obj = new FewDom( node.nodeName );
-          let vForExpr = node.getAttribute( 'v-for' );
+          let vForExpr = node.getAttribute( 'f-each' );
           let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
           let vVarName = match[1];
           let vSetName = match[3];
-          node.removeAttribute( 'v-for' );
+          node.removeAttribute( 'f-each' );
 
           let vForStatementObj = this._createTemplate( node );
 
@@ -21406,9 +21406,9 @@ define(['require'], function (require) { 'use strict';
                   fragment.appendChild( newNode.cloneNode( true ) );
               } );
 
-              // TODO: assume no sibling for now, need to be ehance to support <div v-for="xxx"></div><div id="other"></div>
+              // TODO: assume no sibling for now, need to be ehance to support <div f-each="xxx"></div><div id="other"></div>
               if ( fragment.children.length === 0 ) {
-                  fragment.appendChild( document.createComment( 'v-for is empty ' ) );
+                  fragment.appendChild( document.createComment( 'f-each is empty ' ) );
               }
 
               let parent = obj._htmlDomReference.parentNode;
@@ -21418,7 +21418,7 @@ define(['require'], function (require) { 'use strict';
                   obj._htmlDomReference = parent.firstChild;
               }
 
-              // This is not really required since v-for will be the top processor
+              // This is not really required since f-each will be the top processor
               return obj._htmlDomReference;
           };
 
@@ -21499,9 +21499,9 @@ define(['require'], function (require) { 'use strict';
 
           if ( node.nodeType === Node.TEXT_NODE ) {
               obj = this._createTextTemplateNode( node );
-          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-for' ) ) {
+          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-each' ) ) {
               obj = this._createLoopTemplateNode( node );
-          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'v-if' ) ) {
+          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-cond' ) ) {
               obj = this._createCondTemplateNode( node );
           }  else {
               obj = this._createSimpleTemplateNode( node );
