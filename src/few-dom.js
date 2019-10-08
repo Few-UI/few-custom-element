@@ -210,11 +210,11 @@ export class FewHtmlViewParser {
         let vIfStatementObj = this._createTemplate( node );
 
         obj.render = ( vm ) => {
-            let currNode = obj._htmlDomReference;
-            let parentNode = currNode.parentNode;
             let vIfRes = evalExpression( vIfExpr, vm, true );
             let vIfLast = obj.getAttrValue( 'f-cond' );
             if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
+                let currNode = obj._htmlDomReference;
+                let parentNode = currNode.parentNode;
                 if( vIfRes ) {
                     let newNode = vIfStatementObj.render( vm );
                     parentNode.replaceChild( newNode, currNode );
