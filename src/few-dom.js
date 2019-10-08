@@ -98,14 +98,6 @@ class FewDom {
     }
 
     /**
-     * get DOM element for current view element
-     * @returns {Element} DOM element for current view element
-     */
-    getDomElement() {
-        return this._htmlDomReference;
-    }
-
-    /**
      * Check if current FewDom object is text node
      * @returns {boolean} return true if the FewDom object is for text node
      */
