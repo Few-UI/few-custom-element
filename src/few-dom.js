@@ -29,7 +29,7 @@ class FewDom {
          * default render function
          * @param {Object} vm model object
          */
-        this.render = ( vm ) => {};
+        this.update = ( currNode, vm ) => {};
 
         // For typical ES6 practice, we better put all member variable
         // in constructor as a good practice. But for thi atom type, we
@@ -128,6 +128,16 @@ class FewDom {
     }
 
     /**
+     * general render function
+     * @param {Object} vm view model object
+     * @returns {Node} dom element as result
+     */
+    render( vm ) {
+        this._htmlDomReference = this.update( this._htmlDomReference, vm );
+        return this._htmlDomReference;
+    }
+
+    /**
      * Print object for test purpose
      * @returns {JSON} JSON object that presents the content of FewDom
      */
@@ -151,7 +161,7 @@ class FewDom {
         if ( this.children ) {
             obj.children = this.children.map( ( o ) => o.toJSON() );
         }
-        delete obj.render;
+        delete obj.update;
 
         // wash out methods
         return obj;
@@ -187,13 +197,16 @@ export class FewHtmlViewParser {
             obj.addProperty( name, expr );
             obj.hasExpr = true;
 
-            obj.render = ( vm ) => {
+            obj.update = ( currNode, vm ) => {
+                let newNode = currNode;
                 let res = evalExpression( obj.props[name], vm, true );
                 let last = obj.getAttrValue( name );
                 if ( last === undefined || !_.isEqual( last, res ) ) {
                     obj.setAttrValue( name, res );
-                    obj._htmlDomReference[name] = res;
+                    newNode[name] = res;
                 }
+
+                return newNode;
             };
         }
         obj._htmlDomReference = node;
@@ -210,24 +223,23 @@ export class FewHtmlViewParser {
         let vIfStatementObj = this._createTemplate( node );
         // node.addAttribute( 'f-cond' , vIfExpr );
 
-        obj.render = ( vm ) => {
+        obj.update = ( currNode, vm ) => {
+            let newNode = currNode;
             let vIfRes = evalExpression( vIfExpr, vm, true );
             let vIfLast = obj.getAttrValue( 'f-cond' );
             if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
-                let currNode = obj._htmlDomReference;
                 let parentNode = currNode.parentNode;
                 if( vIfRes ) {
-                    let newNode = vIfStatementObj.render( vm );
+                    newNode = vIfStatementObj.render( vm );
                     parentNode.replaceChild( newNode, currNode );
-                    obj._htmlDomReference = newNode;
                 } else {
-                   let newNode = document.createComment( `f-cond ${vIfExpr} = ${vIfRes}` );
+                    newNode = document.createComment( `f-cond ${vIfExpr} = ${vIfRes}` );
                     parentNode.replaceChild( newNode, currNode );
-                    obj._htmlDomReference = newNode;
                 }
             }
             obj.setAttrValue( 'f-cond', Boolean( vIfRes ) );
-            return obj._htmlDomReference;
+
+            return newNode;
         };
 
         // Use current node as anchor
@@ -256,14 +268,16 @@ export class FewHtmlViewParser {
         let comment = document.createComment( `f-each(${vForExpr})` );
         if ( node.parentNode ) {
             node.parentNode.replaceChild( comment, node );
+        } else {
+            // TODO: we should error out - the top root div is required
         }
         let vForStatementTemplates = [];
         let vForRawNode = node;
 
         // node.addAttribute( 'f-each', vForExpr );
 
-        obj.render = ( vm ) => {
-            let currNode = obj._htmlDomReference;
+        obj.update = ( currNode, vm ) => {
+            let newNode = currNode;
             let parentNode = currNode.parentNode;
             let vForLst = vForStatementTemplates.length;
             let vForRes = vm[vSetName] ? vm[vSetName].length : 0;
@@ -276,22 +290,23 @@ export class FewHtmlViewParser {
 
                 // Update DOM
                 for( let i = vForRes; i < vForLst; i++ ) {
-                    let prevNode = currNode.previousSibling;
-                    parentNode.removeChild( currNode );
-                    currNode = prevNode;
+                    let prevNode = newNode.previousSibling;
+                    parentNode.removeChild( newNode );
+                    newNode = prevNode;
                 }
             } else if ( vForLst < vForRes ) {
                 // Append new template
+                let fragment = document.createDocumentFragment();
                 for( let i = vForLst; i < vForRes; i++ ) {
                     let newNode = vForRawNode.cloneNode( true );
                     vForStatementTemplates.push( this._createTemplate( newNode ) );
-                    parentNode.insertBefore( newNode, currNode.nextSibling );
-                    currNode = newNode;
+                    fragment.appendChild( newNode );
                 }
+                newNode = fragment.lastChild;
+                parentNode.insertBefore( fragment, currNode.nextSibling );
             } else {
                 // No change and do nothing
             }
-            obj._htmlDomReference = currNode;
 
             // Re-render template set
             if ( vForRes > 0 ) {
@@ -303,8 +318,7 @@ export class FewHtmlViewParser {
                 } );
             }
 
-            // This is not really required since f-each will be the top processor
-            return obj._htmlDomReference;
+            return newNode;
         };
 
         // Use current node as anchor
@@ -341,7 +355,8 @@ export class FewHtmlViewParser {
             }
         }
 
-        obj.render = ( vm ) => {
+        obj.update = ( currNode, vm ) => {
+            let newNode = currNode;
             if ( obj.hasExpr ) {
                 _.forEach( obj.props, ( value, name ) => {
                     let res = evalExpression( value, vm, true );
@@ -349,7 +364,7 @@ export class FewHtmlViewParser {
                     // TODO: maybe string comparison will be better?
                     if ( !_.isEqual( last, res ) ) {
                         obj.setAttrValue( name, res );
-                        obj._htmlDomReference.setAttribute( name, res );
+                        newNode.setAttribute( name, res );
                     }
                 } );
 
@@ -357,7 +372,7 @@ export class FewHtmlViewParser {
                     child.render( vm );
                 }
             }
-            return obj._htmlDomReference;
+            return newNode;
         };
 
         obj._htmlDomReference = node;
