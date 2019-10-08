@@ -2,7 +2,6 @@
 /* eslint-env es6, jasmine */
 
 import { FewHtmlViewParser } from '../src/few-dom';
-import { parseViewToDiv } from '../src/few-utils';
 import StringTemplateParser from '../src/string-template-parser';
 
 describe( 'Test few-dom', () => {
