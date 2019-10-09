@@ -44,11 +44,6 @@ class FewDom {
          * child nodes
          * this.children = [];
          */
-
-        /**
-         * reference to actual DOM Element
-         * this._htmlDomReference = <DOMElement>;
-         */
     }
 
     /**
@@ -143,6 +138,11 @@ class FewViewAbstractTemplate {
      */
     constructor( exprTemplateParser ) {
         this._parser = exprTemplateParser;
+
+        /**
+         * reference to actual DOM Element, anchor for DOM update
+         * this._htmlDomReference = <DOMElement>;
+         */
     }
 
     // TODO: remove me

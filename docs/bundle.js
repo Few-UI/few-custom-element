@@ -21180,11 +21180,6 @@ define(['require'], function (require) { 'use strict';
            * child nodes
            * this.children = [];
            */
-
-          /**
-           * reference to actual DOM Element
-           * this._htmlDomReference = <DOMElement>;
-           */
       }
 
       /**
@@ -21279,6 +21274,11 @@ define(['require'], function (require) { 'use strict';
        */
       constructor( exprTemplateParser ) {
           this._parser = exprTemplateParser;
+
+          /**
+           * reference to actual DOM Element, anchor for DOM update
+           * this._htmlDomReference = <DOMElement>;
+           */
       }
 
       // TODO: remove me
