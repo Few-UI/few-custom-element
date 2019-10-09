@@ -32,17 +32,22 @@ class FewDom {
 
         /**
          * variable attributes
-         * this.props = {};
+         * this.input = {};
          */
 
         /**
          * constant attributes or evaluation result for variable attrbutes
-         * this.values = {};
+         * this.data = {};
          */
 
         /**
          * child nodes
          * this.children = [];
+         */
+
+        /**
+         * correcponding dom node as anchor
+         * this.elm = <DOMNode>
          */
     }
 
@@ -51,10 +56,27 @@ class FewDom {
      * @param {string} name attribute name
      * @param {string} val attribute value
      */
-    addProperty( name, val ) {
-        this.props = this.props || {};
-        this.props[name] = val;
+    setInput( name, val ) {
+        this.input = this.input || {};
+        this.input[name] = val;
         this.hasExpr = true;
+    }
+
+    /**
+     * Get attribute expression by name
+     * @param {string} name attribute name
+     * @returns {string} expression as string
+     */
+    getInput( name ) {
+        return this.input ? this.input[name] : undefined;
+    }
+
+    /**
+     * Get the all definition for variable attributes
+     * @returns {object} expression as string
+     */
+    getScope() {
+        return this.input || {};
     }
 
     /**
@@ -62,9 +84,9 @@ class FewDom {
      * @param {string} name attribute name
      * @param {string} val attribute value
      */
-    setAttrValue( name, val ) {
-        this.values = this.values || {};
-        this.values[name] = val;
+    setValue( name, val ) {
+        this.data = this.data || {};
+        this.data[name] = val;
     }
 
     /**
@@ -72,8 +94,8 @@ class FewDom {
      * @param {string} name attribute name
      * @returns {string} return value
      */
-    getAttrValue( name ) {
-        return this.values ? this.values[name] : undefined;
+    getValue( name ) {
+        return this.data ? this.data[name] : undefined;
     }
 
     /**
@@ -84,6 +106,10 @@ class FewDom {
         this.children = this.children || [];
         this.children.push( child );
         this.hasExpr = this.hasExpr || child.hasExpr;
+    }
+
+    getChildren() {
+        return this.children || [];
     }
 
     /**
@@ -102,11 +128,11 @@ class FewDom {
     createHtmlDom( vm ) {
         let newNode = null;
         if( this.isTextNode() ) {
-            newNode = document.createTextNode( this.values.textContent );
+            newNode = document.createTextNode( this.data.textContent );
         } else {
             newNode = document.createElement( this.tagName );
-            _.forEach( this.values, ( expr, attr ) => {
-                newNode.setAttribute( attr, this.values[attr] );
+            _.forEach( this.data, ( expr, attr ) => {
+                newNode.setAttribute( attr, this.data[attr] );
             } );
             _.forEach( this.children, ( c ) => {
                 newNode.appendChild( c.createHtmlDom( vm ) );
@@ -180,7 +206,7 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
         let expr = this._parser.parse( node[name] );
 
         if( expr ) {
-            obj.addProperty( name, expr );
+            obj.setInput( name, expr );
         }
 
         this._node = obj;
@@ -194,10 +220,10 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
         let newNode = currNode;
         if ( obj.hasExpr ) {
             let name = this.constructor.TEXT_PROP_NAME;
-            let res = evalExpression( obj.props[name], vm, true );
-            let last = obj.getAttrValue( name );
+            let res = evalExpression( obj.getInput( name ), vm, true );
+            let last = obj.getValue( name );
             if ( last === undefined || !_.isEqual( last, res ) ) {
-                obj.setAttrValue( name, res );
+                obj.setValue( name, res );
                 newNode[name] = res;
             }
         }
@@ -229,7 +255,7 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
         let obj = this._node;
         let newNode = currNode;
         let vIfRes = evalExpression( this.vIfExpr, vm, true );
-        let vIfLast = obj.getAttrValue( 'f-cond' );
+        let vIfLast = obj.getValue( 'f-cond' );
         if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
             let parentNode = currNode.parentNode;
             if( vIfRes ) {
@@ -240,7 +266,7 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
                 parentNode.replaceChild( newNode, currNode );
             }
         }
-        obj.setAttrValue( 'f-cond', Boolean( vIfRes ) );
+        obj.setValue( 'f-cond', Boolean( vIfRes ) );
 
         return newNode;
     }
@@ -347,11 +373,11 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
                 if ( /^on.+/.test( name ) ) {
                     node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
                 } else {
-                    obj.addProperty( name, expr );
+                    obj.setInput( name, expr );
                     obj.hasExpr = true;
                 }
             } else {
-                obj.setAttrValue( name, value );
+                obj.setValue( name, value );
             }
         }
 
@@ -375,17 +401,17 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
         let obj = this._node;
         let newNode = currNode;
         if ( obj.hasExpr ) {
-            _.forEach( obj.props, ( value, name ) => {
+            _.forEach( obj.getScope(), ( value, name ) => {
                 let res = evalExpression( value, vm, true );
-                let last = obj.getAttrValue( name );
+                let last = obj.getValue( name );
                 // TODO: maybe string comparison will be better?
                 if ( !_.isEqual( last, res ) ) {
-                    obj.setAttrValue( name, res );
+                    obj.setValue( name, res );
                     newNode.setAttribute( name, res );
                 }
             } );
 
-            for( let child of obj.children ) {
+            for( let child of obj.getChildren() ) {
                 child.render( vm );
             }
         }

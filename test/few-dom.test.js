@@ -14,7 +14,7 @@ describe( 'Test few-dom', () => {
                 {
                     tagName: 'CODE',
                     hasExpr: false,
-                    values: {
+                    data: {
                         id: 'ouch'
                     }
                 }
@@ -31,7 +31,7 @@ describe( 'Test few-dom', () => {
                 {
                     tagName: 'CODE',
                     hasExpr: true,
-                    values: {
+                    data: {
                         id: 'ouch'
                     },
                     children:[
@@ -42,7 +42,7 @@ describe( 'Test few-dom', () => {
                                 {
                                     tagName: '#text',
                                     hasExpr: true,
-                                    props: {
+                                    input: {
                                         textContent: 'test1'
                                     }
                                 }
@@ -53,7 +53,7 @@ describe( 'Test few-dom', () => {
                 {
                     tagName: 'CODE',
                     hasExpr: true,
-                    props: {
+                    input: {
                         id: 'test2'
                     },
                     children: [
