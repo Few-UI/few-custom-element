@@ -8,12 +8,12 @@ describe( 'Test few-dom', () => {
     it( 'Verify few-dom create node correct for simple DOM', async() => {
         let parser = new FewViewHtmlParser( new StringTemplateParser() );
         expect( parser.parse( '<code id="ouch"></code>' ).toJSON() ).toEqual( {
-            tagName: 'DIV',
-            hasExpr: false,
+            type: 'DIV',
+            hasInput: false,
             children: [
                 {
-                    tagName: 'CODE',
-                    hasExpr: false,
+                    type: 'CODE',
+                    hasInput: false,
                     data: {
                         id: 'ouch'
                     }
@@ -25,23 +25,23 @@ describe( 'Test few-dom', () => {
     it( 'Verify few-dom create node correct for DOM with expression', async() => {
         let parser = new FewViewHtmlParser( new StringTemplateParser() );
         expect( parser.parse( '<code id="ouch"><div>${test1}</div></code><code id="${test2}"><div></div></code>' ).toJSON() ).toEqual( {
-            tagName: 'DIV',
-            hasExpr: true,
+            type: 'DIV',
+            hasInput: true,
             children: [
                 {
-                    tagName: 'CODE',
-                    hasExpr: true,
+                    type: 'CODE',
+                    hasInput: true,
                     data: {
                         id: 'ouch'
                     },
                     children:[
                         {
-                            tagName: 'DIV',
-                            hasExpr: true,
+                            type: 'DIV',
+                            hasInput: true,
                             children: [
                                 {
-                                    tagName: '#text',
-                                    hasExpr: true,
+                                    type: '#text',
+                                    hasInput: true,
                                     input: {
                                         textContent: 'test1'
                                     }
@@ -51,15 +51,15 @@ describe( 'Test few-dom', () => {
                     ]
                 },
                 {
-                    tagName: 'CODE',
-                    hasExpr: true,
+                    type: 'CODE',
+                    hasInput: true,
                     input: {
                         id: 'test2'
                     },
                     children: [
                         {
-                            tagName: 'DIV',
-                            hasExpr: false
+                            type: 'DIV',
+                            hasInput: false
                         }
                     ]
                 }
