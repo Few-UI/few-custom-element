@@ -388,7 +388,7 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
         for ( let i = 0; i < node.childNodes.length; i++ ) {
             let child = node.childNodes[i];
             let childNode = factory.createTemplate( child );
-            if( childNode ) {
+            if( childNode && childNode.hasInput ) {
                 obj.addChild( childNode );
             }
         }

@@ -9,16 +9,7 @@ describe( 'Test few-dom', () => {
         let parser = new FewViewHtmlParser( new StringTemplateParser() );
         expect( parser.parse( '<code id="ouch"></code>' ).toJSON() ).toEqual( {
             type: 'DIV',
-            hasInput: false,
-            children: [
-                {
-                    type: 'CODE',
-                    hasInput: false,
-                    data: {
-                        id: 'ouch'
-                    }
-                }
-            ]
+            hasInput: false
         } );
     } );
 
@@ -55,13 +46,7 @@ describe( 'Test few-dom', () => {
                     hasInput: true,
                     input: {
                         id: 'test2'
-                    },
-                    children: [
-                        {
-                            type: 'DIV',
-                            hasInput: false
-                        }
-                    ]
+                    }
                 }
             ]
         } );
