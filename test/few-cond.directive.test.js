@@ -31,7 +31,6 @@ describe( 'Test f-cond in few-view', () => {
             '      val: "${!testBoolean}"',
             '    output:',
             '      testBoolean: ""'
-
         ];
 
         let componentDef = yaml.load( componentContent.join( '\n' ) );

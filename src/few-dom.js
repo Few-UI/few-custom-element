@@ -142,22 +142,7 @@ class FewDom {
      * @returns {JSON} JSON object that presents the content of FewDom
      */
     toJSON() {
-        let refStr = '';
-        if( this._htmlDomReference ) {
-            if( this.isTextNode() ) {
-                refStr = this._htmlDomReference.nodeValue;
-            } else {
-                let node = this._htmlDomReference.cloneNode();
-                if( this._htmlDomReference.children && this._htmlDomReference.children.length > 0 ) {
-                    node.innerHTML = '';
-                }
-                // nodeValue
-                refStr = node.outerHTML;
-            }
-        }
-
         let obj = Object.assign( {}, this );
-        obj._htmlDomReference = refStr;
         if ( this.children ) {
             obj.children = this.children.map( ( o ) => o.toJSON() );
         }
@@ -168,7 +153,295 @@ class FewDom {
     }
 }
 
-export class FewHtmlViewParser {
+class FewViewAbstractTemplate {
+    // TODO: remove me
+    get hasExpr() {
+        return this._node.hasExpr;
+    }
+
+    // TODO: remove me
+    addChild( node ) {
+        return this._node.addChild( node );
+    }
+
+    /**
+     * general render function
+     * @param {Object} vm view model object
+     * @returns {Node} dom element as result
+     */
+    render( vm ) {
+        this._htmlDomReference = this.update( this._htmlDomReference, vm );
+        return this._htmlDomReference;
+    }
+
+
+    toJSON() {
+        return this._node.toJSON();
+    }
+}
+
+class FewViewTextTemplate extends FewViewAbstractTemplate {
+    static get TEXT_PROP_NAME() {
+        return 'textContent';
+    }
+
+    constructor( node, stringTemplateParser ) {
+        super();
+
+        let obj = new FewDom( node.nodeName );
+
+        let name = this.constructor.TEXT_PROP_NAME;
+
+        // TODO: we can do it better later by supporting "aaa {bbb} ccc"
+        let expr = stringTemplateParser.parse( node[name] );
+
+        if( expr ) {
+            obj.addProperty( name, expr );
+        }
+
+        this._node = obj;
+
+        this._htmlDomReference = node;
+    }
+
+    update( currNode, vm ) {
+        let obj = this._node;
+        let newNode = currNode;
+        if ( obj.hasExpr ) {
+            let name = this.constructor.TEXT_PROP_NAME;
+            let res = evalExpression( obj.props[name], vm, true );
+            let last = obj.getAttrValue( name );
+            if ( last === undefined || !_.isEqual( last, res ) ) {
+                obj.setAttrValue( name, res );
+                newNode[name] = res;
+            }
+        }
+        return newNode;
+    }
+}
+class FewViewCondTemplate extends FewViewAbstractTemplate {
+    constructor( node, stringTemplateParser ) {
+        super();
+        let obj = new FewDom( node.nodeName );
+        obj.hasExpr = true;
+
+        this.vIfExpr = node.getAttribute( 'f-cond' );
+
+        node.removeAttribute( 'f-cond' );
+        let factory = new FewViewTemplateFactory( stringTemplateParser );
+        this.vIfStatementObj = factory.createTemplate( node );
+
+
+        // Use current node as anchor
+        // TODO: we can put a global comment anchor later rather than use node
+        this._htmlDomReference = node;
+
+        this._node = obj;
+    }
+
+    update( currNode, vm ) {
+        let obj = this._node;
+        let newNode = currNode;
+        let vIfRes = evalExpression( this.vIfExpr, vm, true );
+        let vIfLast = obj.getAttrValue( 'f-cond' );
+        if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
+            let parentNode = currNode.parentNode;
+            if( vIfRes ) {
+                newNode = this.vIfStatementObj.render( vm );
+                parentNode.replaceChild( newNode, currNode );
+            } else {
+                newNode = document.createComment( `f-cond ${this.vIfExpr} = ${vIfRes}` );
+                parentNode.replaceChild( newNode, currNode );
+            }
+        }
+        obj.setAttrValue( 'f-cond', Boolean( vIfRes ) );
+
+        return newNode;
+    }
+}
+
+class FewViewEachTemplate extends FewViewAbstractTemplate {
+    constructor( node, stringTemplateParser ) {
+        super();
+        let obj = new FewDom( node.nodeName );
+        obj.hasExpr = true;
+
+        this._strParser = stringTemplateParser;
+
+        // Process f-each clause
+        let vForExpr = node.getAttribute( 'f-each' );
+        let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
+        this.vVarName = match[1];
+        this.vSetName = match[3];
+
+        // create f-each statement template
+        node.removeAttribute( 'f-each' );
+        // let vForStatementTemplate = this.createTemplate( node );
+
+        // TODO: couple with HTML/DOM, can be abstract later
+        // Backup node input for for purpose
+        let comment = document.createComment( `f-each(${vForExpr})` );
+        if ( node.parentNode ) {
+            node.parentNode.replaceChild( comment, node );
+        } else {
+            // TODO: we should error out - the top root div is required
+        }
+
+
+        this.vForStatementTemplates = [];
+        this.vForRawNode = node;
+
+        // node.addAttribute( 'f-each', vForExpr );
+
+
+        // Use current node as anchor
+        // TODO: we can put a global comment anchor later rather than use node
+        this._htmlDomReference = comment;
+
+        this._node = obj;
+    }
+
+    update( currNode, vm ) {
+        let newNode = currNode;
+        let parentNode = currNode.parentNode;
+        let vForLst = this.vForStatementTemplates.length;
+        let vForRes = vm[this.vSetName] ? vm[this.vSetName].length : 0;
+
+        // TODO:we can do either length check, order check, shallow compare...
+        if ( vForLst  > vForRes ) {
+            // Remove exceeded template
+            // TODO: Make sure no memory leak later
+            this.vForStatementTemplates.splice( vForRes );
+
+            // Update DOM
+            for( let i = vForRes; i < vForLst; i++ ) {
+                let prevNode = newNode.previousSibling;
+                parentNode.removeChild( newNode );
+                newNode = prevNode;
+            }
+        } else if ( vForLst < vForRes ) {
+            // Append new template
+            let fragment = document.createDocumentFragment();
+            let factory = new FewViewTemplateFactory( this._strParser );
+            for( let i = vForLst; i < vForRes; i++ ) {
+                let newNode = this.vForRawNode.cloneNode( true );
+                this.vForStatementTemplates.push( factory.createTemplate( newNode ) );
+                fragment.appendChild( newNode );
+            }
+            newNode = fragment.lastChild;
+            parentNode.insertBefore( fragment, currNode.nextSibling );
+        } else {
+            // No change and do nothing
+        }
+
+        // Re-render template set
+        if ( vForRes > 0 ) {
+            let iCount = 0;
+            vm[this.vSetName].map( ( o ) => {
+                let vVar = {};
+                vVar[this.vVarName] = o;
+                return this.vForStatementTemplates[iCount++].render( Object.assign( Object.assign( {}, vm ), vVar ) );
+            } );
+        }
+
+        return newNode;
+    }
+}
+class FewViewSimpleTemplate extends FewViewAbstractTemplate {
+    constructor( node, stringTemplateParser ) {
+        super();
+        let obj = new FewDom( node.nodeName );
+
+        for( let i = 0; i < node.attributes.length; i++ ) {
+            let name = node.attributes[i].name;
+            let value = node.attributes[i].value;
+            // TODO: we can do it better later
+            let expr = stringTemplateParser.parse( value );
+            if( expr ) {
+                // if name is event like onclick
+                // TODO: make it as expression later
+                if ( /^on.+/.test( name ) ) {
+                    node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
+                } else {
+                    obj.addProperty( name, expr );
+                    obj.hasExpr = true;
+                }
+            } else {
+                obj.setAttrValue( name, value );
+            }
+        }
+
+        let factory = new FewViewTemplateFactory( stringTemplateParser );
+        for ( let i = 0; i < node.childNodes.length; i++ ) {
+            let child = node.childNodes[i];
+            let childNode = factory.createTemplate( child );
+            if( childNode ) {
+                obj.addChild( childNode );
+            }
+        }
+
+        this._htmlDomReference = node;
+
+        this._node = obj;
+    }
+
+    update( currNode, vm ) {
+        let obj = this._node;
+        let newNode = currNode;
+        if ( obj.hasExpr ) {
+            _.forEach( obj.props, ( value, name ) => {
+                let res = evalExpression( value, vm, true );
+                let last = obj.getAttrValue( name );
+                // TODO: maybe string comparison will be better?
+                if ( !_.isEqual( last, res ) ) {
+                    obj.setAttrValue( name, res );
+                    newNode.setAttribute( name, res );
+                }
+            } );
+
+            for( let child of obj.children ) {
+                child.render( vm );
+            }
+        }
+        return newNode;
+    }
+}
+
+class FewViewTemplateFactory {
+    constructor( exprTemplateParser ) {
+        this._parser = exprTemplateParser;
+    }
+
+    /**
+     * Create FewDom structure based on input DOM
+     * @param {Node} node DOM Node
+     * @param {number} level level for current element input
+     * @returns {FewDom} FewDom object
+     */
+    createTemplate( node ) {
+        let obj = null;
+
+        if ( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
+            // f-ignore
+            node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( 'f-ignore' ) ||
+            // has scope defined already
+            hasScope( node ) ) {
+                // do nothing
+        }else if ( node.nodeType === Node.TEXT_NODE ) {
+            obj = new FewViewTextTemplate( node, this._parser );
+        } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-each' ) ) {
+            obj = new FewViewEachTemplate( node, this._parser );
+        } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-cond' ) ) {
+            obj = new FewViewCondTemplate( node, this._parser );
+        }  else {
+            obj = new FewViewSimpleTemplate( node, this._parser );
+        }
+
+        return obj;
+    }
+}
+
+export class FewViewHtmlParser {
     /**
      * View Parser for Few Component
      * @param {StringTemplateParser} exprTemplateParser Sting Expression Template Parser in Template
@@ -184,237 +457,7 @@ export class FewHtmlViewParser {
      */
     parse( templateString ) {
         let templateNode = parseView( templateString );
-        return this._createTemplate( templateNode );
-    }
-
-    _createTextTemplateNode( node ) {
-        let obj = new FewDom( node.nodeName );
-        let name = 'textContent';
-        let value = node[name];
-        // TODO: we can do it better later by supporting "aaa {bbb} ccc"
-        let expr = this._parser.parse( value );
-        if( expr ) {
-            obj.addProperty( name, expr );
-            obj.hasExpr = true;
-
-            obj.update = ( currNode, vm ) => {
-                let newNode = currNode;
-                let res = evalExpression( obj.props[name], vm, true );
-                let last = obj.getAttrValue( name );
-                if ( last === undefined || !_.isEqual( last, res ) ) {
-                    obj.setAttrValue( name, res );
-                    newNode[name] = res;
-                }
-
-                return newNode;
-            };
-        }
-        obj._htmlDomReference = node;
-        return obj;
-    }
-
-
-    _createCondTemplateNode( node ) {
-        let obj = new FewDom( node.nodeName );
-        let vIfExpr = node.getAttribute( 'f-cond' );
-        obj.hasExpr = true;
-
-        node.removeAttribute( 'f-cond' );
-        let vIfStatementObj = this._createTemplate( node );
-        // node.addAttribute( 'f-cond' , vIfExpr );
-
-        obj.update = ( currNode, vm ) => {
-            let newNode = currNode;
-            let vIfRes = evalExpression( vIfExpr, vm, true );
-            let vIfLast = obj.getAttrValue( 'f-cond' );
-            if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
-                let parentNode = currNode.parentNode;
-                if( vIfRes ) {
-                    newNode = vIfStatementObj.render( vm );
-                    parentNode.replaceChild( newNode, currNode );
-                } else {
-                    newNode = document.createComment( `f-cond ${vIfExpr} = ${vIfRes}` );
-                    parentNode.replaceChild( newNode, currNode );
-                }
-            }
-            obj.setAttrValue( 'f-cond', Boolean( vIfRes ) );
-
-            return newNode;
-        };
-
-        // Use current node as anchor
-        // TODO: we can put a global comment anchor later rather than use node
-        obj._htmlDomReference = node;
-
-        return obj;
-    }
-
-    _createLoopTemplateNode( node ) {
-        let obj = new FewDom( node.nodeName );
-        obj.hasExpr = true;
-
-        // Process f-each clause
-        let vForExpr = node.getAttribute( 'f-each' );
-        let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
-        let vVarName = match[1];
-        let vSetName = match[3];
-
-        // create f-each statement template
-        node.removeAttribute( 'f-each' );
-        // let vForStatementTemplate = this._createTemplate( node );
-
-        // TODO: couple with HTML/DOM, can be abstract later
-        // Backup node input for for purpose
-        let comment = document.createComment( `f-each(${vForExpr})` );
-        if ( node.parentNode ) {
-            node.parentNode.replaceChild( comment, node );
-        } else {
-            // TODO: we should error out - the top root div is required
-        }
-        let vForStatementTemplates = [];
-        let vForRawNode = node;
-
-        // node.addAttribute( 'f-each', vForExpr );
-
-        obj.update = ( currNode, vm ) => {
-            let newNode = currNode;
-            let parentNode = currNode.parentNode;
-            let vForLst = vForStatementTemplates.length;
-            let vForRes = vm[vSetName] ? vm[vSetName].length : 0;
-
-            // TODO:we can do either length check, order check, shallow compare...
-            if ( vForLst  > vForRes ) {
-                // Remove exceeded template
-                // TODO: Make sure no memory leak later
-                vForStatementTemplates.splice( vForRes );
-
-                // Update DOM
-                for( let i = vForRes; i < vForLst; i++ ) {
-                    let prevNode = newNode.previousSibling;
-                    parentNode.removeChild( newNode );
-                    newNode = prevNode;
-                }
-            } else if ( vForLst < vForRes ) {
-                // Append new template
-                let fragment = document.createDocumentFragment();
-                for( let i = vForLst; i < vForRes; i++ ) {
-                    let newNode = vForRawNode.cloneNode( true );
-                    vForStatementTemplates.push( this._createTemplate( newNode ) );
-                    fragment.appendChild( newNode );
-                }
-                newNode = fragment.lastChild;
-                parentNode.insertBefore( fragment, currNode.nextSibling );
-            } else {
-                // No change and do nothing
-            }
-
-            // Re-render template set
-            if ( vForRes > 0 ) {
-                let iCount = 0;
-                vm[vSetName].map( ( o ) => {
-                    let vVar = {};
-                    vVar[vVarName] = o;
-                    return vForStatementTemplates[iCount++].render( Object.assign( Object.assign( {}, vm ), vVar ) );
-                } );
-            }
-
-            return newNode;
-        };
-
-        // Use current node as anchor
-        // TODO: we can put a global comment anchor later rather than use node
-        obj._htmlDomReference = comment;
-
-        return obj;
-        // For now not set hasExpr = true.
-    }
-
-    /**
-     * create Simple Template Node
-     * @param {Node} node DOM Node in input template
-     * @returns {FewDom} Template Node
-     */
-    _createSimpleTemplateNode( node ) {
-        let obj = new FewDom( node.nodeName );
-        for( let i = 0; i < node.attributes.length; i++ ) {
-            let name = node.attributes[i].name;
-            let value = node.attributes[i].value;
-            // TODO: we can do it better later
-            let expr = this._parser.parse( value );
-            if( expr ) {
-                // if name is event like onclick
-                // TODO: make it as expression later
-                if ( /^on.+/.test( name ) ) {
-                    node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
-                } else {
-                    obj.addProperty( name, expr );
-                    obj.hasExpr = true;
-                }
-            } else {
-                obj.setAttrValue( name, value );
-            }
-        }
-
-        obj.update = ( currNode, vm ) => {
-            let newNode = currNode;
-            if ( obj.hasExpr ) {
-                _.forEach( obj.props, ( value, name ) => {
-                    let res = evalExpression( value, vm, true );
-                    let last = obj.getAttrValue( name );
-                    // TODO: maybe string comparison will be better?
-                    if ( !_.isEqual( last, res ) ) {
-                        obj.setAttrValue( name, res );
-                        newNode.setAttribute( name, res );
-                    }
-                } );
-
-                for( let child of obj.children ) {
-                    child.render( vm );
-                }
-            }
-            return newNode;
-        };
-
-        obj._htmlDomReference = node;
-
-        return obj;
-    }
-
-    /**
-     * Create FewDom structure based on input DOM
-     * @param {Node} node DOM Node
-     * @param {number} level level for current element input
-     * @returns {FewDom} FewDom object
-     */
-    _createTemplate( node ) {
-        if(  node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
-            // f-ignore
-            node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( 'f-ignore' ) ||
-            // has scope defined already
-            hasScope( node ) ) {
-            return;
-        }
-
-        let obj = null;
-
-        if ( node.nodeType === Node.TEXT_NODE ) {
-            obj = this._createTextTemplateNode( node );
-        } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-each' ) ) {
-            obj = this._createLoopTemplateNode( node );
-        } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-cond' ) ) {
-            obj = this._createCondTemplateNode( node );
-        }  else {
-            obj = this._createSimpleTemplateNode( node );
-        }
-
-        for ( let i = 0; i < node.childNodes.length; i++ ) {
-            let child = node.childNodes[i];
-            let childNode = this._createTemplate( child );
-            if( childNode ) {
-                obj.addChild( childNode );
-            }
-        }
-
-        return obj;
+        let factory = new FewViewTemplateFactory( this._parser );
+        return factory.createTemplate( templateNode );
     }
 }
