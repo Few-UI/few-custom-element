@@ -23,7 +23,8 @@ class FewNode {
         /**
          * if true, means current node or its children has variable attributes
          */
-        this.hasInput = false;
+        //this.hasInput = false;
+
 
         // For typical ES6 practice, we better put all member variable
         // in constructor as a good practice. But for thi atom type, we
@@ -51,6 +52,10 @@ class FewNode {
          */
     }
 
+    get hasInput() {
+        return Boolean( this.input || this.children );
+    }
+
     /**
      * Add DOM Attribute
      * @param {string} name attribute name
@@ -59,7 +64,7 @@ class FewNode {
     setInput( name, val ) {
         this.input = this.input || {};
         this.input[name] = val;
-        this.hasInput = true;
+        // this.hasInput = true;
     }
 
     /**
@@ -105,7 +110,7 @@ class FewNode {
     addChild( child ) {
         this.children = this.children || [];
         this.children.push( child );
-        this.hasInput = this.hasInput || child.hasInput;
+        // this.hasInput = this.hasInput || child.hasInput;
     }
 
     getChildren() {
@@ -238,9 +243,9 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
 class FewViewCondTemplate extends FewViewAbstractTemplate {
     setupFromDom( node ) {
         let obj = new FewNode( node.nodeName );
-        obj.hasInput = true;
+        // obj.hasInput = true;
 
-        this.vIfExpr = node.getAttribute( 'f-cond' );
+        obj.setInput( 'f-cond', node.getAttribute( 'f-cond' ) );
 
         node.removeAttribute( 'f-cond' );
         let factory = new FewViewTemplateFactory( this._parser );
@@ -258,7 +263,8 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
     update( currNode, vm ) {
         let obj = this._node;
         let newNode = currNode;
-        let vIfRes = evalExpression( this.vIfExpr, vm, true );
+        let vExpr = obj.getInput( 'f-cond' );
+        let vIfRes = evalExpression( vExpr, vm, true );
         let vIfLast = obj.getValue( 'f-cond' );
         if ( vIfLast === undefined || vIfLast !== Boolean( vIfRes ) ) {
             let parentNode = currNode.parentNode;
@@ -266,7 +272,7 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
                 newNode = this.vIfStatementObj.render( vm );
                 parentNode.replaceChild( newNode, currNode );
             } else {
-                newNode = document.createComment( `f-cond ${this.vIfExpr} = ${vIfRes}` );
+                newNode = document.createComment( `f-cond ${vExpr} = ${vIfRes}` );
                 parentNode.replaceChild( newNode, currNode );
             }
         }
@@ -279,17 +285,17 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
 class FewViewEachTemplate extends FewViewAbstractTemplate {
     setupFromDom( node ) {
         let obj = new FewNode( node.nodeName );
-        obj.hasInput = true;
+        // obj.hasInput = true;
 
         // Process f-each clause
         let vForExpr = node.getAttribute( 'f-each' );
         let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
-        this.vVarName = match[1];
-        this.vSetName = match[3];
+
+        obj.setInput( 'f-var', match[1] );
+        obj.setInput( 'f-set', match[3] );
 
         // create f-each statement template
         node.removeAttribute( 'f-each' );
-        // let vForStatementTemplate = this.createTemplate( node );
 
         // TODO: couple with HTML/DOM, can be abstract later
         // Backup node input for for purpose
@@ -300,12 +306,8 @@ class FewViewEachTemplate extends FewViewAbstractTemplate {
             // TODO: we should error out - the top root div is required
         }
 
-
-        this.vForStatementTemplates = [];
-        this.vForRawNode = node;
-
-        // node.addAttribute( 'f-each', vForExpr );
-
+        this.statementTemplates = [];
+        this.templateNode = node;
 
         // Use current node as anchor
         // TODO: we can put a global comment anchor later rather than use node
@@ -318,14 +320,16 @@ class FewViewEachTemplate extends FewViewAbstractTemplate {
     update( currNode, vm ) {
         let newNode = currNode;
         let parentNode = currNode.parentNode;
-        let vForLst = this.vForStatementTemplates.length;
-        let vForRes = vm[this.vSetName] ? vm[this.vSetName].length : 0;
+        let vVarName = this._node.getInput( 'f-var' );
+        let vSetName = this._node.getInput( 'f-set' );
+        let vForLst = this.statementTemplates.length;
+        let vForRes = vm[vSetName] ? vm[vSetName].length : 0;
 
         // TODO:we can do either length check, order check, shallow compare...
         if ( vForLst  > vForRes ) {
             // Remove exceeded template
             // TODO: Make sure no memory leak later
-            this.vForStatementTemplates.splice( vForRes );
+            this.statementTemplates.splice( vForRes );
 
             // Update DOM
             for( let i = vForRes; i < vForLst; i++ ) {
@@ -338,8 +342,8 @@ class FewViewEachTemplate extends FewViewAbstractTemplate {
             let fragment = document.createDocumentFragment();
             let factory = new FewViewTemplateFactory( this._parser );
             for( let i = vForLst; i < vForRes; i++ ) {
-                let newNode = this.vForRawNode.cloneNode( true );
-                this.vForStatementTemplates.push( factory.createTemplate( newNode ) );
+                let newNode = this.templateNode.cloneNode( true );
+                this.statementTemplates.push( factory.createTemplate( newNode ) );
                 fragment.appendChild( newNode );
             }
             newNode = fragment.lastChild;
@@ -351,10 +355,10 @@ class FewViewEachTemplate extends FewViewAbstractTemplate {
         // Re-render template set
         if ( vForRes > 0 ) {
             let iCount = 0;
-            vm[this.vSetName].map( ( o ) => {
+            vm[vSetName].map( ( o ) => {
                 let vVar = {};
-                vVar[this.vVarName] = o;
-                return this.vForStatementTemplates[iCount++].render( Object.assign( Object.assign( {}, vm ), vVar ) );
+                vVar[vVarName] = o;
+                return this.statementTemplates[iCount++].render( Object.assign( Object.assign( {}, vm ), vVar ) );
             } );
         }
 
@@ -377,7 +381,7 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
                     node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
                 } else {
                     obj.setInput( name, expr );
-                    obj.hasInput = true;
+                    // obj.hasInput = true;
                 }
             } else {
                 obj.setValue( name, value );
