@@ -25,12 +25,6 @@ class FewDom {
          */
         this.hasExpr = false;
 
-        /**
-         * default render function
-         * @param {Object} vm model object
-         */
-        this.update = ( currNode, vm ) => {};
-
         // For typical ES6 practice, we better put all member variable
         // in constructor as a good practice. But for thi atom type, we
         // break the rule for better performance. But still we list here
@@ -128,16 +122,6 @@ class FewDom {
     }
 
     /**
-     * general render function
-     * @param {Object} vm view model object
-     * @returns {Node} dom element as result
-     */
-    render( vm ) {
-        this._htmlDomReference = this.update( this._htmlDomReference, vm );
-        return this._htmlDomReference;
-    }
-
-    /**
      * Print object for test purpose
      * @returns {JSON} JSON object that presents the content of FewDom
      */
@@ -146,7 +130,6 @@ class FewDom {
         if ( this.children ) {
             obj.children = this.children.map( ( o ) => o.toJSON() );
         }
-        delete obj.update;
 
         // wash out methods
         return obj;
@@ -154,14 +137,17 @@ class FewDom {
 }
 
 class FewViewAbstractTemplate {
-    // TODO: remove me
-    get hasExpr() {
-        return this._node.hasExpr;
+    /**
+     * View Parser for Few Component
+     * @param {StringTemplateParser} exprTemplateParser Sting Expression Template Parser in Template
+     */
+    constructor( exprTemplateParser ) {
+        this._parser = exprTemplateParser;
     }
 
     // TODO: remove me
-    addChild( node ) {
-        return this._node.addChild( node );
+    get hasExpr() {
+        return this._node.hasExpr;
     }
 
     /**
@@ -185,15 +171,13 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
         return 'textContent';
     }
 
-    constructor( node, stringTemplateParser ) {
-        super();
-
+    setupFromDom( node ) {
         let obj = new FewDom( node.nodeName );
 
         let name = this.constructor.TEXT_PROP_NAME;
 
         // TODO: we can do it better later by supporting "aaa {bbb} ccc"
-        let expr = stringTemplateParser.parse( node[name] );
+        let expr = this._parser.parse( node[name] );
 
         if( expr ) {
             obj.addProperty( name, expr );
@@ -202,6 +186,7 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
         this._node = obj;
 
         this._htmlDomReference = node;
+        return this;
     }
 
     update( currNode, vm ) {
@@ -220,15 +205,14 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
     }
 }
 class FewViewCondTemplate extends FewViewAbstractTemplate {
-    constructor( node, stringTemplateParser ) {
-        super();
+    setupFromDom( node ) {
         let obj = new FewDom( node.nodeName );
         obj.hasExpr = true;
 
         this.vIfExpr = node.getAttribute( 'f-cond' );
 
         node.removeAttribute( 'f-cond' );
-        let factory = new FewViewTemplateFactory( stringTemplateParser );
+        let factory = new FewViewTemplateFactory( this._parser );
         this.vIfStatementObj = factory.createTemplate( node );
 
 
@@ -237,6 +221,8 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
         this._htmlDomReference = node;
 
         this._node = obj;
+
+        return this;
     }
 
     update( currNode, vm ) {
@@ -261,12 +247,9 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
 }
 
 class FewViewEachTemplate extends FewViewAbstractTemplate {
-    constructor( node, stringTemplateParser ) {
-        super();
+    setupFromDom( node ) {
         let obj = new FewDom( node.nodeName );
         obj.hasExpr = true;
-
-        this._strParser = stringTemplateParser;
 
         // Process f-each clause
         let vForExpr = node.getAttribute( 'f-each' );
@@ -299,6 +282,8 @@ class FewViewEachTemplate extends FewViewAbstractTemplate {
         this._htmlDomReference = comment;
 
         this._node = obj;
+
+        return this;
     }
 
     update( currNode, vm ) {
@@ -322,7 +307,7 @@ class FewViewEachTemplate extends FewViewAbstractTemplate {
         } else if ( vForLst < vForRes ) {
             // Append new template
             let fragment = document.createDocumentFragment();
-            let factory = new FewViewTemplateFactory( this._strParser );
+            let factory = new FewViewTemplateFactory( this._parser );
             for( let i = vForLst; i < vForRes; i++ ) {
                 let newNode = this.vForRawNode.cloneNode( true );
                 this.vForStatementTemplates.push( factory.createTemplate( newNode ) );
@@ -348,15 +333,14 @@ class FewViewEachTemplate extends FewViewAbstractTemplate {
     }
 }
 class FewViewSimpleTemplate extends FewViewAbstractTemplate {
-    constructor( node, stringTemplateParser ) {
-        super();
+    setupFromDom( node ) {
         let obj = new FewDom( node.nodeName );
 
         for( let i = 0; i < node.attributes.length; i++ ) {
             let name = node.attributes[i].name;
             let value = node.attributes[i].value;
             // TODO: we can do it better later
-            let expr = stringTemplateParser.parse( value );
+            let expr = this._parser.parse( value );
             if( expr ) {
                 // if name is event like onclick
                 // TODO: make it as expression later
@@ -371,7 +355,7 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
             }
         }
 
-        let factory = new FewViewTemplateFactory( stringTemplateParser );
+        let factory = new FewViewTemplateFactory( this._parser );
         for ( let i = 0; i < node.childNodes.length; i++ ) {
             let child = node.childNodes[i];
             let childNode = factory.createTemplate( child );
@@ -383,6 +367,8 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
         this._htmlDomReference = node;
 
         this._node = obj;
+
+        return this;
     }
 
     update( currNode, vm ) {
@@ -428,13 +414,13 @@ class FewViewTemplateFactory {
             hasScope( node ) ) {
                 // do nothing
         }else if ( node.nodeType === Node.TEXT_NODE ) {
-            obj = new FewViewTextTemplate( node, this._parser );
+            obj = new FewViewTextTemplate( this._parser ).setupFromDom( node );
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-each' ) ) {
-            obj = new FewViewEachTemplate( node, this._parser );
+            obj = new FewViewEachTemplate( this._parser ).setupFromDom( node );
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-cond' ) ) {
-            obj = new FewViewCondTemplate( node, this._parser );
+            obj = new FewViewCondTemplate( this._parser ).setupFromDom( node );
         }  else {
-            obj = new FewViewSimpleTemplate( node, this._parser );
+            obj = new FewViewSimpleTemplate( this._parser ).setupFromDom( node );
         }
 
         return obj;
