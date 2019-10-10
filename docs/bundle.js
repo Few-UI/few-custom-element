@@ -22089,8 +22089,8 @@ define(['require'], function (require) { 'use strict';
 
   // Create a class for the element
   class PopUpInfo extends HTMLElement {
-      get text() {
-          return this.getAttribute( 'text' );
+      get msg() {
+          return this.getAttribute( 'msg' );
       }
 
       constructor() {
@@ -22113,9 +22113,9 @@ define(['require'], function (require) { 'use strict';
 
           // Take attribute content and put it inside the info span
           // NOTE: without polyfill do it here is useless, not getting the attribute here
-          let text = this.getAttribute( 'msg' );
-          text = this.text;
-          info.textContent = text;
+          let msg = this.getAttribute( 'msg' );
+          // msg = this.msg;
+          info.textContent = msg;
           this.__info = info;
 
           // Create some CSS to apply to the shadow dom
