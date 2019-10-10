@@ -21429,7 +21429,6 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
-
   class FewViewEachUnit extends FewViewUnit {
       static get KEY() {
           return 'f-each';
@@ -21613,6 +21612,23 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
+  class FewViewDumbUnit extends FewViewUnit {
+      static get KEY() {
+          return 'f-ignore';
+      }
+
+
+      /**
+       * Create FewViewUnit
+       * @param {string} node DOM node
+       * @param {StringTemplateParser} parser string template parser
+       */
+      constructor( node, parser ) {
+          super( node, parser );
+          return undefined;
+      }
+  }
+
   class FewViewUnitFactory {
       constructor( exprTemplateParser ) {
           this._parser = exprTemplateParser;
@@ -21626,11 +21642,10 @@ define(['require'], function (require) { 'use strict';
        */
       createUnit( node, skipConstant ) {
           let unit = null;
-          if ( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
-              // f-ignore
-              node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( 'f-ignore' ) ||
-              // has scope defined already
-              hasScope( node ) ) ; else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( FewViewEachUnit.KEY ) ) {
+          if( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||    // only process text and dom for now
+              hasScope( node ) ) ; else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewDumbUnit.KEY ) ) {
+              unit = new FewViewDumbUnit( node, this._parser );
+          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( FewViewEachUnit.KEY ) ) {
               unit = new FewViewEachUnit( node, this._parser );
           } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( FewViewCondUnit.KEY ) ) {
               unit = new FewViewCondUnit( node, this._parser );

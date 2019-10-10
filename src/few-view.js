@@ -292,7 +292,6 @@ class FewViewCondUnit extends FewViewUnit {
     }
 }
 
-
 class FewViewEachUnit extends FewViewUnit {
     static get KEY() {
         return 'f-each';
@@ -480,6 +479,23 @@ class FewViewVarUnit extends FewViewUnit {
     }
 }
 
+class FewViewDumbUnit extends FewViewUnit {
+    static get KEY() {
+        return 'f-ignore';
+    }
+
+
+    /**
+     * Create FewViewUnit
+     * @param {string} node DOM node
+     * @param {StringTemplateParser} parser string template parser
+     */
+    constructor( node, parser ) {
+        super( node, parser );
+        return undefined;
+    }
+}
+
 class FewViewUnitFactory {
     constructor( exprTemplateParser ) {
         this._parser = exprTemplateParser;
@@ -493,12 +509,11 @@ class FewViewUnitFactory {
      */
     createUnit( node, skipConstant ) {
         let unit = null;
-        if ( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
-            // f-ignore
-            node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( 'f-ignore' ) ||
-            // has scope defined already
-            hasScope( node ) ) {
+        if( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||    // only process text and dom for now
+            hasScope( node ) ) {                                                          // has scope defined already
                 // do nothing
+        } else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewDumbUnit.KEY ) ) {
+            unit = new FewViewDumbUnit( node, this._parser );
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( FewViewEachUnit.KEY ) ) {
             unit = new FewViewEachUnit( node, this._parser );
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( FewViewCondUnit.KEY ) ) {
