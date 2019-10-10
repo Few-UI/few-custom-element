@@ -294,16 +294,16 @@ class FewViewCondUnit extends FewViewUnit {
 
 
 class FewViewEachUnit extends FewViewUnit {
+    static get KEY() {
+        return 'f-each';
+    }
+
     static get EACH_VAR_NAME() {
         return 'f-var';
     }
 
     static get EACH_SET_NAME() {
         return 'f-set';
-    }
-
-    static get KEY() {
-        return 'f-each';
     }
 
     static get EACH_TEMPLATE() {
@@ -321,28 +321,31 @@ class FewViewEachUnit extends FewViewUnit {
         let name = this.constructor.KEY;
         let varKey = this.constructor.EACH_VAR_NAME;
         let setKey = this.constructor.EACH_SET_NAME;
+        let templKey = this.constructor.EACH_TEMPLATE;
 
         // Process f-each clause
         let vForExpr = node.getAttribute( name );
         let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
 
         // TODO: Error handling
+        // TODO: put template DOM at child unit #0, need a better solution later
+        node.removeAttribute( name );
         this.setInput( varKey, match[1] );
         this.setInput( setKey, match[3] );
+        this.setInput( templKey, node );
 
 
         // TODO: couple with HTML/DOM, can be abstract later
         // Backup node input for for purpose
-        let commentNode = document.createComment( `f-each(${vForExpr})` );
+        let commentNode = document.createComment( `${name}(${vForExpr})` );
         if ( node.parentNode ) {
             node.parentNode.replaceChild( commentNode, node );
         } else {
             // TODO: we should error out - the top root div is required
         }
 
-        // TODO: put template DOM at child unit #0, need a better solution later
-        node.removeAttribute( name );
-        this.addChild( { domNode: node } );
+
+        // this.addChild( { domNode: node } );
 
         // Use current node as anchor
         // TODO: we can put a global comment anchor later rather than use node
@@ -360,31 +363,35 @@ class FewViewEachUnit extends FewViewUnit {
         let parentNode = domNode.parentNode;
         let varKey = this.constructor.EACH_VAR_NAME;
         let setKey = this.constructor.EACH_SET_NAME;
+        let templKey = this.constructor.EACH_TEMPLATE;
         let childUnits = this.getChildren();
 
         let varName = this.getInput( varKey );
         let setName = this.getInput( setKey );
+        let templNode = this.getInput( templKey );
         let vForLst = childUnits.length;
-        let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
+        // let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
+        let vForRes = vm[setName];
+        let vForResLength = vForRes ? vForRes.length : 0;
 
         // TODO:we can do either length check, order check, shallow compare...
-        if ( vForLst  > vForRes ) {
+        if ( vForLst  > vForResLength ) {
             // Remove exceeded template
             // TODO: Make sure no memory leak later
-            childUnits.splice( vForRes );
+            childUnits.splice( vForResLength );
 
             // Update DOM
-            for( let i = vForRes; i < vForLst; i++ ) {
+            for( let i = vForResLength; i < vForLst; i++ ) {
                 let prevNode = newNode.previousSibling;
                 parentNode.removeChild( newNode );
                 newNode = prevNode;
             }
-        } else if ( vForLst < vForRes ) {
+        } else if ( vForLst < vForResLength ) {
             // Append new template
             let fragment = document.createDocumentFragment();
             let factory = new FewViewUnitFactory( this._parser );
-            for( let i = vForLst; i < vForRes; i++ ) {
-                let newNode = childUnits[0].domNode.cloneNode( true );
+            for( let i = vForLst; i < vForResLength; i++ ) {
+                let newNode = templNode.cloneNode( true );
                 this.addChild( factory.createUnit( newNode ) );
                 fragment.appendChild( newNode );
             }
@@ -395,12 +402,13 @@ class FewViewEachUnit extends FewViewUnit {
         }
 
         // Re-render template set
-        if ( vForRes > 1 ) {
+        if ( vForResLength > 0 ) {
             let iCount = 0;
-            vm[setName].map( ( o ) => {
+            // re-fetch children because of one side effect
+            this.getChildren().map( ( ch ) => {
                 let vVar = {};
-                vVar[varName] = o;
-                return childUnits[++iCount].render( Object.assign( Object.assign( {}, vm ), vVar ) );
+                vVar[varName] = vForRes[iCount++];
+                return ch.render( Object.assign( Object.assign( {}, vm ), vVar ) );
             } );
         }
 
