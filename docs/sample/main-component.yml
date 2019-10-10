@@ -16,6 +16,7 @@ view:
     </div>
     <few-view src="sample/cond-component"></few-view>
     <few-view src="sample/loop-component"></few-view>
+    <popup-info msg="Test Popup Message">Test Popup Content</popup-info>
 
   import:
     - sample/sample-button
