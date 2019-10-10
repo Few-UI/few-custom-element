@@ -1,9 +1,8 @@
 /* eslint-env es6 */
 import { evalExpression } from './few-utils';
-import { FewViewUnitFactory } from './few-view';
-import FewViewUnit from './few-view-unit';
+import viewUnitFactory, { FewViewUnit } from './few-view-unit';
 
-export default class FewViewVarUnit extends FewViewUnit {
+class FewViewVarUnit extends FewViewUnit {
     /**
      * compile dom node input to curren unit context
      * @param {Node} domNode DOM Node input
@@ -28,10 +27,9 @@ export default class FewViewVarUnit extends FewViewUnit {
             }
         }
 
-        let factory = new FewViewUnitFactory( this._parser );
         for ( let i = 0; i < domNode.childNodes.length; i++ ) {
             let childDomNode = domNode.childNodes[i];
-            let childUnit = factory.createUnit( childDomNode, true );
+            let childUnit = viewUnitFactory.createUnit( childDomNode, this._parser, true );
             if( childUnit ) {
                 this.addChild( childUnit );
             }
@@ -64,3 +62,8 @@ export default class FewViewVarUnit extends FewViewUnit {
         return domNode;
     }
 }
+
+export default {
+    when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE,
+    createUnit: ( domNode, parser ) => new FewViewVarUnit( domNode, parser )
+};

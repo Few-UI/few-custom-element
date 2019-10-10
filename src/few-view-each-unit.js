@@ -1,8 +1,7 @@
 /* eslint-env es6 */
-import { FewViewUnitFactory } from './few-view';
-import FewViewUnit from './few-view-unit';
+import viewUnitFactory, { FewViewUnit } from './few-view-unit';
 
-export default class FewViewEachUnit extends FewViewUnit {
+class FewViewEachUnit extends FewViewUnit {
     static get KEY() {
         return 'f-each';
     }
@@ -96,10 +95,9 @@ export default class FewViewEachUnit extends FewViewUnit {
         } else if ( vForLst < vForResLength ) {
             // Append new template
             let fragment = document.createDocumentFragment();
-            let factory = new FewViewUnitFactory( this._parser );
             for( let i = vForLst; i < vForResLength; i++ ) {
                 let newNode = templNode.cloneNode( true );
-                this.addChild( factory.createUnit( newNode ) );
+                this.addChild( viewUnitFactory.createUnit( newNode, this._parser ) );
                 fragment.appendChild( newNode );
             }
             newNode = fragment.lastChild;
@@ -122,3 +120,8 @@ export default class FewViewEachUnit extends FewViewUnit {
         return newNode;
     }
 }
+
+export default {
+    when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE && domNode.hasAttribute( FewViewEachUnit.KEY ),
+    createUnit: ( domNode, parser ) => new FewViewEachUnit( domNode, parser )
+};

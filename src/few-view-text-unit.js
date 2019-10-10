@@ -1,8 +1,8 @@
 /* eslint-env es6 */
 import { evalExpression } from './few-utils';
-import FewViewUnit from './few-view-unit';
+import { FewViewUnit } from './few-view-unit';
 
-export default class FewViewTextUnit extends FewViewUnit {
+class FewViewTextUnit extends FewViewUnit {
     static get TEXT_PROP_NAME() {
         return 'textContent';
     }
@@ -42,3 +42,8 @@ export default class FewViewTextUnit extends FewViewUnit {
         return domNode;
     }
 }
+
+export default {
+    when: ( domNode ) => domNode.nodeType === Node.TEXT_NODE,
+    createUnit: ( domNode, parser ) => new FewViewTextUnit( domNode, parser )
+};

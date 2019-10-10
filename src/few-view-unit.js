@@ -1,7 +1,8 @@
 /* eslint-env es6 */
+import { hasScope } from './few-utils';
 import FewViewNode from './few-view-node';
 
-export default class FewViewUnit extends FewViewNode {
+export class FewViewUnit extends FewViewNode {
     /**
      * Create FewViewUnit
      * @param {Node} domNode DOM node
@@ -95,3 +96,38 @@ export default class FewViewUnit extends FewViewNode {
     }
      */
 }
+
+/**
+ * Singleton factory template
+ */
+let _factories = [];
+
+/**
+ * Create FewViewUnit structure based on input DOM
+ * @param {Node} node DOM Node
+ * @param {StringTemplateParser} parser string template parser
+ * @param {boolean} skipConstant if true result without input will not be returned
+ * @returns {FewViewUnit} FewViewUnit object
+ */
+function _createUnit( node, parser, skipConstant ) {
+    let unit = null;
+    if( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||    // only process text and dom for now
+        hasScope( node ) ) {                                                          // has scope defined already
+            // do nothing
+    } else {
+        for( let idx in _factories ) {
+            let factory = _factories[idx];
+            if( factory.when( node ) ) {
+                unit = factory.createUnit( node, parser );
+                break;
+            }
+        }
+    }
+    return unit && unit.hasInput || !skipConstant ? unit : undefined;
+}
+
+export default {
+    register: ( factory ) => _factories.push( factory ),
+    createUnit: _createUnit
+};
+

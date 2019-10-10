@@ -1,9 +1,8 @@
 /* eslint-env es6 */
 import { evalExpression } from './few-utils';
-import { FewViewUnitFactory } from './few-view';
-import FewViewUnit from './few-view-unit';
+import viewUnitFactory, { FewViewUnit } from './few-view-unit';
 
-export default class FewViewCondUnit extends FewViewUnit {
+class FewViewCondUnit extends FewViewUnit {
     static get KEY() {
         return 'f-cond';
     }
@@ -18,8 +17,7 @@ export default class FewViewCondUnit extends FewViewUnit {
         this.setInput( key, domNode.getAttribute( key ) );
 
         domNode.removeAttribute( key );
-        let factory = new FewViewUnitFactory( this._parser );
-        this.addChild( factory.createUnit( domNode ) );
+        this.addChild( viewUnitFactory.createUnit( domNode, this._parser ) );
         return domNode;
     }
 
@@ -51,3 +49,8 @@ export default class FewViewCondUnit extends FewViewUnit {
         return newNode;
     }
 }
+
+export default {
+    when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE && domNode.hasAttribute( FewViewCondUnit.KEY ),
+    createUnit: ( domNode, parser ) => new FewViewCondUnit( domNode, parser )
+};

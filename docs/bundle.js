@@ -21353,6 +21353,38 @@ define(['require'], function (require) { 'use strict';
        */
   }
 
+  /**
+   * Singleton factory template
+   */
+  let _factories = [];
+
+  /**
+   * Create FewViewUnit structure based on input DOM
+   * @param {Node} node DOM Node
+   * @param {StringTemplateParser} parser string template parser
+   * @param {boolean} skipConstant if true result without input will not be returned
+   * @returns {FewViewUnit} FewViewUnit object
+   */
+  function _createUnit( node, parser, skipConstant ) {
+      let unit = null;
+      if( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||    // only process text and dom for now
+          hasScope( node ) ) ; else {
+          for( let idx in _factories ) {
+              let factory = _factories[idx];
+              if( factory.when( node ) ) {
+                  unit = factory.createUnit( node, parser );
+                  break;
+              }
+          }
+      }
+      return unit && unit.hasInput || !skipConstant ? unit : undefined;
+  }
+
+  var viewUnitFactory = {
+      register: ( factory ) => _factories.push( factory ),
+      createUnit: _createUnit
+  };
+
   /* eslint-env es6 */
 
   class FewViewVarUnit extends FewViewUnit {
@@ -21380,10 +21412,9 @@ define(['require'], function (require) { 'use strict';
               }
           }
 
-          let factory = new FewViewUnitFactory( this._parser );
           for ( let i = 0; i < domNode.childNodes.length; i++ ) {
               let childDomNode = domNode.childNodes[i];
-              let childUnit = factory.createUnit( childDomNode, true );
+              let childUnit = viewUnitFactory.createUnit( childDomNode, this._parser, true );
               if( childUnit ) {
                   this.addChild( childUnit );
               }
@@ -21416,6 +21447,11 @@ define(['require'], function (require) { 'use strict';
           return domNode;
       }
   }
+
+  var varUnitFactory = {
+      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE,
+      createUnit: ( domNode, parser ) => new FewViewVarUnit( domNode, parser )
+  };
 
   /* eslint-env es6 */
 
@@ -21460,6 +21496,11 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
+  var textUnitFactory = {
+      when: ( domNode ) => domNode.nodeType === Node.TEXT_NODE,
+      createUnit: ( domNode, parser ) => new FewViewTextUnit( domNode, parser )
+  };
+
   /* eslint-env es6 */
 
   class FewViewCondUnit extends FewViewUnit {
@@ -21477,8 +21518,7 @@ define(['require'], function (require) { 'use strict';
           this.setInput( key, domNode.getAttribute( key ) );
 
           domNode.removeAttribute( key );
-          let factory = new FewViewUnitFactory( this._parser );
-          this.addChild( factory.createUnit( domNode ) );
+          this.addChild( viewUnitFactory.createUnit( domNode, this._parser ) );
           return domNode;
       }
 
@@ -21510,6 +21550,11 @@ define(['require'], function (require) { 'use strict';
           return newNode;
       }
   }
+
+  var condUnitFactory = {
+      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE && domNode.hasAttribute( FewViewCondUnit.KEY ),
+      createUnit: ( domNode, parser ) => new FewViewCondUnit( domNode, parser )
+  };
 
   /* eslint-env es6 */
 
@@ -21605,10 +21650,9 @@ define(['require'], function (require) { 'use strict';
           } else if ( vForLst < vForResLength ) {
               // Append new template
               let fragment = document.createDocumentFragment();
-              let factory = new FewViewUnitFactory( this._parser );
               for( let i = vForLst; i < vForResLength; i++ ) {
                   let newNode = templNode.cloneNode( true );
-                  this.addChild( factory.createUnit( newNode ) );
+                  this.addChild( viewUnitFactory.createUnit( newNode, this._parser ) );
                   fragment.appendChild( newNode );
               }
               newNode = fragment.lastChild;
@@ -21630,74 +21674,32 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
-  /* eslint-env es6 */
-
-  class FewViewNullUnit extends FewViewUnit {
-      static get KEY() {
-          return 'f-ignore';
-      }
-
-      /**
-       * Bypass by returning undefined
-       * @returns {Node} it is undefined in this case
-       */
-      _compile( /*node*/ ) {
-          return undefined && this.domNode;
-      }
-  }
+  var eachUnitFactory = {
+      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE && domNode.hasAttribute( FewViewEachUnit.KEY ),
+      createUnit: ( domNode, parser ) => new FewViewEachUnit( domNode, parser )
+  };
 
   /* eslint-env es6 */
+  let FewViewNullUnit = {
+      KEY: 'f-ignore'
+  };
 
+  var nullUnitFactory = {
+      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE && domNode.hasAttribute( FewViewNullUnit.KEY ),
+      createUnit: () => null
+  };
 
-  class FewViewUnitFactory {
-      constructor( exprTemplateParser ) {
-          this._parser = exprTemplateParser;
-      }
+  /* eslint-env es6 */
 
-      /**
-       * Create FewViewUnit structure based on input DOM
-       * @param {Node} node DOM Node
-       * @param {boolean} skipConstant if true result without input will not be returned
-       * @returns {FewViewUnit} FewViewUnit object
-       */
-      createUnit( node, skipConstant ) {
-          let unit = null;
-          if( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||    // only process text and dom for now
-              hasScope( node ) ) ; else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewNullUnit.KEY ) ) {
-              unit = new FewViewNullUnit( node, this._parser );
-          } else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewEachUnit.KEY ) ) {
-              unit = new FewViewEachUnit( node, this._parser );
-          } else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewCondUnit.KEY ) ) {
-              unit = new FewViewCondUnit( node, this._parser );
-          }else if ( node.nodeType === Node.TEXT_NODE ) {
-              unit = new FewViewTextUnit( node, this._parser );
-          }  else {
-              unit = new FewViewVarUnit( node, this._parser );
-          }
-           return unit && unit.hasInput || !skipConstant ? unit : undefined;
-      }
-  }
+  viewUnitFactory.register( textUnitFactory );
+  viewUnitFactory.register( nullUnitFactory );
+  viewUnitFactory.register( eachUnitFactory );
+  viewUnitFactory.register( condUnitFactory );
+  viewUnitFactory.register( varUnitFactory );
 
-  class FewHtmlViewFactory {
-      /**
-       * View Parser for Few Component
-       * @param {StringTemplateParser} exprTemplateParser Sting Expression Template Parser in Template
-       */
-      constructor( exprTemplateParser ) {
-          this._parser = exprTemplateParser;
-      }
-
-      /**
-       * Create View Node Object by pasing HTML Template
-       * @param {string} templateString HTML Template as Sting
-       * @returns {FewViewTemplate} View Node Object
-       */
-      createView( templateString ) {
-          let templateNode = parseView( templateString );
-          let factory = new FewViewUnitFactory( this._parser );
-          return factory.createUnit( templateNode );
-      }
-  }
+  var htmlViewFactory = {
+      createView: ( templateString, parser ) => viewUnitFactory.createUnit( parseView( templateString ), parser )
+  };
 
   /* eslint-env es6 */
   // Default module loader for few, for difference case user may need to implement
@@ -21884,8 +21886,7 @@ define(['require'], function (require) { 'use strict';
       async createView( view ) {
           await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-          let factory = new FewHtmlViewFactory( this._strTplParser );
-          this._view = factory.createView( view.template );
+          this._view = htmlViewFactory.createView( view.template, this._strTplParser );
 
           let elem = this._view.render( this._vm.model );
           setComponent( elem, this );
