@@ -21256,14 +21256,16 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
+  /* eslint-env es6 */
+
   class FewViewUnit extends FewViewNode {
       /**
        * Create FewViewUnit
-       * @param {string} nodeName name of DOM node
+       * @param {Node} domNode DOM node
        * @param {StringTemplateParser} parser string template parser
        */
-      constructor( nodeName, parser ) {
-          super( nodeName );
+      constructor( domNode, parser ) {
+          super( domNode.nodeName );
 
           /**
            * string template parser
@@ -21274,6 +21276,13 @@ define(['require'], function (require) { 'use strict';
            * variable attributes
            * this.input = {};
            */
+
+          /**
+           * domNode reference
+           */
+          this.domNode = this._compile( domNode );
+
+          return this.domNode ? this : undefined;
       }
 
       get hasInput() {
@@ -21322,14 +21331,93 @@ define(['require'], function (require) { 'use strict';
       }
 
       /**
-       * update dom node based on vm
+       * compile dom node input to curren unit context
+       * @param {Node} domNode DOM Node input
+       * @returns {Node} DOM Node as anchor
+       */
+      /*
+      _compile( domNode ) {
+          return domNode;
+      }
+      */
+
+      /**
+       * update DOM node based on vm
        * @param {Node} domNode input dom node
        * @param {Object} vm model
+       */
+      /*
       _update( domNode, vm ) {
           return domNode;
       }
        */
   }
+
+  /* eslint-env es6 */
+
+  class FewViewVarUnit extends FewViewUnit {
+      /**
+       * compile dom node input to curren unit context
+       * @param {Node} domNode DOM Node input
+       * @returns {Node} DOM Node as anchor
+       */
+      _compile( domNode ) {
+          for( let i = 0; i < domNode.attributes.length; i++ ) {
+              let name = domNode.attributes[i].name;
+              let value = domNode.attributes[i].value;
+              // TODO: we can do it better later
+              let expr = this._parser.parse( value );
+              if( expr ) {
+                  // if name is event like onclick
+                  // TODO: make it as expression later
+                  if ( /^on.+/.test( name ) ) {
+                      domNode.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
+                  } else {
+                      this.setInput( name, expr );
+                  }
+              } else {
+                  this.setValue( name, value );
+              }
+          }
+
+          let factory = new FewViewUnitFactory( this._parser );
+          for ( let i = 0; i < domNode.childNodes.length; i++ ) {
+              let childDomNode = domNode.childNodes[i];
+              let childUnit = factory.createUnit( childDomNode, true );
+              if( childUnit ) {
+                  this.addChild( childUnit );
+              }
+          }
+
+          return domNode;
+      }
+
+      /**
+       * update dom node based on vm
+       * @param {Node} domNode input dom node
+       * @param {Object} vm model
+       * @returns {Node} updated dom node
+       */
+      _update( domNode, vm ) {
+          let inputScope = this.getInputScope();
+          for( let key in inputScope ) {
+              let res = evalExpression( inputScope[key], vm, true );
+              let last = this.getValue( key );
+              // TODO: should be string or primitive value. But still need error handling
+              if ( last !== res ) {
+                  this.setValue( key, res );
+                  domNode.setAttribute( key, res );
+              }
+          }
+
+          for( let child of this.getChildren() ) {
+              child.render( vm );
+          }
+          return domNode;
+      }
+  }
+
+  /* eslint-env es6 */
 
   class FewViewTextUnit extends FewViewUnit {
       static get TEXT_PROP_NAME() {
@@ -21337,19 +21425,16 @@ define(['require'], function (require) { 'use strict';
       }
 
       /**
-       * Create FewViewUnit
-       * @param {string} node DOM node
-       * @param {StringTemplateParser} stringTemplateParser string template parser
+       * compile dom node input to curren unit context
+       * @param {Node} domNode DOM Node input
+       * @returns {Node} DOM Node as anchor
        */
-      constructor( node, stringTemplateParser ) {
-          super( node.nodeName, stringTemplateParser );
-
+      _compile( domNode ) {
           let name = this.constructor.TEXT_PROP_NAME;
 
           // TODO: we can do it better later by supporting "aaa {bbb} ccc"
-          this.setInput( name, this._parser.parse( node[name] ) );
-
-          this.domNode = node;
+          this.setInput( name, this._parser.parse( domNode[name] ) );
+          return domNode;
       }
 
       /**
@@ -21375,29 +21460,26 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
+  /* eslint-env es6 */
+
   class FewViewCondUnit extends FewViewUnit {
       static get KEY() {
           return 'f-cond';
       }
 
       /**
-       * Create FewViewUnit
-       * @param {string} node DOM node
-       * @param {StringTemplateParser} parser string template parser
+       * compile dom node input to curren unit context
+       * @param {Node} domNode DOM Node input
+       * @returns {Node} DOM Node as anchor
        */
-      constructor( node, parser ) {
-          super( node.nodeName, parser );
+      _compile( domNode ) {
+          let key = this.constructor.KEY;
+          this.setInput( key, domNode.getAttribute( key ) );
 
-          let name = this.constructor.KEY;
-
-          this.setInput( name, node.getAttribute( name ) );
-
-          node.removeAttribute( name );
+          domNode.removeAttribute( key );
           let factory = new FewViewUnitFactory( this._parser );
-          this.addChild( factory.createUnit( node ) );
-
-          // Use current node as anchor
-          this.domNode = node;
+          this.addChild( factory.createUnit( domNode ) );
+          return domNode;
       }
 
       /**
@@ -21429,6 +21511,8 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
+  /* eslint-env es6 */
+
   class FewViewEachUnit extends FewViewUnit {
       static get KEY() {
           return 'f-each';
@@ -21447,35 +21531,33 @@ define(['require'], function (require) { 'use strict';
       }
 
       /**
-       * Create FewViewUnit
-       * @param {string} node DOM node
-       * @param {StringTemplateParser} parser string template parser
+       * compile dom node input to curren unit context
+       * @param {Node} domNode DOM Node input
+       * @returns {Node} DOM Node as anchor
        */
-      constructor( node, parser ) {
-          super( node.nodeName, parser );
-
+      _compile( domNode ) {
           let name = this.constructor.KEY;
           let varKey = this.constructor.EACH_VAR_NAME;
           let setKey = this.constructor.EACH_SET_NAME;
           let templKey = this.constructor.EACH_TEMPLATE;
 
           // Process f-each clause
-          let vForExpr = node.getAttribute( name );
+          let vForExpr = domNode.getAttribute( name );
           let match = vForExpr.match( /^\s*(\S+)\s+(in|of)\s+(\S+)\s*$/ );
 
           // TODO: Error handling
           // TODO: put template DOM at child unit #0, need a better solution later
-          node.removeAttribute( name );
+          domNode.removeAttribute( name );
           this.setInput( varKey, match[1] );
           this.setInput( setKey, match[3] );
-          this.setInput( templKey, node );
+          this.setInput( templKey, domNode );
 
 
           // TODO: couple with HTML/DOM, can be abstract later
           // Backup node input for for purpose
           let commentNode = document.createComment( `${name}(${vForExpr})` );
-          if ( node.parentNode ) {
-              node.parentNode.replaceChild( commentNode, node );
+          if ( domNode.parentNode ) {
+              domNode.parentNode.replaceChild( commentNode, domNode );
           }
 
 
@@ -21483,7 +21565,7 @@ define(['require'], function (require) { 'use strict';
 
           // Use current node as anchor
           // TODO: we can put a global comment anchor later rather than use node
-          this.domNode = commentNode;
+          return commentNode;
       }
 
       /**
@@ -21548,86 +21630,24 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
-  class FewViewVarUnit extends FewViewUnit {
-      /**
-       * Create FewViewUnit
-       * @param {string} node DOM node
-       * @param {StringTemplateParser} parser string template parser
-       */
-      constructor( node, parser ) {
-          super( node.nodeName, parser );
+  /* eslint-env es6 */
 
-          for( let i = 0; i < node.attributes.length; i++ ) {
-              let name = node.attributes[i].name;
-              let value = node.attributes[i].value;
-              // TODO: we can do it better later
-              let expr = this._parser.parse( value );
-              if( expr ) {
-                  // if name is event like onclick
-                  // TODO: make it as expression later
-                  if ( /^on.+/.test( name ) ) {
-                      node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
-                  } else {
-                      this.setInput( name, expr );
-                  }
-              } else {
-                  this.setValue( name, value );
-              }
-          }
-
-          let factory = new FewViewUnitFactory( this._parser );
-          for ( let i = 0; i < node.childNodes.length; i++ ) {
-              let childDomNode = node.childNodes[i];
-              let childUnit = factory.createUnit( childDomNode, true );
-              if( childUnit ) {
-                  this.addChild( childUnit );
-              }
-          }
-
-          this.domNode = node;
-      }
-
-      /**
-       * update dom node based on vm
-       * @param {Node} domNode input dom node
-       * @param {Object} vm model
-       * @returns {Node} updated dom node
-       */
-      _update( domNode, vm ) {
-          let inputScope = this.getInputScope();
-          for( let key in inputScope ) {
-              let res = evalExpression( inputScope[key], vm, true );
-              let last = this.getValue( key );
-              // TODO: should be string or primitive value. But still need error handling
-              if ( last !== res ) {
-                  this.setValue( key, res );
-                  domNode.setAttribute( key, res );
-              }
-          }
-
-          for( let child of this.getChildren() ) {
-              child.render( vm );
-          }
-          return domNode;
-      }
-  }
-
-  class FewViewDumbUnit extends FewViewUnit {
+  class FewViewNullUnit extends FewViewUnit {
       static get KEY() {
           return 'f-ignore';
       }
 
-
       /**
-       * Create FewViewUnit
-       * @param {string} node DOM node
-       * @param {StringTemplateParser} parser string template parser
+       * Bypass by returning undefined
+       * @returns {Node} it is undefined in this case
        */
-      constructor( node, parser ) {
-          super( node, parser );
-          return undefined;
+      _compile( /*node*/ ) {
+          return undefined && this.domNode;
       }
   }
+
+  /* eslint-env es6 */
+
 
   class FewViewUnitFactory {
       constructor( exprTemplateParser ) {
@@ -21643,11 +21663,11 @@ define(['require'], function (require) { 'use strict';
       createUnit( node, skipConstant ) {
           let unit = null;
           if( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||    // only process text and dom for now
-              hasScope( node ) ) ; else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewDumbUnit.KEY ) ) {
-              unit = new FewViewDumbUnit( node, this._parser );
-          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( FewViewEachUnit.KEY ) ) {
+              hasScope( node ) ) ; else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewNullUnit.KEY ) ) {
+              unit = new FewViewNullUnit( node, this._parser );
+          } else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewEachUnit.KEY ) ) {
               unit = new FewViewEachUnit( node, this._parser );
-          } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( FewViewCondUnit.KEY ) ) {
+          } else if( node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( FewViewCondUnit.KEY ) ) {
               unit = new FewViewCondUnit( node, this._parser );
           }else if ( node.nodeType === Node.TEXT_NODE ) {
               unit = new FewViewTextUnit( node, this._parser );
