@@ -20,12 +20,6 @@ class FewNode {
          */
         this.type = nodeName;
 
-        /**
-         * if true, means current node or its children has variable attributes
-         */
-        //this.hasInput = false;
-
-
         // For typical ES6 practice, we better put all member variable
         // in constructor as a good practice. But for thi atom type, we
         // break the rule for better performance. But still we list here
@@ -48,7 +42,7 @@ class FewNode {
 
         /**
          * correcponding dom node as anchor
-         * this.ref = <DOMNode>
+         * this.domNode = <DOMNode>
          */
     }
 
@@ -57,14 +51,16 @@ class FewNode {
     }
 
     /**
-     * Add DOM Attribute
+     * Add variable attribute
      * @param {string} name attribute name
      * @param {string} val attribute value
      */
     setInput( name, val ) {
-        this.input = this.input || {};
-        this.input[name] = val;
-        // this.hasInput = true;
+        // var shuld be string
+        if ( val ) {
+            this.input = this.input || {};
+            this.input[name] = val;
+        }
     }
 
     /**
@@ -80,7 +76,7 @@ class FewNode {
      * Get the all definition for variable attributes
      * @returns {object} expression as string
      */
-    getScope() {
+    getInputScope() {
         return this.input || {};
     }
 
@@ -110,7 +106,6 @@ class FewNode {
     addChild( child ) {
         this.children = this.children || [];
         this.children.push( child );
-        // this.hasInput = this.hasInput || child.hasInput;
     }
 
     getChildren() {
@@ -125,16 +120,24 @@ class FewNode {
         return this.type === '#text';
     }
 
-    get node() {
-        return this.ref;
-    }
+    /**
+     * Print object for test purpose
+     * @returns {JSON} JSON object that presents the content of FewNode
+     */
+    toJSON() {
+        let obj = Object.assign( {}, this );
+        if ( this.children ) {
+            obj.children = this.children.map( ( o ) => o.toJSON() );
+        }
+        delete obj.domNode;
 
-    set node( node ) {
-        this.ref = node;
+        // wash out methods
+        return obj;
     }
 
     /**
      * Refresh/create HTML DOM for current FewDOM
+     * NOTE: no usage for now
      * @param {FewComponent} vm view model object
      * @returns {Node} HTML dom Node
      */
@@ -154,21 +157,6 @@ class FewNode {
 
         return newNode;
     }
-
-    /**
-     * Print object for test purpose
-     * @returns {JSON} JSON object that presents the content of FewNode
-     */
-    toJSON() {
-        let obj = Object.assign( {}, this );
-        if ( this.children ) {
-            obj.children = this.children.map( ( o ) => o.toJSON() );
-        }
-        delete obj.ref;
-
-        // wash out methods
-        return obj;
-    }
 }
 
 class FewViewAbstractTemplate {
@@ -180,19 +168,14 @@ class FewViewAbstractTemplate {
         this._parser = exprTemplateParser;
     }
 
-    // TODO: remove me
-    get hasInput() {
-        return this._node.hasInput;
-    }
-
     /**
      * general render function
      * @param {Object} vm view model object
      * @returns {Node} dom element as result
      */
     render( vm ) {
-        let newNode = this.update( this._node.node, vm );
-        this._node.node = newNode;
+        let newNode = this.update( this._node.domNode, vm );
+        this._node.domNode = newNode;
         return newNode;
     }
 
@@ -213,14 +196,10 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
         let name = this.constructor.TEXT_PROP_NAME;
 
         // TODO: we can do it better later by supporting "aaa {bbb} ccc"
-        let expr = this._parser.parse( node[name] );
+        obj.setInput( name, this._parser.parse( node[name] ) );
 
-        if( expr ) {
-            obj.setInput( name, expr );
-        }
-
+        obj.domNode = node;
         this._node = obj;
-        this._node.node = node;
 
         return this;
     }
@@ -228,7 +207,9 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
     update( currNode, vm ) {
         let obj = this._node;
         let newNode = currNode;
-        if ( obj.hasInput ) {
+        let name = this.constructor.TEXT_PROP_NAME;
+        let expr = obj.getInput( name );
+        if ( expr ) {
             let name = this.constructor.TEXT_PROP_NAME;
             let res = evalExpression( obj.getInput( name ), vm, true );
             let last = obj.getValue( name );
@@ -240,10 +221,10 @@ class FewViewTextTemplate extends FewViewAbstractTemplate {
         return newNode;
     }
 }
+
 class FewViewCondTemplate extends FewViewAbstractTemplate {
     setupFromDom( node ) {
         let obj = new FewNode( node.nodeName );
-        // obj.hasInput = true;
 
         obj.setInput( 'f-cond', node.getAttribute( 'f-cond' ) );
 
@@ -254,8 +235,8 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
 
         // Use current node as anchor
         // TODO: we can put a global comment anchor later rather than use node
+        obj.domNode = node;
         this._node = obj;
-        this._node.node = node;
 
         return this;
     }
@@ -285,7 +266,6 @@ class FewViewCondTemplate extends FewViewAbstractTemplate {
 class FewViewEachTemplate extends FewViewAbstractTemplate {
     setupFromDom( node ) {
         let obj = new FewNode( node.nodeName );
-        // obj.hasInput = true;
 
         // Process f-each clause
         let vForExpr = node.getAttribute( 'f-each' );
@@ -311,8 +291,8 @@ class FewViewEachTemplate extends FewViewAbstractTemplate {
 
         // Use current node as anchor
         // TODO: we can put a global comment anchor later rather than use node
+        obj.domNode = comment;
         this._node = obj;
-        this._node.node = comment;
 
         return this;
     }
@@ -381,7 +361,6 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
                     node.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
                 } else {
                     obj.setInput( name, expr );
-                    // obj.hasInput = true;
                 }
             } else {
                 obj.setValue( name, value );
@@ -390,15 +369,15 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
 
         let factory = new FewViewTemplateFactory( this._parser );
         for ( let i = 0; i < node.childNodes.length; i++ ) {
-            let child = node.childNodes[i];
-            let childNode = factory.createTemplate( child );
-            if( childNode && childNode.hasInput ) {
+            let childDomNode = node.childNodes[i];
+            let childNode = factory.createTemplate( childDomNode, true );
+            if( childNode ) {
                 obj.addChild( childNode );
             }
         }
 
+        obj.domNode = node;
         this._node = obj;
-        this._node.node = node;
 
         return this;
     }
@@ -406,20 +385,18 @@ class FewViewSimpleTemplate extends FewViewAbstractTemplate {
     update( currNode, vm ) {
         let obj = this._node;
         let newNode = currNode;
-        if ( obj.hasInput ) {
-            _.forEach( obj.getScope(), ( value, name ) => {
-                let res = evalExpression( value, vm, true );
-                let last = obj.getValue( name );
-                // TODO: maybe string comparison will be better?
-                if ( !_.isEqual( last, res ) ) {
-                    obj.setValue( name, res );
-                    newNode.setAttribute( name, res );
-                }
-            } );
-
-            for( let child of obj.getChildren() ) {
-                child.render( vm );
+        _.forEach( obj.getInputScope(), ( value, name ) => {
+            let res = evalExpression( value, vm, true );
+            let last = obj.getValue( name );
+            // TODO: maybe string comparison will be better?
+            if ( !_.isEqual( last, res ) ) {
+                obj.setValue( name, res );
+                newNode.setAttribute( name, res );
             }
+        } );
+
+        for( let child of obj.getChildren() ) {
+            child.render( vm );
         }
         return newNode;
     }
@@ -433,10 +410,11 @@ class FewViewTemplateFactory {
     /**
      * Create FewNode structure based on input DOM
      * @param {Node} node DOM Node
-     * @param {number} level level for current element input
+     * @param {boolean} skipConstant if true result without input will not be returned
      * @returns {FewNode} FewNode object
      */
-    createTemplate( node ) {
+    createTemplate( node, skipConstant ) {
+        let obj = null;
         if ( node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE ||
             // f-ignore
             node.nodeType === Node.ELEMENT_NODE && node.hasAttribute( 'f-ignore' ) ||
@@ -444,14 +422,16 @@ class FewViewTemplateFactory {
             hasScope( node ) ) {
                 // do nothing
         }else if ( node.nodeType === Node.TEXT_NODE ) {
-            return new FewViewTextTemplate( this._parser ).setupFromDom( node );
+            obj = new FewViewTextTemplate( this._parser ).setupFromDom( node );
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-each' ) ) {
-            return new FewViewEachTemplate( this._parser ).setupFromDom( node );
+            obj = new FewViewEachTemplate( this._parser ).setupFromDom( node );
         } else if( node.nodeType === Node.ELEMENT_NODE && node.getAttribute( 'f-cond' ) ) {
-            return new FewViewCondTemplate( this._parser ).setupFromDom( node );
+            obj = new FewViewCondTemplate( this._parser ).setupFromDom( node );
         }  else {
-            return new FewViewSimpleTemplate( this._parser ).setupFromDom( node );
+            obj = new FewViewSimpleTemplate( this._parser ).setupFromDom( node );
         }
+        // return obj && obj._node.hasInput ? obj : undefined;
+        return !obj || skipConstant && !obj._node.hasInput ? undefined : obj;
     }
 }
 
