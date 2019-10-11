@@ -6,6 +6,7 @@ import FewComponent from '../src/few-component';
 import { wait } from './test-utils';
 
 describe( 'Test few-component', () => {
+    let rootElem;
     beforeEach( () =>{
         window.$few_test = {
             setValue: ( val ) => {
@@ -15,10 +16,14 @@ describe( 'Test few-component', () => {
                 return val + 1;
             }
         };
+
+        rootElem = document.createElement( 'div' );
+        document.body.appendChild( rootElem );
     } );
 
     afterEach( () =>{
         delete window.$few_test;
+        document.body.removeChild( rootElem );
     } );
 
     it( 'Verify few-component can execute action without view', async() => {
@@ -98,15 +103,17 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        let viewElem = await component.createView( componentDef.view );
+        await component.createView( componentDef.view );
+
+        component.attachView( rootElem );
 
         expect( await component.update( 'action.testAction' ) ).toEqual( 7 );
 
         expect( component._vm.model.testVal ).toEqual( 7 );
 
         // TODO: No good way to assert for now, need to find a way to avoid using wait later
-        await wait( 500 );
-        expect( viewElem.innerHTML ).toEqual( '<div>7</div>' );
+        await wait( 200 );
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
     it( 'Verify few-component can execute action with different options', async() => {
@@ -137,7 +144,9 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        let viewElem = await component.createView( componentDef.view );
+        await component.createView( componentDef.view );
+
+        component.attachView( rootElem );
 
         expect( await component.update( 'testAction' ) ).toEqual( 6 );
 
@@ -145,6 +154,6 @@ describe( 'Test few-component', () => {
 
         // TODO: No good way to assert for now, need to find a way to avoid using wait later
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<div>6</div>' );
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>6</div>' );
     } );
 } );

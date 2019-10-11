@@ -21909,9 +21909,27 @@ define(['require'], function (require) { 'use strict';
 
           this._view = htmlViewFactory.createView( view.template, this._strTplParser );
 
-          let elem = this._view.render( this._vm.model );
-          setComponent( elem, this );
-          return elem;
+          return this._view;
+
+          // let elem = this._view.render( this._vm.model );
+          // setComponent( elem, this );
+          // return elem;
+      }
+
+      /**
+       * attach current view to DOM in page
+       * @param {Element} elem DOM Element in page
+       */
+      attachView( elem ) {
+          /**
+           * - The raw temple is a HTML which all custom element functon is not executed.
+           * - We need to attach the view to actual page so all the custom element render takes priority
+           * - Then we render -> it will have some overhead
+           * - Then the custom directive gets executed to make sure no crash with custom element logic
+           */
+          elem.appendChild( this._view.domNode );
+          this._view.render( this._vm.model );
+          setComponent( this._view.domNode, this );
       }
 
       /////////////////////////////////////////////////////////////////////////////////////////
@@ -22094,9 +22112,11 @@ define(['require'], function (require) { 'use strict';
                   this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
 
                   // View has too be initialized separately since it is async
-                  let viewElem = await this._component.createView( componentDef.view );
+                  // let viewElem = await this._component.createView( componentDef.view );
+                  // this.appendChild( viewElem );
 
-                  this.appendChild( viewElem );
+                  await this._component.createView( componentDef.view );
+                  this._component.attachView( this );
               } catch ( e ) {
                   this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
               }

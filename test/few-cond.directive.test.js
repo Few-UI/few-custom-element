@@ -6,6 +6,8 @@ import FewComponent from '../src/few-component';
 import { wait } from './test-utils';
 
 describe( 'Test f-cond in few-view', () => {
+    let rootElem;
+
     beforeEach( () =>{
         window.$few_test = {
             setValue: ( val ) => {
@@ -15,6 +17,14 @@ describe( 'Test f-cond in few-view', () => {
                 return val + 1;
             }
         };
+
+        rootElem = document.createElement( 'div' );
+        document.body.appendChild( rootElem );
+    } );
+
+    afterEach( () => {
+        delete window.$few_test;
+        document.body.removeChild( rootElem );
     } );
 
     it( 'Verify f-cond works corretly for simple element', async() => {
@@ -37,19 +47,21 @@ describe( 'Test f-cond in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        let viewElem = await component.createView( componentDef.view );
+        await component.createView( componentDef.view );
 
-        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        component.attachView( rootElem );
+
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<div>Hello</div>' );
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>Hello</div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
     } );
 
     it( 'Verify f-cond works corretly for element with expression', async() => {
@@ -82,19 +94,21 @@ describe( 'Test f-cond in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        let viewElem = await component.createView( componentDef.view );
+        await component.createView( componentDef.view );
 
-        expect( viewElem.innerHTML ).toEqual( '<div>5</div>' );
+        component.attachView( rootElem );
+
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>5</div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<div>7</div>' );
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
     it( 'Verify f-cond works corretly for nested element', async() => {
@@ -118,18 +132,20 @@ describe( 'Test f-cond in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        let viewElem = await component.createView( componentDef.view );
+        await component.createView( componentDef.view );
 
-        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        component.attachView( rootElem );
+
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<div><code style="color:blue">hello</code></div>' );
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<div><code style="color:blue">hello</code></div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( viewElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
     } );
 } );

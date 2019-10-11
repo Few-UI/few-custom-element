@@ -44,9 +44,11 @@ export default class FewView extends HTMLElement {
                 this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
 
                 // View has too be initialized separately since it is async
-                let viewElem = await this._component.createView( componentDef.view );
+                // let viewElem = await this._component.createView( componentDef.view );
+                // this.appendChild( viewElem );
 
-                this.appendChild( viewElem );
+                await this._component.createView( componentDef.view );
+                this._component.attachView( this );
             } catch ( e ) {
                 this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
             }
