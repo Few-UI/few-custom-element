@@ -13,15 +13,16 @@ define( [], () => {
         constructor() {
             super();
 
-            const shadowRoot = this.attachShadow( { mode: 'open' } );
+            const shadowRoot = this.shadowRoot || this.attachShadow( { mode: 'open' } );
 
             // Apply style to shadow DOM
             // let style = document.createElement( 'style' );
             // style.textContent = buttonCss;
             // shadowRoot.appendChild( style );
 
-            //let newDom = document.createElement( 'div' );
-            shadowRoot.innerHTML = '<button class="base-button" ><slot/></button>';
+            let newDom = document.createElement( 'div' );
+            newDom.innerHTML = '<button class="base-button" ><slot/></button>';
+            shadowRoot.appendChild( newDom.firstChild );
         }
 
         /*

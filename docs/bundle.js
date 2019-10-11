@@ -21420,6 +21420,22 @@ define(['require'], function (require) { 'use strict';
               }
           }
 
+          // TODO: temp hack
+          if( domNode.hasAttribute( 'few-popup' ) ) {
+              const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
+
+              const style = document.createElement( 'style' );
+
+              style.textContent = `
+                button {
+                    color: red;
+                    text-decoration: underline;
+                }
+            `;
+
+              shadow.appendChild( style );
+          }
+
           return domNode;
       }
 

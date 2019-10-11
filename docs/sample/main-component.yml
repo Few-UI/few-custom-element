@@ -9,6 +9,10 @@ view:
       <sample-button f-ignore onclick="${action.updateSimpleText}">${simpleText}</sample-button>
     </div>
     <div>
+      <h2>Custom Directive</h2>
+      <sample-button few-popup>${simpleText}</sample-button>
+    </div>
+    <div>
       <h2>Child View</h2>
       <few-view id="dialog" src="sample/sub-component" model="dialogContext"></few-view>
       <h3>Update from Child View</h3>
