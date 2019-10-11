@@ -21765,7 +21765,8 @@ define(['require'], function (require) { 'use strict';
       if ( !infoElem ) {
           let domNode = node.domNode;
           // Create a shadow root
-          const shadow = domNode.attachShadow( { mode: 'open' } );
+          // const shadow = domNode.attachShadow( { mode: 'open' } );
+          const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
 
           // Create spans
           const wrapper = document.createElement( 'span' );
@@ -21778,12 +21779,8 @@ define(['require'], function (require) { 'use strict';
           infoElem = document.createElement( 'span' );
           infoElem.setAttribute( 'class', 'info' );
 
-          // Take attribute content and put it inside the info span
           // NOTE: without polyfill do it here is useless, not getting the attribute here
-          let msg = domNode.getAttribute( 'msg' );
           // msg = this.msg;
-          infoElem.textContent = 'Ouch!';
-          // this.__info = info;
 
           // Create some CSS to apply to the shadow dom
           const style = document.createElement( 'style' );
@@ -21821,7 +21818,23 @@ define(['require'], function (require) { 'use strict';
 
           // Attach the created elements to the shadow dom
           shadow.appendChild( style );
-          shadow.appendChild( wrapper );
+
+          let firstSlot = null;
+          let children = shadow.children;
+          for ( let i = 0; i < children.length; i++ ) {
+              let childDomNode = children[i];
+              let slots = childDomNode.getElementsByTagName( 'SLOT' );
+              if( slots.length > 0 ) {
+                  firstSlot = slots[0];
+                  break;
+              }
+          }
+
+          if ( firstSlot ) {
+              firstSlot.parentNode.replaceChild( wrapper, firstSlot );
+          } else {
+              shadow.appendChild( wrapper );
+          }
       }
       infoElem.textContent = value;
   }

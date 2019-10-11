@@ -10,8 +10,10 @@ view:
     </div>
     <div>
       <h2>Custom Directive</h2>
-      <sample-button red-line>${simpleText}</sample-button>
+      <sample-button red-line pop-up="simpleText">${simpleText}</sample-button>
+      <!--
       <div pop-up="simpleText">Test Tooltip</div>
+      -->
     </div>
     <div>
       <h2>Child View</h2>
