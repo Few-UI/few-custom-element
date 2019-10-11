@@ -2,7 +2,7 @@
 
 /**
  * process directive
- * @param {FewViewNode} node
+ * @param {FewViewNode} node few node object
  */
 function process( node ) {
     let domNode = node.domNode;

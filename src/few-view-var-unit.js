@@ -18,7 +18,6 @@ class FewViewVarUnit extends FewViewUnit {
             // TODO: if it is directive
             if( this.constructor.directives[name] ) {
                 this.setDirective( name, value );
-                domNode.removeAttribute( name );
             } else if( expr ) {
                 // if name is event like onclick
                 // TODO: make it as expression later

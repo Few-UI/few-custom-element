@@ -35,7 +35,7 @@ export class FewViewUnit extends FewViewNode {
     }
 
     get hasInput() {
-        return Boolean( this.input || this.children );
+        return Boolean( this.input || this.directives || this.children );
     }
 
     /**

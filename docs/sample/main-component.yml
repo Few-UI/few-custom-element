@@ -11,6 +11,7 @@ view:
     <div>
       <h2>Custom Directive</h2>
       <sample-button red-line>${simpleText}</sample-button>
+      <div pop-up="simpleText">Test Tooltip</div>
     </div>
     <div>
       <h2>Child View</h2>
@@ -20,7 +21,6 @@ view:
     </div>
     <few-view src="sample/cond-component"></few-view>
     <few-view src="sample/loop-component"></few-view>
-    <popup-info msg="Test Popup Message">Test Popup Content</popup-info>
 
   import:
     - sample/sample-button

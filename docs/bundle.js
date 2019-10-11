@@ -21295,7 +21295,7 @@ define(['require'], function (require) { 'use strict';
       }
 
       get hasInput() {
-          return Boolean( this.input || this.children );
+          return Boolean( this.input || this.directives || this.children );
       }
 
       /**
@@ -21450,7 +21450,6 @@ define(['require'], function (require) { 'use strict';
               // TODO: if it is directive
               if( this.constructor.directives[name] ) {
                   this.setDirective( name, value );
-                  domNode.removeAttribute( name );
               } else if( expr ) {
                   // if name is event like onclick
                   // TODO: make it as expression later
@@ -21755,11 +21754,90 @@ define(['require'], function (require) { 'use strict';
 
   /* eslint-env es6 */
 
+  let infoElem = null;
+
   /**
    * process directive
-   * @param {FewViewNode} node
+   * @param {FewViewNode} node few node object
+   * @param {string} value
    */
-  function process( node ) {
+  function process( node, value ) {
+      if ( !infoElem ) {
+          let domNode = node.domNode;
+          // Create a shadow root
+          const shadow = domNode.attachShadow( { mode: 'open' } );
+
+          // Create spans
+          const wrapper = document.createElement( 'span' );
+          wrapper.setAttribute( 'class', 'wrapper' );
+
+          const mainDom = document.createElement( 'code' );
+          mainDom.classList.add( 'few-popup' );
+          mainDom.appendChild( document.createElement( 'slot' ) );
+
+          infoElem = document.createElement( 'span' );
+          infoElem.setAttribute( 'class', 'info' );
+
+          // Take attribute content and put it inside the info span
+          // NOTE: without polyfill do it here is useless, not getting the attribute here
+          let msg = domNode.getAttribute( 'msg' );
+          // msg = this.msg;
+          infoElem.textContent = 'Ouch!';
+          // this.__info = info;
+
+          // Create some CSS to apply to the shadow dom
+          const style = document.createElement( 'style' );
+
+          style.textContent = `
+            .wrapper {
+                position: relative;
+            }
+            .info {
+                font-size: 0.8rem;
+                width: 200px;
+                display: inline-block;
+                border: 1px solid black;
+                padding: 10px;
+                background: white;
+                border-radius: 10px;
+                opacity: 0;
+                transition: 0.6s all;
+                position: absolute;
+                bottom: 20px;
+                left: 10px;
+                z-index: 3;
+            }
+            img {
+                width: 1.2rem;
+            }
+            .few-popup:hover + .info, .few-popup:focus + .info {
+                opacity: 1;
+            }
+        `;
+
+          // wrapper
+          wrapper.appendChild( mainDom );
+          wrapper.appendChild( infoElem );
+
+          // Attach the created elements to the shadow dom
+          shadow.appendChild( style );
+          shadow.appendChild( wrapper );
+      }
+      infoElem.textContent = value;
+  }
+
+  var popupDirective = {
+      name: 'pop-up',
+      process: process
+  };
+
+  /* eslint-env es6 */
+
+  /**
+   * process directive
+   * @param {FewViewNode} node few node object
+   */
+  function process$1( node ) {
       let domNode = node.domNode;
       const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
 
@@ -21777,7 +21855,7 @@ define(['require'], function (require) { 'use strict';
 
   var redLineDirective = {
       name: 'red-line',
-      process: process
+      process: process$1
   };
 
   /* eslint-env es6 */
@@ -21791,6 +21869,7 @@ define(['require'], function (require) { 'use strict';
 
   // Directive
   viewUnitFactory.addDirective( redLineDirective );
+  viewUnitFactory.addDirective( popupDirective );
 
   var htmlViewFactory = {
       createView: ( templateString, parser ) => viewUnitFactory.createUnit( parseView( templateString ), parser )
@@ -22198,87 +22277,6 @@ define(['require'], function (require) { 'use strict';
       }
   }
   customElements.define( FewView.tag, FewView );
-
-  /* eslint-env es6 */
-  // https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
-
-  // Create a class for the element
-  class PopUpInfo extends HTMLElement {
-      get msg() {
-          return this.getAttribute( 'msg' );
-      }
-
-      constructor() {
-          // Always call super first in constructor
-          super();
-
-          // Create a shadow root
-          const shadow = this.attachShadow( { mode: 'open' } );
-
-          // Create spans
-          const wrapper = document.createElement( 'span' );
-          wrapper.setAttribute( 'class', 'wrapper' );
-
-          const mainDom = document.createElement( 'code' );
-          mainDom.classList.add( 'few-popup' );
-          mainDom.appendChild( document.createElement( 'slot' ) );
-
-          const info = document.createElement( 'span' );
-          info.setAttribute( 'class', 'info' );
-
-          // Take attribute content and put it inside the info span
-          // NOTE: without polyfill do it here is useless, not getting the attribute here
-          let msg = this.getAttribute( 'msg' );
-          // msg = this.msg;
-          info.textContent = msg;
-          this.__info = info;
-
-          // Create some CSS to apply to the shadow dom
-          const style = document.createElement( 'style' );
-
-          style.textContent = `
-            .wrapper {
-                position: relative;
-            }
-            .info {
-                font-size: 0.8rem;
-                width: 200px;
-                display: inline-block;
-                border: 1px solid black;
-                padding: 10px;
-                background: white;
-                border-radius: 10px;
-                opacity: 0;
-                transition: 0.6s all;
-                position: absolute;
-                bottom: 20px;
-                left: 10px;
-                z-index: 3;
-            }
-            img {
-                width: 1.2rem;
-            }
-            .few-popup:hover + .info, .few-popup:focus + .info {
-                opacity: 1;
-            }
-        `;
-
-          // wrapper
-          wrapper.appendChild( mainDom );
-          wrapper.appendChild( info );
-
-          // Attach the created elements to the shadow dom
-          shadow.appendChild( style );
-          shadow.appendChild( wrapper );
-      }
-
-      connectedCallback() {
-          this.__info.textContent = this.getAttribute( 'msg' );
-      }
-  }
-
-  // Define the new element
-  customElements.define( 'popup-info', PopUpInfo );
 
 });
 //# sourceMappingURL=bundle.js.map

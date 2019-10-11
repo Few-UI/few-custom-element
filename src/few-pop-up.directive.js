@@ -1,18 +1,17 @@
 /* eslint-env es6 */
-// https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
 
-// Create a class for the element
-class PopUpInfo extends HTMLElement {
-    get msg() {
-        return this.getAttribute( 'msg' );
-    }
+let infoElem = null;
 
-    constructor() {
-        // Always call super first in constructor
-        super();
-
+/**
+ * process directive
+ * @param {FewViewNode} node few node object
+ * @param {string} value
+ */
+function process( node, value ) {
+    if ( !infoElem ) {
+        let domNode = node.domNode;
         // Create a shadow root
-        const shadow = this.attachShadow( { mode: 'open' } );
+        const shadow = domNode.attachShadow( { mode: 'open' } );
 
         // Create spans
         const wrapper = document.createElement( 'span' );
@@ -22,15 +21,15 @@ class PopUpInfo extends HTMLElement {
         mainDom.classList.add( 'few-popup' );
         mainDom.appendChild( document.createElement( 'slot' ) );
 
-        const info = document.createElement( 'span' );
-        info.setAttribute( 'class', 'info' );
+        infoElem = document.createElement( 'span' );
+        infoElem.setAttribute( 'class', 'info' );
 
         // Take attribute content and put it inside the info span
         // NOTE: without polyfill do it here is useless, not getting the attribute here
-        let msg = this.getAttribute( 'msg' );
+        let msg = domNode.getAttribute( 'msg' );
         // msg = this.msg;
-        info.textContent = msg;
-        this.__info = info;
+        infoElem.textContent = 'Ouch!';
+        // this.__info = info;
 
         // Create some CSS to apply to the shadow dom
         const style = document.createElement( 'style' );
@@ -64,17 +63,16 @@ class PopUpInfo extends HTMLElement {
 
         // wrapper
         wrapper.appendChild( mainDom );
-        wrapper.appendChild( info );
+        wrapper.appendChild( infoElem );
 
         // Attach the created elements to the shadow dom
         shadow.appendChild( style );
         shadow.appendChild( wrapper );
     }
-
-    connectedCallback() {
-        this.__info.textContent = this.getAttribute( 'msg' );
-    }
+    infoElem.textContent = value;
 }
 
-// Define the new element
-customElements.define( 'popup-info', PopUpInfo );
+export default {
+    name: 'pop-up',
+    process: process
+};
