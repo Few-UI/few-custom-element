@@ -12,6 +12,13 @@ class FewViewVarUnit extends FewViewUnit {
         for( let i = 0; i < domNode.attributes.length; i++ ) {
             let name = domNode.attributes[i].name;
             let value = domNode.attributes[i].value;
+
+            if ( name === 'few-popup' ) {
+                this.setInput( name, 'few-popup' );
+                domNode.removeAttribute( name );
+                continue;
+            }
+
             // TODO: we can do it better later
             let expr = this._parser.parse( value );
             if( expr ) {
@@ -46,28 +53,12 @@ class FewViewVarUnit extends FewViewUnit {
      * @returns {Node} updated dom node
      */
     _update( domNode, vm ) {
-        if ( !this.firstUpdateDone ) {
-            // TODO: temp hack
-            if( domNode.hasAttribute( 'few-popup' ) ) {
-                const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
-
-                const style = document.createElement( 'style' );
-
-                style.textContent = `
-                    button {
-                        color: red;
-                        text-decoration: underline;
-                    }
-                `;
-
-                shadow.appendChild( style );
-            }
-            this.firstUpdateDone = true;
-        }
-
-
         let inputScope = this.getInputScope();
         for( let key in inputScope ) {
+            if ( key === 'few-popup' ) {
+                continue;
+            }
+
             let res = evalExpression( inputScope[key], vm, true );
             let last = this.getValue( key );
             // TODO: should be string or primitive value. But still need error handling
@@ -79,6 +70,29 @@ class FewViewVarUnit extends FewViewUnit {
 
         for( let child of this.getChildren() ) {
             child.render( vm );
+        }
+
+        // TODO: temp hack
+        if( inputScope.hasOwnProperty( 'few-popup' ) ) {
+            let res = evalExpression( inputScope['few-popup'], vm, true );
+            let last = this.getValue( 'few-popup' );
+
+
+            if ( !this.hasValue( 'few-popup' ) || last !== res ) {
+                const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
+
+                const style = document.createElement( 'style' );
+
+                style.textContent = `
+                    * {
+                        color: red;
+                        text-decoration: underline;
+                    }
+                `;
+
+                shadow.appendChild( style );
+                this.setValue( 'few-popup', res );
+            }
         }
         return domNode;
     }

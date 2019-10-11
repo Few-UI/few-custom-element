@@ -52,6 +52,10 @@ export default class FewViewNode {
         return this.data ? this.data[name] : undefined;
     }
 
+    hasValue( name ) {
+        return this.data && this.data.hasOwnProperty( name );
+    }
+
     /**
      * Add child element
      * @param {VirtualDomElement} child child element
