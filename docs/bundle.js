@@ -21420,21 +21420,6 @@ define(['require'], function (require) { 'use strict';
               }
           }
 
-          // TODO: temp hack
-          if( domNode.hasAttribute( 'few-popup' ) ) {
-              const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
-
-              const style = document.createElement( 'style' );
-
-              style.textContent = `
-                button {
-                    color: red;
-                    text-decoration: underline;
-                }
-            `;
-
-              shadow.appendChild( style );
-          }
 
           return domNode;
       }
@@ -21446,6 +21431,26 @@ define(['require'], function (require) { 'use strict';
        * @returns {Node} updated dom node
        */
       _update( domNode, vm ) {
+          if ( !this.firstUpdateDone ) {
+              // TODO: temp hack
+              if( domNode.hasAttribute( 'few-popup' ) ) {
+                  const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
+
+                  const style = document.createElement( 'style' );
+
+                  style.textContent = `
+                    button {
+                        color: red;
+                        text-decoration: underline;
+                    }
+                `;
+
+                  shadow.appendChild( style );
+              }
+              this.firstUpdateDone = true;
+          }
+
+
           let inputScope = this.getInputScope();
           for( let key in inputScope ) {
               let res = evalExpression( inputScope[key], vm, true );

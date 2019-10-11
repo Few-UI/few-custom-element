@@ -35,21 +35,6 @@ class FewViewVarUnit extends FewViewUnit {
             }
         }
 
-        // TODO: temp hack
-        if( domNode.hasAttribute( 'few-popup' ) ) {
-            const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
-
-            const style = document.createElement( 'style' );
-
-            style.textContent = `
-                button {
-                    color: red;
-                    text-decoration: underline;
-                }
-            `;
-
-            shadow.appendChild( style );
-        }
 
         return domNode;
     }
@@ -61,6 +46,26 @@ class FewViewVarUnit extends FewViewUnit {
      * @returns {Node} updated dom node
      */
     _update( domNode, vm ) {
+        if ( !this.firstUpdateDone ) {
+            // TODO: temp hack
+            if( domNode.hasAttribute( 'few-popup' ) ) {
+                const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
+
+                const style = document.createElement( 'style' );
+
+                style.textContent = `
+                    button {
+                        color: red;
+                        text-decoration: underline;
+                    }
+                `;
+
+                shadow.appendChild( style );
+            }
+            this.firstUpdateDone = true;
+        }
+
+
         let inputScope = this.getInputScope();
         for( let key in inputScope ) {
             let res = evalExpression( inputScope[key], vm, true );

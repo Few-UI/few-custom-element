@@ -20,9 +20,14 @@ define( [], () => {
             // style.textContent = buttonCss;
             // shadowRoot.appendChild( style );
 
+
+            shadowRoot.innerHTML = '<button class="base-button" ><slot/></button>';
+
+            /*
             let newDom = document.createElement( 'div' );
             newDom.innerHTML = '<button class="base-button" ><slot/></button>';
             shadowRoot.appendChild( newDom.firstChild );
+            */
         }
 
         /*
