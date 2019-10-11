@@ -22,6 +22,11 @@ export class FewViewUnit extends FewViewNode {
          */
 
         /**
+         * directive attributes
+         * this.directives = {};
+         */
+
+        /**
          * domNode reference
          */
         this.domNode = this._compile( domNode );
@@ -75,6 +80,42 @@ export class FewViewUnit extends FewViewNode {
     }
 
     /**
+     * Set directives definition to unit
+     * @param {string} name name of directives
+     * @param {string} expr expression as directive input
+     */
+    setDirective( name, expr ) {
+        this.directives = this.directives || {};
+        this.directives[name] = expr;
+    }
+
+    /**
+     * Get directive definition from unit by name
+     * @param {string} name name of directives
+     * @returns {string} expression as string
+     */
+    getDirective( name ) {
+        return this.directives ? this.directives[name] : undefined;
+    }
+
+    /**
+     * Get all directive definitions from unit
+     * @returns {object} expression as string
+     */
+    getDirectives() {
+        return this.directives || {};
+    }
+
+    /**
+     * Check if directive is defined or not
+     * @param {string} name name of directives
+     * @returns {boolean} true if directive is defined
+     */
+    hasDirective( name ) {
+        return this.directives && this.directives.hasOwnProperty( name );
+    }
+
+    /**
      * compile dom node input to curren unit context
      * @param {Node} domNode DOM Node input
      * @returns {Node} DOM Node as anchor
@@ -96,6 +137,7 @@ export class FewViewUnit extends FewViewNode {
     }
      */
 }
+FewViewUnit.directives = {};
 
 /**
  * Singleton factory template
@@ -127,7 +169,8 @@ function _createUnit( node, parser, skipConstant ) {
 }
 
 export default {
-    register: ( factory ) => _factories.push( factory ),
+    addFactory: ( factory ) => _factories.push( factory ),
+    addDirective: ( directive ) => {  FewViewUnit.directives[directive.name] = directive; },
     createUnit: _createUnit
 };
 

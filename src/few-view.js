@@ -8,11 +8,17 @@ import condUnitFactory from './few-view-cond-unit';
 import eachUnitFactory from './few-view-each-unit';
 import nullUnitFactory from './few-view-null-unit';
 
-viewUnitFactory.register( textUnitFactory );
-viewUnitFactory.register( nullUnitFactory );
-viewUnitFactory.register( eachUnitFactory );
-viewUnitFactory.register( condUnitFactory );
-viewUnitFactory.register( varUnitFactory );
+import redLineDirective from './few-red-line.directive';
+
+// Unit
+viewUnitFactory.addFactory( textUnitFactory );
+viewUnitFactory.addFactory( nullUnitFactory );
+viewUnitFactory.addFactory( eachUnitFactory );
+viewUnitFactory.addFactory( condUnitFactory );
+viewUnitFactory.addFactory( varUnitFactory );
+
+// Directive
+viewUnitFactory.addDirective( redLineDirective );
 
 export default {
     createView: ( templateString, parser ) => viewUnitFactory.createUnit( parseView( templateString ), parser )

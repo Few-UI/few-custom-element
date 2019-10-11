@@ -21282,6 +21282,11 @@ define(['require'], function (require) { 'use strict';
            */
 
           /**
+           * directive attributes
+           * this.directives = {};
+           */
+
+          /**
            * domNode reference
            */
           this.domNode = this._compile( domNode );
@@ -21335,6 +21340,42 @@ define(['require'], function (require) { 'use strict';
       }
 
       /**
+       * Set directives definition to unit
+       * @param {string} name name of directives
+       * @param {string} expr expression as directive input
+       */
+      setDirective( name, expr ) {
+          this.directives = this.directives || {};
+          this.directives[name] = expr;
+      }
+
+      /**
+       * Get directive definition from unit by name
+       * @param {string} name name of directives
+       * @returns {string} expression as string
+       */
+      getDirective( name ) {
+          return this.directives ? this.directives[name] : undefined;
+      }
+
+      /**
+       * Get all directive definitions from unit
+       * @returns {object} expression as string
+       */
+      getDirectives() {
+          return this.directives || {};
+      }
+
+      /**
+       * Check if directive is defined or not
+       * @param {string} name name of directives
+       * @returns {boolean} true if directive is defined
+       */
+      hasDirective( name ) {
+          return this.directives && this.directives.hasOwnProperty( name );
+      }
+
+      /**
        * compile dom node input to curren unit context
        * @param {Node} domNode DOM Node input
        * @returns {Node} DOM Node as anchor
@@ -21356,6 +21397,7 @@ define(['require'], function (require) { 'use strict';
       }
        */
   }
+  FewViewUnit.directives = {};
 
   /**
    * Singleton factory template
@@ -21385,7 +21427,8 @@ define(['require'], function (require) { 'use strict';
   }
 
   var viewUnitFactory = {
-      register: ( factory ) => _factories.push( factory ),
+      addFactory: ( factory ) => _factories.push( factory ),
+      addDirective: ( directive ) => {  FewViewUnit.directives[directive.name] = directive; },
       createUnit: _createUnit
   };
 
@@ -21402,15 +21445,13 @@ define(['require'], function (require) { 'use strict';
               let name = domNode.attributes[i].name;
               let value = domNode.attributes[i].value;
 
-              if ( name === 'few-popup' ) {
-                  this.setInput( name, 'few-popup' );
-                  domNode.removeAttribute( name );
-                  continue;
-              }
-
-              // TODO: we can do it better later
               let expr = this._parser.parse( value );
-              if( expr ) {
+
+              // TODO: if it is directive
+              if( this.constructor.directives[name] ) {
+                  this.setDirective( name, value );
+                  domNode.removeAttribute( name );
+              } else if( expr ) {
                   // if name is event like onclick
                   // TODO: make it as expression later
                   if ( /^on.+/.test( name ) ) {
@@ -21444,10 +21485,6 @@ define(['require'], function (require) { 'use strict';
       _update( domNode, vm ) {
           let inputScope = this.getInputScope();
           for( let key in inputScope ) {
-              if ( key === 'few-popup' ) {
-                  continue;
-              }
-
               let res = evalExpression( inputScope[key], vm, true );
               let last = this.getValue( key );
               // TODO: should be string or primitive value. But still need error handling
@@ -21461,28 +21498,16 @@ define(['require'], function (require) { 'use strict';
               child.render( vm );
           }
 
-          // TODO: temp hack
-          if( inputScope.hasOwnProperty( 'few-popup' ) ) {
-              let res = evalExpression( inputScope['few-popup'], vm, true );
-              let last = this.getValue( 'few-popup' );
-
-
-              if ( !this.hasValue( 'few-popup' ) || last !== res ) {
-                  const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
-
-                  const style = document.createElement( 'style' );
-
-                  style.textContent = `
-                    * {
-                        color: red;
-                        text-decoration: underline;
-                    }
-                `;
-
-                  shadow.appendChild( style );
-                  this.setValue( 'few-popup', res );
+          let directives = this.getDirectives();
+          for( let key in directives ) {
+              let last = this.getValue( key );
+              let res = evalExpression( directives[key], vm, true );
+              if ( !this.hasValue( key ) || last !== res ) {
+                  this.constructor.directives[key].process( this, res );
+                  this.setValue( key, res );
               }
           }
+
           return domNode;
       }
   }
@@ -21730,11 +21755,42 @@ define(['require'], function (require) { 'use strict';
 
   /* eslint-env es6 */
 
-  viewUnitFactory.register( textUnitFactory );
-  viewUnitFactory.register( nullUnitFactory );
-  viewUnitFactory.register( eachUnitFactory );
-  viewUnitFactory.register( condUnitFactory );
-  viewUnitFactory.register( varUnitFactory );
+  /**
+   * process directive
+   * @param {FewViewNode} node
+   */
+  function process( node ) {
+      let domNode = node.domNode;
+      const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
+
+      const style = document.createElement( 'style' );
+
+      style.textContent = `
+        * {
+            color: red;
+            text-decoration: underline;
+        }
+    `;
+
+      shadow.appendChild( style );
+  }
+
+  var redLineDirective = {
+      name: 'red-line',
+      process: process
+  };
+
+  /* eslint-env es6 */
+
+  // Unit
+  viewUnitFactory.addFactory( textUnitFactory );
+  viewUnitFactory.addFactory( nullUnitFactory );
+  viewUnitFactory.addFactory( eachUnitFactory );
+  viewUnitFactory.addFactory( condUnitFactory );
+  viewUnitFactory.addFactory( varUnitFactory );
+
+  // Directive
+  viewUnitFactory.addDirective( redLineDirective );
 
   var htmlViewFactory = {
       createView: ( templateString, parser ) => viewUnitFactory.createUnit( parseView( templateString ), parser )

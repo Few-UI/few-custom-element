@@ -13,15 +13,13 @@ class FewViewVarUnit extends FewViewUnit {
             let name = domNode.attributes[i].name;
             let value = domNode.attributes[i].value;
 
-            if ( name === 'few-popup' ) {
-                this.setInput( name, 'few-popup' );
-                domNode.removeAttribute( name );
-                continue;
-            }
-
-            // TODO: we can do it better later
             let expr = this._parser.parse( value );
-            if( expr ) {
+
+            // TODO: if it is directive
+            if( this.constructor.directives[name] ) {
+                this.setDirective( name, value );
+                domNode.removeAttribute( name );
+            } else if( expr ) {
                 // if name is event like onclick
                 // TODO: make it as expression later
                 if ( /^on.+/.test( name ) ) {
@@ -55,10 +53,6 @@ class FewViewVarUnit extends FewViewUnit {
     _update( domNode, vm ) {
         let inputScope = this.getInputScope();
         for( let key in inputScope ) {
-            if ( key === 'few-popup' ) {
-                continue;
-            }
-
             let res = evalExpression( inputScope[key], vm, true );
             let last = this.getValue( key );
             // TODO: should be string or primitive value. But still need error handling
@@ -72,28 +66,16 @@ class FewViewVarUnit extends FewViewUnit {
             child.render( vm );
         }
 
-        // TODO: temp hack
-        if( inputScope.hasOwnProperty( 'few-popup' ) ) {
-            let res = evalExpression( inputScope['few-popup'], vm, true );
-            let last = this.getValue( 'few-popup' );
-
-
-            if ( !this.hasValue( 'few-popup' ) || last !== res ) {
-                const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
-
-                const style = document.createElement( 'style' );
-
-                style.textContent = `
-                    * {
-                        color: red;
-                        text-decoration: underline;
-                    }
-                `;
-
-                shadow.appendChild( style );
-                this.setValue( 'few-popup', res );
+        let directives = this.getDirectives();
+        for( let key in directives ) {
+            let last = this.getValue( key );
+            let res = evalExpression( directives[key], vm, true );
+            if ( !this.hasValue( key ) || last !== res ) {
+                this.constructor.directives[key].process( this, res );
+                this.setValue( key, res );
             }
         }
+
         return domNode;
     }
 }
