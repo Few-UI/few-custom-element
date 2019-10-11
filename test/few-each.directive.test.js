@@ -43,7 +43,7 @@ describe( 'Test f-each in few-view', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachView( rootElem );
+        component.attachViewToPage( rootElem );
 
         expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-each(item of items)--><div>apple</div><div>banana</div>' );
     } );
@@ -67,7 +67,7 @@ describe( 'Test f-each in few-view', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachView( rootElem );
+        component.attachViewToPage( rootElem );
 
         expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-each(item of items)--><div>apple</div><div>banana</div> <div>sibling</div>' );
     } );

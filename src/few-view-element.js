@@ -48,7 +48,7 @@ export default class FewView extends HTMLElement {
                 // this.appendChild( viewElem );
 
                 await this._component.createView( componentDef.view );
-                this._component.attachView( this );
+                this._component.attachViewToPage( this );
             } catch ( e ) {
                 this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
             }

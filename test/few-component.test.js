@@ -105,7 +105,7 @@ describe( 'Test few-component', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachView( rootElem );
+        component.attachViewToPage( rootElem );
 
         expect( await component.update( 'action.testAction' ) ).toEqual( 7 );
 
@@ -146,7 +146,7 @@ describe( 'Test few-component', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachView( rootElem );
+        component.attachViewToPage( rootElem );
 
         expect( await component.update( 'testAction' ) ).toEqual( 6 );
 

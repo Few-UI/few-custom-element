@@ -21938,7 +21938,7 @@ define(['require'], function (require) { 'use strict';
        * attach current view to DOM in page
        * @param {Element} elem DOM Element in page
        */
-      attachView( elem ) {
+      attachViewToPage( elem ) {
           /**
            * - The raw temple is a HTML which all custom element functon is not executed.
            * - We need to attach the view to actual page so all the custom element render takes priority
@@ -22134,7 +22134,7 @@ define(['require'], function (require) { 'use strict';
                   // this.appendChild( viewElem );
 
                   await this._component.createView( componentDef.view );
-                  this._component.attachView( this );
+                  this._component.attachViewToPage( this );
               } catch ( e ) {
                   this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
               }
