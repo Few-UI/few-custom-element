@@ -22052,11 +22052,11 @@ define(['require'], function (require) { 'use strict';
           let originArg = this._vm.model[this._option.scopePath];
           this._setScope( scope );
 
-
-          let vals = actionDef.input ? Object.values( this._evalActionInput( actionDef.input ) ) : [];
+          let input = this._evalActionInput( actionDef.input );
+          let vals = actionDef.input ? Object.values( input ) : [];
 
           let func = lodash.get( dep, actionDef.name );
-          let res = await func.apply( dep, vals );
+          let res = actionDef.name ? await func.apply( dep, vals ) : input;
 
           // restore origin namespace
           if ( originArg ) {

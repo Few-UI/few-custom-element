@@ -3,7 +3,7 @@ view:
   template:
     <div>
       <h2>Directive</h2>
-      <sample-button red-line extend-tooltip="simpleText">${simpleText}</sample-button>
+      <sample-button  onclick="${updateSimpleText}" red-line extend-tooltip="simpleText">${simpleText}</sample-button>
       <div extend-tooltip="simpleText">Test Tooltip</div>
     </div>
 
@@ -15,5 +15,14 @@ view:
 # model
 model:
   simpleText: Directive Example!
+
+# update
+action:
+  updateSimpleText:
+    input:
+      message: '"Tooltip text updated!"'
+    output:
+      simpleText: 'message'
+
 
 
