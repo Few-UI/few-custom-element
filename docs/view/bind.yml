@@ -2,7 +2,7 @@
 view:
   template:
     <div>
-      <h2>Basic Binding</h2>
+      <h2>Binding</h2>
       <sample-button onclick="${updateSimpleText}">${simpleText}</sample-button>
       <code>${simpleText}</code>
       <h3>Isolate Scope</h3>

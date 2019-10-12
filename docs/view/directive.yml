@@ -2,7 +2,7 @@
 view:
   template:
     <div>
-      <h2>Custom Directive</h2>
+      <h2>Directive</h2>
       <sample-button red-line extend-tooltip="simpleText">${simpleText}</sample-button>
       <div extend-tooltip="simpleText">Test Tooltip</div>
     </div>

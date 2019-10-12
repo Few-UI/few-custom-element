@@ -2,9 +2,9 @@
 view:
   template:
     <div>
-      <h2>Child View</h2>
+      <h2>View in View</h2>
       <few-view id="dialog" src="view/tree-child" model="dialogContext"></few-view>
-      <h3>Update from Child View</h3>
+      <h3>Update from Form</h3>
       <div>${testMsg}</div>
     </div>
 

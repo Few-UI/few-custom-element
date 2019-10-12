@@ -1,7 +1,7 @@
 # view
 view:
   template:
-    <h2>Loop</h2>
+    <h2>Each</h2>
     <div>${ "loopCount:" + items.length }</div>
     <button onclick="${updateText}">Update Text</button>
     <ul>
