@@ -47,7 +47,7 @@ describe( 'Test few-view', () => {
 
         // There is no way to error out - the error is in Custom Element call back
         const elem  = await renderToSub( FewView.tag, { src: 'testView' } );
-        expect( elem.outerHTML ).toMatch( /^<few-view src="testView"><div><code style="color:red">testView.yml: YAMLException:.*/ );
+        expect( elem.outerHTML ).toMatch( /^<few-view src="testView"><div><code style="color:red">testView.yml: YAMLSemanticError:.*/ );
     } );
 
     it( 'Verify few-view still display when value is undefined', async() => {
