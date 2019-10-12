@@ -1,7 +1,7 @@
 // NOTE: Example code from google, will be deleted later
 /* eslint-env es6, jasmine */
 
-import yaml from 'js-yaml';
+import YAML from 'yaml';
 import FewComponent from '../src/few-component';
 
 describe( 'Test f-each in few-view', () => {
@@ -37,7 +37,7 @@ describe( 'Test f-each in few-view', () => {
             '    - type: banana'
         ];
 
-        let componentDef = yaml.load( componentContent.join( '\n' ) );
+        let componentDef = YAML.parse( componentContent.join( '\n' ) );
 
         let component = new FewComponent( null, componentDef );
 
@@ -61,7 +61,7 @@ describe( 'Test f-each in few-view', () => {
             '  testText: sibling'
         ];
 
-        let componentDef = yaml.load( componentContent.join( '\n' ) );
+        let componentDef = YAML.parse( componentContent.join( '\n' ) );
 
         let component = new FewComponent( null, componentDef );
 

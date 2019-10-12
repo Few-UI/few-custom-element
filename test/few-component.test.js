@@ -1,7 +1,7 @@
 // NOTE: Example code from google, will be deleted later
 /* eslint-env es6, jasmine */
 
-import yaml from 'js-yaml';
+import YAML from 'yaml';
 import FewComponent from '../src/few-component';
 import { wait } from './test-utils';
 
@@ -71,7 +71,7 @@ describe( 'Test few-component', () => {
             '    - action.testAction2'
         ];
 
-        let componentDef = yaml.load( componentContent.join( '\n' ) );
+        let componentDef = YAML.parse( componentContent.join( '\n' ) );
 
         let component = new FewComponent( null, componentDef );
 
@@ -99,7 +99,7 @@ describe( 'Test few-component', () => {
             '      testVal: ""'
         ];
 
-        let componentDef = yaml.load( componentContent.join( '\n' ) );
+        let componentDef = YAML.parse( componentContent.join( '\n' ) );
 
         let component = new FewComponent( null, componentDef );
 
@@ -140,7 +140,7 @@ describe( 'Test few-component', () => {
             '    - provider'
         ];
 
-        let componentDef = yaml.load( componentContent.join( '\n' ) );
+        let componentDef = YAML.parse( componentContent.join( '\n' ) );
 
         let component = new FewComponent( null, componentDef );
 
