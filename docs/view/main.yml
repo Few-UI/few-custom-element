@@ -12,43 +12,6 @@ view:
     - lib/red-line.directive
     - lib/extend-tooltip.directive
 
-# model
-model:
-  simpleText: Hello World!
-  testMsg: Hello World!
-  dialogContext:
-    valueFromParent: Text from parent!
-
-# update
-action:
-  updateSimpleText:
-    import: lib/sample-utils
-    name: testAccu
-    input:
-      message: '${simpleText}'
-    output:
-      simpleText: ''
-
-  updateParentModel:
-    import: lib/sample-utils
-    name: setValue
-    input:
-      message: '${scope}'
-    output:
-      testMsg: ''
-
-  updateDialogContext:
-    import: lib/sample-utils
-    name: log
-    input:
-      message: '${dialogContext.valueFromParent + "+" + scope}'
-    output:
-      dialogContext.valueFromParent: ''
-
-  dialog:
-    - updateParentModel
-    - updateDialogContext
-
 #option
 option:
 # scopePath: scope
