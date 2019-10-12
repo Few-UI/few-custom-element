@@ -39,7 +39,7 @@ describe( 'Test few-component', () => {
             '      testVal: ""'
         ];
 
-        let componentDef = yaml.load( componentContent.join( '\n' ) );
+        let componentDef = YAML.parse( componentContent.join( '\n' ) );
 
         let component = new FewComponent( null, componentDef );
 
