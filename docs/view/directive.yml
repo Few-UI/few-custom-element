@@ -1,0 +1,19 @@
+# view
+view:
+  template:
+    <div>
+      <h2>Custom Directive</h2>
+      <sample-button red-line extend-tooltip="simpleText">${simpleText}</sample-button>
+      <div extend-tooltip="simpleText">Test Tooltip</div>
+    </div>
+
+  import:
+    - lib/sample-button
+    - lib/red-line.directive
+    - lib/extend-tooltip.directive
+
+# model
+model:
+  simpleText: Directive Example!
+
+

@@ -9,9 +9,9 @@ import { terser } from 'rollup-plugin-terser';
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-    input: 'docs/main.js',
+    input: 'src/main.js',
     output: {
-        file: 'docs/bundle.js',
+        file: 'docs/few.js',
         format: 'amd',
         sourcemap: true
     },

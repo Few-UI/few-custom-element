@@ -1,5 +1,6 @@
 /* eslint-env es6 */
 import { evalExpression } from './few-utils';
+import { getDirective } from './few-view-directive';
 import viewUnitFactory, { FewViewUnit } from './few-view-unit';
 
 class FewViewVarUnit extends FewViewUnit {
@@ -16,7 +17,7 @@ class FewViewVarUnit extends FewViewUnit {
             let expr = this._parser.parse( value );
 
             // TODO: if it is directive
-            if( this.constructor.directives[name] ) {
+            if( getDirective( name ) ) {
                 this.setDirective( name, value );
             } else if( expr ) {
                 // if name is event like onclick
@@ -70,7 +71,7 @@ class FewViewVarUnit extends FewViewUnit {
             let last = this.getValue( key );
             let res = evalExpression( directives[key], vm, true );
             if ( !this.hasValue( key ) || last !== res ) {
-                this.constructor.directives[key].process( this, res );
+                getDirective( key ).update( this, res );
                 this.setValue( key, res );
             }
         }

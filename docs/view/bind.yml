@@ -1,0 +1,40 @@
+# view
+view:
+  template:
+    <div>
+      <h2>Basic Binding</h2>
+      <sample-button onclick="${updateSimpleText}">${simpleText}</sample-button>
+      <code>${simpleText}</code>
+      <h3>Isolate Scope</h3>
+      <sample-button f-ignore onclick="${action.updateSimpleText}">${simpleText}</sample-button>
+    </div>
+
+  import:
+    - lib/sample-button
+
+# model
+model:
+  simpleText: Hello World!
+  testMsg: Hello World!
+  dialogContext:
+    valueFromParent: Text from parent!
+
+# update
+action:
+  updateSimpleText:
+    import: lib/sample-utils
+    name: testAccu
+    input:
+      message: '${simpleText}'
+    output:
+      simpleText: ''
+
+#option
+option:
+# scopePath: scope
+  actionPaths:
+    - action
+  stringTemplate:
+    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+    index: 1
+

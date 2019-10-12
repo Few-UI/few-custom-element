@@ -9,7 +9,7 @@ view:
       <div>${valueFromParent}</div>
     </form>
   import:
-    - sample/sample-button
+    - lib/sample-button
 
 # model
 model:
@@ -19,7 +19,7 @@ model:
 # action
 action:
   setValue:
-    import: sample/sample-utils
+    import: lib/sample-utils
     name: setValue
     input:
       value:
@@ -27,7 +27,7 @@ action:
         user_name: '${few.getFormInput(scope.element).user_name}'
 
   updateInput:
-    import: sample/sample-utils
+    import: lib/sample-utils
     name: testProcAsync
     input:
       user_name: '${scope.user_name}'

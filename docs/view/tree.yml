@@ -1,0 +1,47 @@
+# view
+view:
+  template:
+    <div>
+      <h2>Child View</h2>
+      <few-view id="dialog" src="view/tree-child" model="dialogContext"></few-view>
+      <h3>Update from Child View</h3>
+      <div>${testMsg}</div>
+    </div>
+
+# model
+model:
+  testMsg: Hello World!
+  dialogContext:
+    valueFromParent: Text from parent!
+
+# update
+action:
+  updateParentModel:
+    import: lib/sample-utils
+    name: setValue
+    input:
+      message: '${scope}'
+    output:
+      testMsg: ''
+
+  updateDialogContext:
+    import: lib/sample-utils
+    name: log
+    input:
+      message: '${dialogContext.valueFromParent + "+" + scope}'
+    output:
+      dialogContext.valueFromParent: ''
+
+  dialog:
+    - updateParentModel
+    - updateDialogContext
+
+#option
+option:
+# scopePath: scope
+  actionPaths:
+    - action
+  stringTemplate:
+    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+    index: 1
+

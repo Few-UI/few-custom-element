@@ -1,5 +1,6 @@
 /* eslint-env es6 */
 
+import { defineDirective } from './few-view-directive';
 import { getComponent, getFormInput, getViewElement } from './few-utils';
 
 let exports;
@@ -67,7 +68,8 @@ export default exports = {
     requestUpdate,
     getFormInput,
     getViewElement,
-    importDocStyle
+    importDocStyle,
+    directive: defineDirective
 };
 
 // set it at global

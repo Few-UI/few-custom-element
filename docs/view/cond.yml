@@ -14,7 +14,7 @@ model:
 # update
 action:
   flipTestCond:
-    import: sample/sample-utils
+    import: lib/sample-utils
     name: setValue
     input:
       message: '${!testCond}'

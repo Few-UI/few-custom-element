@@ -137,7 +137,6 @@ export class FewViewUnit extends FewViewNode {
     }
      */
 }
-FewViewUnit.directives = {};
 
 /**
  * Singleton factory template
@@ -170,7 +169,6 @@ function _createUnit( node, parser, skipConstant ) {
 
 export default {
     addFactory: ( factory ) => _factories.push( factory ),
-    addDirective: ( directive ) => {  FewViewUnit.directives[directive.name] = directive; },
     createUnit: _createUnit
 };
 

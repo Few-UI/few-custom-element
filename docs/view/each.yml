@@ -22,7 +22,7 @@ model:
 # update
 action:
   updateText:
-    import: sample/sample-utils
+    import: lib/sample-utils
     name: testAccu
     input:
       message: '${simpleText}'
