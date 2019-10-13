@@ -142,9 +142,9 @@ export default class FewComponent {
          * - Then we render -> it will have some overhead
          * - Then the custom directive gets executed to make sure no crash with custom element logic
          */
+        setComponent( this._view.domNode, this );
         elem.appendChild( this._view.domNode );
         this._view.render( this._vm.model );
-        setComponent( this._view.domNode, this );
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////

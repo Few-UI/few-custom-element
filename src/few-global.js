@@ -1,6 +1,7 @@
 /* eslint-env es6 */
 
 import { defineDirective } from './few-view-directive';
+import { excludeElement } from './few-view-null-unit';
 import { getComponent, getFormInput, getViewElement } from './few-utils';
 
 let exports;
@@ -69,6 +70,7 @@ export default exports = {
     getFormInput,
     getViewElement,
     importDocStyle,
+    exclude: excludeElement,
     directive: defineDirective
 };
 
