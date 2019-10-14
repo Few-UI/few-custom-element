@@ -11,7 +11,6 @@ view:
         <option value="Done">Done</option>
         <option value="In Progress">In Progress</option>
       </select>
-      <!-- onKeyPress="if (event.which == 13) return false;" -->
       <button type="submit">Add</button>
     </form>
 
@@ -29,17 +28,6 @@ view:
         </tr>
       </tbody>
     </table>
-
-
-    <!--
-    <div>${ "loopCount:" + items.length }</div>
-    <button onclick="${updateText}">Update Text</button>
-    <ul>
-      <li f-each="item of items">
-        ${ item.message + ' => ' + simpleText }
-      </li>
-    </ul>
-    -->
 
 # model
 model:
