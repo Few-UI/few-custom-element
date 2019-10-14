@@ -2,9 +2,13 @@
 view:
   template:
     <few-view src="view/bind"></few-view>
+    <div class="splitter"></div>
     <few-view src="view/directive"></few-view>
+    <div class="splitter"></div>
     <few-view src="view/tree"></few-view>
+    <div class="splitter"></div>
     <few-view src="view/cond"></few-view>
+    <div class="splitter"></div>
     <few-view src="view/each"></few-view>
 
   import:
