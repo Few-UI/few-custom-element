@@ -1,7 +1,7 @@
 /* eslint-env es6 */
 
 define( [], () => {
-    class FewButton extends HTMLElement {
+    class SampleButton extends HTMLElement {
         static get tag() {
             return 'sample-button';
         }
@@ -37,5 +37,5 @@ define( [], () => {
         }
         */
     }
-    customElements.define( FewButton.tag, FewButton );
+    customElements.define( SampleButton.tag, SampleButton );
 } );

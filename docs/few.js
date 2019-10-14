@@ -7689,7 +7689,7 @@ define(['require'], function (require) { 'use strict';
 	    } );
 	}
 
-	exports$1 = {
+	var few = exports$1 = {
 	    handleEvent,
 	    requestUpdate,
 	    getFormInput,
@@ -25810,6 +25810,13 @@ define(['require'], function (require) { 'use strict';
 	    }
 	}
 	customElements.define( FewView.tag, FewView );
+
+	// main entrance for debug test site
+
+	// even though Rollup is bundling all your files together, errors and
+	// logs will still point to your original source modules
+
+	return few;
 
 });
 //# sourceMappingURL=few.js.map

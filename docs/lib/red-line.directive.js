@@ -2,10 +2,9 @@
 
 /*
 global
-few
 */
 
-define( [], () => {
+define( [ 'few' ], ( few ) => {
     let exports = {};
 
     /**
