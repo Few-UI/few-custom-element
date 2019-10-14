@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta charset="utf-8">
 
-    <title>Few Playground</title>
+    <title>Few Examples</title>
 
     <!-- AMD Loader -->
     <script data-main="few.js" src="require.min.js"></script>
 
+    <!-- css based on https://milligram.io -->
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.css">
@@ -19,11 +20,11 @@
     <!-- with wrapper page will be auto-center which I don't like for now-->
     <!-- <div class="wrapper"> -->
     <few-view src="view/navbar"></few-view>
-    <header class="header">
-        <section class="container">
-            <few-view src="view/main"></few-view>
-        </section>
-    </header>
+    <!-- padding for nav bar -->
+    <header class="header"></header>
+    <section class="container">
+        <few-view src="view/main"></few-view>
+    </section>
     <!-- </div> -->
 </body>
 </html>
