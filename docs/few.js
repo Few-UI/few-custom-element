@@ -7447,6 +7447,39 @@ define(['require'], function (require) { 'use strict';
 	}
 
 	/* eslint-env es6 */
+	let FewViewNullUnit = {
+	    KEY: 'f-ignore'
+	};
+
+	let _filterElements = {
+
+	};
+
+	/**
+	 * Register/define element which will be
+	 * @param {string} nodeName Element name all in upper case
+	 */
+	function excludeElement( nodeName ) {
+	    _filterElements[nodeName] = true;
+	}
+
+	/**
+	 * Check if element is excluded by few
+	 * @param {string} nodeName element name all in uppercase
+	 * @returns {boolean} if true few will ignore the element
+	 */
+	function isExcluded( nodeName ) {
+	    return _filterElements[nodeName];
+	}
+
+	var nullUnitFactory = {
+	    when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE &&
+	                ( isExcluded( domNode.nodeName ) ||
+	                  domNode.hasAttribute( FewViewNullUnit.KEY ) ),
+	    createUnit: () => null
+	};
+
+	/* eslint-env es6 */
 
 	/**
 	 * Parse view string as DOM without interpret it
@@ -7662,6 +7695,7 @@ define(['require'], function (require) { 'use strict';
 	    getFormInput,
 	    getViewElement,
 	    importDocStyle,
+	    exclude: excludeElement,
 	    directive: defineDirective
 	};
 
@@ -25361,16 +25395,6 @@ define(['require'], function (require) { 'use strict';
 	};
 
 	/* eslint-env es6 */
-	let FewViewNullUnit = {
-	    KEY: 'f-ignore'
-	};
-
-	var nullUnitFactory = {
-	    when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE && domNode.hasAttribute( FewViewNullUnit.KEY ),
-	    createUnit: () => null
-	};
-
-	/* eslint-env es6 */
 
 
 	// Unit
@@ -25589,9 +25613,9 @@ define(['require'], function (require) { 'use strict';
 	         * - Then we render -> it will have some overhead
 	         * - Then the custom directive gets executed to make sure no crash with custom element logic
 	         */
+	        setComponent( this._view.domNode, this );
 	        elem.appendChild( this._view.domNode );
 	        this._view.render( this._vm.model );
-	        setComponent( this._view.domNode, this );
 	    }
 
 	    /////////////////////////////////////////////////////////////////////////////////////////

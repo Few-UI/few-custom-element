@@ -1,0 +1,57 @@
+.navigation {
+    background: #f4f5f6;
+    border-bottom: .1rem solid #d1d1d1;
+    display: block;
+    height: 5.2rem;
+    left: 0;
+    max-width: 100%;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+.navigation .container {
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+.wrapper .container {
+    max-width: 80rem;
+}
+
+.octocat {
+    border: 0;
+    color: #f4f5f6;
+    fill: #24292e;
+    height: 5.2rem;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 5.2rem;
+    z-index: 1;
+}
+
+.octocat .octocat-arm, .octocat .octocat-body {
+    fill: #f4f5f6;
+}
+
+
+.button, button, input[type='button'], input[type='reset'], input[type='submit'] {
+    background-color: #24292e;
+    border: 0.1rem solid #24292e;
+}
+
+a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+a {
+    background-color: initial;
+}
+
+.header {
+    padding-top: 6rem;
+}
