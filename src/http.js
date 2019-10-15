@@ -6,7 +6,7 @@
  * @param {string} theUrl url as string
  * @returns {Promise} promise
  */
-function httpGet( theUrl ) {
+export function httpGet( theUrl ) {
     return new Promise( ( resolve, reject ) => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {

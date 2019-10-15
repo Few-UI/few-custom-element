@@ -6,7 +6,8 @@
 - **action** action for state change/model update
 
 # State = Model + Action
-```
+
+```code
                   +-----------+
        +--->      |           |      Action
  State            |   Model   +-------------------+

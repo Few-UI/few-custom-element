@@ -3,6 +3,7 @@
 import { defineDirective } from './few-view-directive';
 import { excludeElement } from './few-view-null-unit';
 import { getComponent, getFormInput, getViewElement } from './few-utils';
+import { httpGet } from './http';
 
 let exports;
 
@@ -70,6 +71,7 @@ export default exports = {
     getFormInput,
     getViewElement,
     importDocStyle,
+    httpGet,
     exclude: excludeElement,
     directive: defineDirective
 };
