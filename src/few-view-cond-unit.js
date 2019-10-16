@@ -38,7 +38,9 @@ class FewViewCondUnit extends FewViewUnit {
             let parentNode = domNode.parentNode;
             if( vIfRes ) {
                 newNode = this.getChildren()[0].render( vm );
-                parentNode.replaceChild( newNode, domNode );
+                if ( newNode !== domNode ) {
+                    parentNode.replaceChild( newNode, domNode );
+                }
             } else {
                 newNode = document.createComment( `f-cond ${vExpr} = ${vIfRes}` );
                 parentNode.replaceChild( newNode, domNode );

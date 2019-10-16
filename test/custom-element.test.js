@@ -72,7 +72,7 @@ class TestElem extends HTMLElement {
     }
 }
 
-describe( 'Test Custom Element Life Cycle', () => {
+xdescribe( 'Test Custom Element Life Cycle', () => {
     beforeAll( () =>{
         // registartion
         lifecycleHook = [];

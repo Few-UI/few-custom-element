@@ -36,7 +36,7 @@ class FewViewTextUnit extends FewViewUnit {
             // string. TODO: error handling
             if ( last === undefined || last !== res ) {
                 this.setValue( name, res );
-                domNode[name] = res;
+                domNode[name] = res ? res : '';
             }
         }
         return domNode;

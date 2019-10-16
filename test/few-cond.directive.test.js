@@ -98,6 +98,7 @@ describe( 'Test f-cond in few-view', () => {
 
         component.attachViewToPage( rootElem );
 
+        await wait( 200 );
         expect( rootElem.firstChild.innerHTML ).toEqual( '<div>5</div>' );
 
         // toggle

@@ -12,6 +12,7 @@ describe( 'Test few-view', () => {
     } );
 
     it( 'Verify few-view create node correct for DOM with expression', async() => {
+        // eslint-disable-next-line no-template-curly-in-string
         expect( htmlViewFactory.createView( '<code id="ouch"><div>${test1}</div></code><code id="${test2}"><div></div></code>', new StringTemplateParser() ).toJSON() ).toEqual( {
             type: 'DIV',
             children: [
