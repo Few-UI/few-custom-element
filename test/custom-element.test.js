@@ -1,8 +1,11 @@
 /* eslint-env es6, jasmine */
+// NOTE: this is for polyfill document-register-element which is completely different
+// with native browser
 
 import {
     parseViewToDiv
 } from '../src/few-utils';
+import { wait } from './test-utils';
 
 // lifecycle record
 let lifecycleHook = [];
@@ -72,7 +75,8 @@ class TestElem extends HTMLElement {
     }
 }
 
-xdescribe( 'Test Custom Element Life Cycle', () => {
+describe( 'Test Custom Element Life Cycle', () => {
+    let rootElem;
     beforeAll( () =>{
         // registartion
         lifecycleHook = [];
@@ -84,6 +88,12 @@ xdescribe( 'Test Custom Element Life Cycle', () => {
 
     beforeEach( () => {
         lifecycleHook = [];
+        rootElem = document.createElement( 'div' );
+        document.body.appendChild( rootElem );
+    } );
+
+    afterEach( () =>{
+        document.body.removeChild( rootElem );
     } );
 
     it( 'Verify Custom Element lifecycle for sibling', async() => {
@@ -94,27 +104,25 @@ xdescribe( 'Test Custom Element Life Cycle', () => {
                         <${TestElem.tag()} id="testView2" view="testView2" scope="testScope2">testText2</${TestElem.tag()}>`;
 
         let elem = parseViewToDiv( viewHtml );
+        rootElem.appendChild( elem );
         lifecycleHook.push( 'last if sync' );
 
+        await wait( 200 );
+
+        // NOTE: in this polyfill document-register-element + jsDOM:
+        // - if not connected, custom-element is not triggered
+        // - this.id cannot be used in constructor
         expect( elem.outerHTML ).toEqual( `<div>${viewHtml}</div>` );
         expect( lifecycleHook ).toEqual( [
-            'constructor() => testView',
-            'attributeChangedCallback( view, null, testView)',
+            'last if sync',
+            'constructor() => ',
             'attributeChangedCallback( scope, null, testScope)',
-            'constructor() => testView2',
-            'attributeChangedCallback( view, null, testView2)',
-            'attributeChangedCallback( scope, null, testScope2)',
-            'last if sync'
-        ] );
-
-        // Attach
-        lifecycleHook = [];
-        document.body.appendChild( elem );
-        lifecycleHook.push( 'last if sync' );
-        expect( lifecycleHook ).toEqual( [
+            'attributeChangedCallback( view, null, testView)',
             'connectedCallback() => testView',
-            'connectedCallback() => testView2',
-            'last if sync'
+            'constructor() => ',
+            'attributeChangedCallback( scope, null, testScope2)',
+            'attributeChangedCallback( view, null, testView2)',
+            'connectedCallback() => testView2'
         ] );
 
         // Move
@@ -123,26 +131,28 @@ xdescribe( 'Test Custom Element Life Cycle', () => {
         document.body.appendChild( newElem );
         newElem.appendChild( elem );
         lifecycleHook.push( 'last if sync' );
+        await wait( 200 );
         expect( lifecycleHook ).toEqual( [
+            'last if sync',
             'disconnectedCallback() => testView',
-            'connectedCallback() => testView',
             'disconnectedCallback() => testView2',
-            'connectedCallback() => testView2',
-            'last if sync'
+            'connectedCallback() => testView',
+            'connectedCallback() => testView2'
         ] );
 
         // Detach
         lifecycleHook = [];
         document.body.removeChild( newElem );
         lifecycleHook.push( 'last if sync' );
+        await wait( 200 );
         expect( lifecycleHook ).toEqual( [
+            'last if sync',
             'disconnectedCallback() => testView',
-            'disconnectedCallback() => testView2',
-            'last if sync'
+            'disconnectedCallback() => testView2'
         ] );
     } );
 
-    it( 'Verify Custom Element lifecycle for hierarchy', () => {
+    it( 'Verify Custom Element lifecycle for hierarchy', async() => {
         // Parse
         lifecycleHook = [];
         //// duplicate id and view for easy test
@@ -154,31 +164,28 @@ xdescribe( 'Test Custom Element Life Cycle', () => {
             `</${TestElem.tag()}>`;
 
         let elem = parseViewToDiv( viewHtml );
+        rootElem.appendChild( elem );
         expect( elem.outerHTML ).toEqual( `<div>${viewHtml}</div>` );
+
+        await wait( 200 );
 
         //// depth first
         expect( lifecycleHook ).toEqual( [
-            'constructor() => testView',
-            'attributeChangedCallback( view, null, testView)',
+            'constructor() => ',
             'attributeChangedCallback( scope, null, testScope)',
-            'constructor() => testView1',
-            'attributeChangedCallback( view, null, testView1)',
-            'attributeChangedCallback( scope, null, testScope1)',
-            'constructor() => testView11',
-            'attributeChangedCallback( view, null, testView11)',
-            'attributeChangedCallback( scope, null, testScope11)',
-            'constructor() => testView2',
-            'attributeChangedCallback( view, null, testView2)',
-            'attributeChangedCallback( scope, null, testScope2)'
-        ] );
-
-        // Attach
-        lifecycleHook = [];
-        document.body.appendChild( elem );
-        expect( lifecycleHook ).toEqual( [
+            'attributeChangedCallback( view, null, testView)',
             'connectedCallback() => testView',
+            'constructor() => ',
+            'attributeChangedCallback( scope, null, testScope1)',
+            'attributeChangedCallback( view, null, testView1)',
             'connectedCallback() => testView1',
+            'constructor() => ',
+            'attributeChangedCallback( scope, null, testScope11)',
+            'attributeChangedCallback( view, null, testView11)',
             'connectedCallback() => testView11',
+            'constructor() => ',
+            'attributeChangedCallback( scope, null, testScope2)',
+            'attributeChangedCallback( view, null, testView2)',
             'connectedCallback() => testView2'
         ] );
 
@@ -187,20 +194,22 @@ xdescribe( 'Test Custom Element Life Cycle', () => {
         let newElem = document.createElement( 'div' );
         document.body.appendChild( newElem );
         newElem.appendChild( elem );
+        await wait( 200 );
         expect( lifecycleHook ).toEqual( [
             'disconnectedCallback() => testView',
-            'connectedCallback() => testView',
             'disconnectedCallback() => testView1',
-            'connectedCallback() => testView1',
             'disconnectedCallback() => testView11',
-            'connectedCallback() => testView11',
             'disconnectedCallback() => testView2',
+            'connectedCallback() => testView',
+            'connectedCallback() => testView1',
+            'connectedCallback() => testView11',
             'connectedCallback() => testView2'
         ] );
 
         // Detach
         lifecycleHook = [];
         document.body.removeChild( newElem );
+        await wait( 200 );
         expect( lifecycleHook ).toEqual( [
             'disconnectedCallback() => testView',
             'disconnectedCallback() => testView1',
