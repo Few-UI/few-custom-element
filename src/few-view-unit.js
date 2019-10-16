@@ -75,7 +75,9 @@ export class FewViewUnit extends FewViewNode {
      */
     render( vm ) {
         let newNode = this._update( this.domNode, vm );
-        this.domNode = newNode;
+        if ( newNode !== this.domNode ) {
+            this.domNode = newNode;
+        }
         return newNode;
     }
 
