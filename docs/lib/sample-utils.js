@@ -40,14 +40,6 @@ define( [], () => {
         } );
     };
 
-    exports.switchElement = function( elem ) {
-        if( elem.style && elem.style.display === 'none' ) {
-            elem.style.display = null;
-        } else {
-            elem.style.display = 'none';
-        }
-    };
-
     return exports;
 } );
 
