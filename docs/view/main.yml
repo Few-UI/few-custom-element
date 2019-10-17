@@ -6,7 +6,7 @@ view:
 # model
 model:
   data:
-    primary: view/example
+    primary: view/toc
     secondary: view/example
 
 

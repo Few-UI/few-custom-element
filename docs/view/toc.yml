@@ -1,0 +1,22 @@
+# view
+view:
+  template:
+    <ul>
+      <li>
+        <a onclick="${transientTo}">doc</a>
+      </li>
+      <li>
+        <a onclick="${transientTo}">example</a>
+      </li>
+    </ul>
+
+# action
+action:
+  transientTo:
+    name: few.requestUpdate
+    input:
+      element: '${scope.element}'
+      data: '${scope.element.textContent}'
+
+
+

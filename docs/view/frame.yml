@@ -25,6 +25,13 @@ action:
     output:
       showPrimary: 'val'
 
+  # TODO: this should go to main, frame should be transparent
+  toc:
+    input:
+      view: '${ "view/" + scope }'
+    output:
+      secondary: 'view'
+
 #option
 option:
 # scopePath: scope

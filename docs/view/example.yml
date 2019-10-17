@@ -10,16 +10,11 @@ view:
     <few-view src="view/cond"></few-view>
     <div class="splitter"></div>
     <few-view src="view/each"></few-view>
-    <!--
-    <div class="splitter"></div>
-    <md-view src="docs/component.md"></md-view>
-    -->
 
   import:
     - lib/sample-button
     - lib/red-line.directive
     - lib/extend-tooltip.directive
-    - lib/md-view
 
 #option
 option:
