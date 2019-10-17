@@ -7712,7 +7712,10 @@ define(['require'], function (require) { 'use strict';
 	    let component = getComponent( viewElem );
 	    // View update is not needed in requestUpdate case since it will flow up
 	    // in sub action
-	    return component.update( viewElem.id, data, false );
+	    if ( component.hasAction( viewElem.id ) ) {
+	        return component.update( viewElem.id, data, false );
+	    }
+	    return requestUpdate( getViewElement( viewElem ), data );
 	}
 
 	/**
@@ -25738,6 +25741,15 @@ define(['require'], function (require) { 'use strict';
 	        // scope as next input
 	        // return Object.assign( scope, res );
 	        return res !== undefined ? res : scope;
+	    }
+
+	    /**
+	     * check if action exist on current component
+	     * @param {string} methodName action name
+	     * @returns {boolean} true if action exist in current definition
+	     */
+	    hasAction( methodName ) {
+	        return this._getActionDefinition( methodName );
 	    }
 
 

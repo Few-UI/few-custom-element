@@ -49,7 +49,10 @@ export function requestUpdate( elem, data ) {
     let component = getComponent( viewElem );
     // View update is not needed in requestUpdate case since it will flow up
     // in sub action
-    return component.update( viewElem.id, data, false );
+    if ( component.hasAction( viewElem.id ) ) {
+        return component.update( viewElem.id, data, false );
+    }
+    return requestUpdate( getViewElement( viewElem ), data );
 }
 
 /**

@@ -9,6 +9,13 @@ model:
     primary: view/toc
     secondary: view/example
 
+# action
+action:
+  toc:
+    input:
+      view: '${ "view/" + scope }'
+    output:
+      data.secondary: 'view'
 
 # option
 option:

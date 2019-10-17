@@ -224,6 +224,15 @@ export default class FewComponent {
         return res !== undefined ? res : scope;
     }
 
+    /**
+     * check if action exist on current component
+     * @param {string} methodName action name
+     * @returns {boolean} true if action exist in current definition
+     */
+    hasAction( methodName ) {
+        return this._getActionDefinition( methodName );
+    }
+
 
     /**
      * evaluate method in view model
