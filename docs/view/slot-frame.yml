@@ -1,0 +1,15 @@
+# view
+view:
+  template:
+    <h3>Slot Frame</h3>
+    <ul>
+      <li>
+        <slot name="slot1">Default Slot 1</slot>
+      </li>
+      <li>
+        I am from frame but not slot
+      </li>
+      <li>
+        <slot name="slot2">Default Slot 2</slot>
+      </li>
+    </ul>

@@ -10,6 +10,8 @@ view:
     <few-view src="view/cond"></few-view>
     <div class="splitter"></div>
     <few-view src="view/each"></few-view>
+    <div class="splitter"></div>
+    <few-view src="view/slot"></few-view>
 
   import:
     - lib/sample-button

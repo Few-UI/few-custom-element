@@ -21,6 +21,23 @@ export default class FewView extends HTMLElement {
          * view model
          */
         this._component = null;
+
+        // SLOT: get all children and save at slot as template
+        // TODO: we can do it outside and passin unit which will be better
+        let size = this.childNodes.length;
+        if ( size > 0 ) {
+            this._slot = {
+                domFragement: document.createDocumentFragment(),
+                nameSlotMap: {}
+            };
+            for( let i = 0; i < size; i++ ) {
+                let domNode = this.firstChild;
+                if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
+                    this._slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
+                }
+                this._slot.domFragement.appendChild( domNode );
+            }
+        }
     }
 
     async attributeChangedCallback( name, oldValue, newValue ) {
@@ -59,6 +76,33 @@ export default class FewView extends HTMLElement {
                 }
 
                 this._component.attachViewToPage( this );
+
+                // SLOT: apply slot to current DOM
+                // TODO: we can do it before atttachViewPage to save performance later
+                let slotElements = this.getElementsByTagName( 'SLOT' );
+                let size = slotElements.length;
+                if ( size > 0 ) {
+                    let unNamedSlot = null;
+                    for( let i = 0; i < size; i++ ) {
+                        let slotElem = slotElements[0];  // <-- HTMLCollection is a dynamic list
+                        let slotName = slotElem.getAttribute( 'name' );
+                        if ( slotName && this._slot.nameSlotMap[slotName] ) {
+                            slotElem.parentElement.replaceChild( this._slot.nameSlotMap[slotName], slotElem );
+                        } else if( !unNamedSlot ) {
+                            // match thi 1st unnamed slot
+                            unNamedSlot = slotElem;
+                        }
+                    }
+
+                    // if we have unname slot, put all the rest into unname slot
+                    if ( unNamedSlot ) {
+                        unNamedSlot.parentElement.replaceChild( this._slot.domFragement, unNamedSlot );
+                    }
+                }
+
+                // One time apply, no dynamic featue
+                delete this._slot;
+
                 delete this._pendingView;
             } catch ( e ) {
                 if ( this._pendingView !== newValue ) {

@@ -149,6 +149,14 @@ export default class FewComponent {
         this._view.render( this._vm.model );
     }
 
+    /**
+     * get root dom node for current component
+     * @returns {Node} dom node
+     */
+    getDomNode() {
+        return this._view.domNode;
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////
 
     /**

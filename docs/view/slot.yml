@@ -1,0 +1,26 @@
+# view
+view:
+  template:
+    <h2>Slot</h2>
+    <button onclick="${updateSlotText}">Update</button>
+    <few-view src="view/slot-frame">
+        <code slot="slot1">${slotText1}</code>
+        <code slot="slot2">${slotText2}</code>
+    </few-view>
+
+# model
+model:
+  slotText1: slotText1
+  slotText2: slotText2
+
+# update
+action:
+  updateSlotText:
+    input:
+      slot1: '${slotText1 + " updated!"}'
+      slot2: '${slotText2 + " updated!"}'
+    output:
+      slotText1: 'slot1'
+      slotText2: 'slot2'
+
+
