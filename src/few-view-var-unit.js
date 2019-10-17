@@ -26,6 +26,7 @@ class FewViewVarUnit extends FewViewUnit {
                     domNode.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
                 } else {
                     this.setInput( name, expr );
+                    domNode.setAttribute( name, '' );
                 }
             } else {
                 this.setValue( name, value );

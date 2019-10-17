@@ -1,27 +1,16 @@
 # view
 view:
   template:
-    <few-view src="view/bind"></few-view>
-    <div class="splitter"></div>
-    <few-view src="view/directive"></few-view>
-    <div class="splitter"></div>
-    <few-view src="view/tree"></few-view>
-    <div class="splitter"></div>
-    <few-view src="view/cond"></few-view>
-    <div class="splitter"></div>
-    <few-view src="view/each"></few-view>
-    <!--
-    <div class="splitter"></div>
-    <md-view src="docs/component.md"></md-view>
-    -->
+    <few-view src="view/frame" model="data"></few-view>
 
-  import:
-    - lib/sample-button
-    - lib/red-line.directive
-    - lib/extend-tooltip.directive
-    - lib/md-view
+# model
+model:
+  data:
+    primary: view/example
+    secondary: view/example
 
-#option
+
+# option
 option:
 # scopePath: scope
   actionPaths:

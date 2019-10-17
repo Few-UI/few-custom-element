@@ -26,7 +26,8 @@ export default class FewView extends HTMLElement {
     async attributeChangedCallback( name, oldValue, newValue ) {
         // console.log( `${name}: ${oldValue} => ${newValue}` );
 
-        if ( name === 'src' && oldValue !== newValue ) {
+        if ( name === 'src' && newValue && oldValue !== newValue ) {
+            this._pendingView = newValue;
             try {
                 // clean up
                 this.innerHTML = '';
@@ -41,6 +42,10 @@ export default class FewView extends HTMLElement {
                 // load component definition
                 let componentDef = YAML.parse( await http.get( `${newValue}.yml` ) );
 
+                if ( this._pendingView !== newValue ) {
+                    return;
+                }
+
                 this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
 
                 // View has too be initialized separately since it is async
@@ -48,8 +53,17 @@ export default class FewView extends HTMLElement {
                 // this.appendChild( viewElem );
 
                 await this._component.createView( componentDef.view );
+
+                if ( this._pendingView !== newValue ) {
+                    return;
+                }
+
                 this._component.attachViewToPage( this );
+                delete this._pendingView;
             } catch ( e ) {
+                if ( this._pendingView !== newValue ) {
+                    return;
+                }
                 this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
             }
         }

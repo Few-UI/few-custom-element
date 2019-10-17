@@ -3850,10 +3850,9 @@ define(['require'], function (require) { 'use strict';
 
 
 	  addToJSMap(ctx, map) {
-	    for (const _ref of this.value.items) {
-	      const {
-	        source
-	      } = _ref;
+	    for (const {
+	      source
+	    } of this.value.items) {
 	      if (!(source instanceof _Map$1.default)) throw new Error('Merge sources must be maps');
 	      const srcMap = source.toJSON(null, ctx, Map);
 
@@ -4317,7 +4316,9 @@ define(['require'], function (require) { 'use strict';
 
 
 
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+	function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 	function stringifyNumber({
 	  format,
@@ -4738,12 +4739,11 @@ define(['require'], function (require) { 'use strict';
 	}
 
 	function resolveComments(collection, comments) {
-	  for (const _ref of comments) {
-	    const {
-	      afterKey,
-	      before,
-	      comment
-	    } = _ref;
+	  for (const {
+	    afterKey,
+	    before,
+	    comment
+	  } of comments) {
 	    let item = collection.items[before];
 
 	    if (!item) {
@@ -4793,7 +4793,9 @@ define(['require'], function (require) { 'use strict';
 
 	var _Collection = _interopRequireDefault(Collection_1$1);
 
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+	function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5866,11 +5868,9 @@ define(['require'], function (require) { 'use strict';
 	  const pairs$1 = (0, pairs.parsePairs)(doc, cst);
 	  const seenKeys = [];
 
-	  for (const _ref of pairs$1.items) {
-	    const {
-	      key
-	    } = _ref;
-
+	  for (const {
+	    key
+	  } of pairs$1.items) {
 	    if (key instanceof _Scalar.default) {
 	      if (seenKeys.includes(key.value)) {
 	        const msg = 'Ordered maps must not include duplicate keys';
@@ -5924,7 +5924,9 @@ define(['require'], function (require) { 'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+	function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -6375,6 +6377,7 @@ define(['require'], function (require) { 'use strict';
 	  }
 
 	  createNode(value, wrapScalars, tag, ctx) {
+	    if (value instanceof _Node.default) return value;
 	    let tagObj;
 
 	    if (tag) {
@@ -6632,7 +6635,9 @@ define(['require'], function (require) { 'use strict';
 
 	var _toJSON = _interopRequireDefault(toJSON_1);
 
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+	function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7020,12 +7025,10 @@ define(['require'], function (require) { 'use strict';
 	    };
 	    const props = isCollectionItem(node.context.parent) ? node.context.parent.props.concat(node.props) : node.props;
 
-	    for (const _ref of props) {
-	      const {
-	        start,
-	        end
-	      } = _ref;
-
+	    for (const {
+	      start,
+	      end
+	    } of props) {
 	      switch (node.context.src[start]) {
 	        case constants.Char.COMMENT:
 	          {
@@ -25026,7 +25029,9 @@ define(['require'], function (require) { 'use strict';
 	     */
 	    render( vm ) {
 	        let newNode = this._update( this.domNode, vm );
-	        this.domNode = newNode;
+	        if ( newNode !== this.domNode ) {
+	            this.domNode = newNode;
+	        }
 	        return newNode;
 	    }
 
@@ -25146,6 +25151,7 @@ define(['require'], function (require) { 'use strict';
 	                    domNode.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
 	                } else {
 	                    this.setInput( name, expr );
+	                    domNode.setAttribute( name, '' );
 	                }
 	            } else {
 	                this.setValue( name, value );
@@ -25241,7 +25247,7 @@ define(['require'], function (require) { 'use strict';
 	            // string. TODO: error handling
 	            if ( last === undefined || last !== res ) {
 	                this.setValue( name, res );
-	                domNode[name] = res;
+	                domNode[name] = res ? res : '';
 	            }
 	        }
 	        return domNode;
@@ -25291,7 +25297,9 @@ define(['require'], function (require) { 'use strict';
 	            let parentNode = domNode.parentNode;
 	            if( vIfRes ) {
 	                newNode = this.getChildren()[0].render( vm );
-	                parentNode.replaceChild( newNode, domNode );
+	                if ( newNode !== domNode ) {
+	                    parentNode.replaceChild( newNode, domNode );
+	                }
 	            } else {
 	                newNode = document.createComment( `f-cond ${vExpr} = ${vIfRes}` );
 	                parentNode.replaceChild( newNode, domNode );
@@ -25781,7 +25789,8 @@ define(['require'], function (require) { 'use strict';
 	    async attributeChangedCallback( name, oldValue, newValue ) {
 	        // console.log( `${name}: ${oldValue} => ${newValue}` );
 
-	        if ( name === 'src' && oldValue !== newValue ) {
+	        if ( name === 'src' && newValue && oldValue !== newValue ) {
+	            this._pendingView = newValue;
 	            try {
 	                // clean up
 	                this.innerHTML = '';
@@ -25796,6 +25805,10 @@ define(['require'], function (require) { 'use strict';
 	                // load component definition
 	                let componentDef = yaml.parse( await http.get( `${newValue}.yml` ) );
 
+	                if ( this._pendingView !== newValue ) {
+	                    return;
+	                }
+
 	                this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
 
 	                // View has too be initialized separately since it is async
@@ -25803,8 +25816,17 @@ define(['require'], function (require) { 'use strict';
 	                // this.appendChild( viewElem );
 
 	                await this._component.createView( componentDef.view );
+
+	                if ( this._pendingView !== newValue ) {
+	                    return;
+	                }
+
 	                this._component.attachViewToPage( this );
+	                delete this._pendingView;
 	            } catch ( e ) {
+	                if ( this._pendingView !== newValue ) {
+	                    return;
+	                }
 	                this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
 	            }
 	        }

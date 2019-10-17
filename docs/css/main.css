@@ -52,8 +52,24 @@ a {
     background-color: initial;
 }
 
-.splitter {
+.block-break {
     margin-top: 4rem;
     padding-top: 2rem;
     border-top: 1px #eeeeee solid;
+}
+
+
+.vertical-splitter {
+    -webkit-flex: 0 0 8px;
+    flex: 0 0 8px;
+    position: relative;
+    touch-action: none;
+    background-color: transparent;
+    margin-left: 8px;
+    border-left: 1px #eeeeee solid;
+}
+
+.vertical-splitter:hover {
+    border-left: 2px #9b4dca solid;
+    cursor: pointer;
 }
