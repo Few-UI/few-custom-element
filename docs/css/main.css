@@ -73,3 +73,12 @@ a {
     border-left: 2px #9b4dca solid;
     cursor: pointer;
 }
+
+::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #aaaaaa;
+}

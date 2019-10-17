@@ -25596,6 +25596,8 @@ define(['require'], function (require) { 'use strict';
 	            let parentScope = evalExpression( scopeExpr, this._parent._vm.model );
 	            Object.assign( parentScope, this._vm.model );
 	            this._vm.model = parentScope;
+	        } else if ( !this._vm.model ) {
+	            this._vm.model = {};
 	        }
 
 	        /**

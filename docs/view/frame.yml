@@ -4,7 +4,7 @@ view:
     <div class="container">
       <div class="row">
         <div class="column column-20" f-cond="showPrimary">
-          <few-view src="${primary}"></few-view>
+          <few-view id="toc" src="${primary}"></few-view>
         </div>
         <div class="vertical-splitter" onclick="${switchPrimary}"></div>
         <div class="column column-80">
