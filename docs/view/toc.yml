@@ -2,13 +2,16 @@
 view:
   template:
     <ul>
-      <li>
-        <a onclick="${transientTo}">doc</a>
-      </li>
-      <li>
-        <a onclick="${transientTo}">example</a>
+      <li f-each="example of examples">
+        <a herf="#" onclick="${transientTo}">${example}</a>
       </li>
     </ul>
+
+# model
+model:
+  examples:
+    - doc
+    - example
 
 # action
 action:
