@@ -7705,17 +7705,18 @@ define(['require'], function (require) { 'use strict';
 	 * Request update to parent view model
 	 * @param {Element} elem DOM Element  as context
 	 * @param {object}  data data as request input
+	 * @param {string}  method action name
 	 * @returns {Promise} evaluation as promise
 	 */
-	function requestUpdate( elem, data ) {
+	function requestUpdate( elem, data, method ) {
 	    let viewElem = getViewElement( elem );
 	    let component = getComponent( viewElem );
-	    // View update is not needed in requestUpdate case since it will flow up
-	    // in sub action
-	    if ( component.hasAction( viewElem.id ) ) {
-	        return component.update( viewElem.id, data, false );
+	    let actionName = method || viewElem.id;
+	    if ( component.hasAction( actionName ) ) {
+	        // TODO: need to tune performance to reduce over update
+	        return component.update( actionName, data );
 	    }
-	    return requestUpdate( getViewElement( viewElem ), data );
+	    return requestUpdate( viewElem, data, actionName );
 	}
 
 	/**
@@ -25860,11 +25861,10 @@ define(['require'], function (require) { 'use strict';
 	                    return;
 	                }
 
-	                this._component.attachViewToPage( this );
 
 	                // SLOT: apply slot to current DOM
 	                // TODO: we can do it before atttachViewPage to save performance later
-	                let slotElements = this.getElementsByTagName( 'SLOT' );
+	                let slotElements = this._component.getDomNode().getElementsByTagName( 'SLOT' );
 	                let size = slotElements.length;
 	                if ( size > 0 ) {
 	                    let unNamedSlot = null;
@@ -25887,6 +25887,9 @@ define(['require'], function (require) { 'use strict';
 
 	                // One time apply, no dynamic featue
 	                delete this._slot;
+
+
+	                this._component.attachViewToPage( this );
 
 	                delete this._pendingView;
 	            } catch ( e ) {

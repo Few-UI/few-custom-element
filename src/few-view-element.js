@@ -75,11 +75,10 @@ export default class FewView extends HTMLElement {
                     return;
                 }
 
-                this._component.attachViewToPage( this );
 
                 // SLOT: apply slot to current DOM
                 // TODO: we can do it before atttachViewPage to save performance later
-                let slotElements = this.getElementsByTagName( 'SLOT' );
+                let slotElements = this._component.getDomNode().getElementsByTagName( 'SLOT' );
                 let size = slotElements.length;
                 if ( size > 0 ) {
                     let unNamedSlot = null;
@@ -102,6 +101,9 @@ export default class FewView extends HTMLElement {
 
                 // One time apply, no dynamic featue
                 delete this._slot;
+
+
+                this._component.attachViewToPage( this );
 
                 delete this._pendingView;
             } catch ( e ) {

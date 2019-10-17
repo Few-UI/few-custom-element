@@ -42,17 +42,18 @@ export function handleEvent( elem, methodName, e ) {
  * Request update to parent view model
  * @param {Element} elem DOM Element  as context
  * @param {object}  data data as request input
+ * @param {string}  method action name
  * @returns {Promise} evaluation as promise
  */
-export function requestUpdate( elem, data ) {
+export function requestUpdate( elem, data, method ) {
     let viewElem = getViewElement( elem );
     let component = getComponent( viewElem );
-    // View update is not needed in requestUpdate case since it will flow up
-    // in sub action
-    if ( component.hasAction( viewElem.id ) ) {
-        return component.update( viewElem.id, data, false );
+    let actionName = method || viewElem.id;
+    if ( component.hasAction( actionName ) ) {
+        // TODO: need to tune performance to reduce over update
+        return component.update( actionName, data );
     }
-    return requestUpdate( getViewElement( viewElem ), data );
+    return requestUpdate( viewElem, data, actionName );
 }
 
 /**

@@ -1,13 +1,15 @@
 # view
 view:
   template:
-    <few-view src="view/frame" model="data"></few-view>
+    <few-view src="view/frame">
+        <few-view slot="primary" id="toc" src="${primary}"></few-view>
+        <few-view slot="secondary" src="${secondary}"></few-view>
+    </few-view>
 
 # model
 model:
-  data:
-    primary: view/toc
-    secondary: view/example
+  primary: view/toc
+  secondary: view/example
 
 # action
 action:
@@ -15,7 +17,7 @@ action:
     input:
       view: '${ "view/" + scope }'
     output:
-      data.secondary: 'view'
+      secondary: 'view'
 
 # option
 option:

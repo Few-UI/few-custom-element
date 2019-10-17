@@ -4,11 +4,11 @@ view:
     <div class="container">
       <div class="row">
         <div class="column column-20" f-cond="showPrimary">
-          <few-view id="toc" src="${primary}"></few-view>
+          <slot name="primary"></slot>
         </div>
         <div class="vertical-splitter" onclick="${switchPrimary}"></div>
         <div class="column column-80">
-          <few-view src="${secondary}"></few-view>
+          <slot name="secondary"></slot>
         </div>
       </div>
     </div>
@@ -24,13 +24,6 @@ action:
       val: '${!showPrimary}'
     output:
       showPrimary: 'val'
-
-  # TODO: this should go to main, frame should be transparent
-  toc:
-    input:
-      view: '${ "view/" + scope }'
-    output:
-      secondary: 'view'
 
 #option
 option:
