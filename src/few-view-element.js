@@ -107,10 +107,10 @@ export default class FewView extends HTMLElement {
 
                 delete this._pendingView;
             } catch ( e ) {
-                if ( this._pendingView !== newValue ) {
-                    return;
+                if ( this._pendingView === newValue ) {
+                    this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
                 }
-                this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
+                throw e;
             }
         }
     }
