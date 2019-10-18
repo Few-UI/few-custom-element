@@ -5,7 +5,18 @@ import http from '../src/http';
 import FewView from '../src/few-view-element';
 import { renderToSub, wait } from './test-utils';
 
-xdescribe( 'Test few-view', () => {
+describe( 'Test few-view', () => {
+    beforeEach( () => {
+       let mySpy = spyOn( FewView.prototype, 'attributeChangedCallback' ).and.callFake( async function( name, oldValue, newValue ) {
+            try {
+                // eslint-disable-next-line no-invalid-this
+                return await mySpy.and.callThrough().apply( this, [ name, oldValue, newValue ] );
+            } catch( e ) {
+                // console.log( e );
+            }
+        } );
+    } );
+
     it( 'Verify few-view will display error when testView cannot be loaded', async() => {
         // let actualType = null;
         // let actualUrl = null;
@@ -14,6 +25,7 @@ xdescribe( 'Test few-view', () => {
         spyOn( window, 'XMLHttpRequest' ).and.callFake( () => {
             return mockXHR;
         } );
+
 
         mockXHR = {
             open: ( /*type, url*/ ) => {
@@ -27,19 +39,12 @@ xdescribe( 'Test few-view', () => {
         };
 
         // There is no way to error out - the error is in Custom Element call back
-        let elem = null;
-        let promise = null;
-        try{
-            promise = renderToSub( FewView.tag, { src: 'testView' } );
-            // NOTE: this is not needed before when use native browser
-            await wait( 200 );
-            mockXHR.onloadend();
-            await wait( 200 );
-            elem = await promise.catch( ()=>{} );
-        } catch( e ) {
-            // do nothing
-        }
-
+        let promise = renderToSub( FewView.tag, { src: 'testView' } );
+        // NOTE: this is not needed before when use native browser
+        await wait( 200 );
+        mockXHR.onloadend();
+        await wait( 200 );
+        let elem = await promise;
 
         expect( elem.outerHTML ).toEqual( '<few-view src="testView"><div><code style="color:red">testView.yml: httpGet(testView.yml) =&gt; 404: Not Found</code></div></few-view>' );
     } );
