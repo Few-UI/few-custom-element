@@ -2,14 +2,19 @@
 view:
   template:
     <few-view src="view/frame">
-        <few-view slot="primary" id="toc" src="${primary}"></few-view>
+        <few-view slot="primary" id="toc" src="view/toc" model="primary"></few-view>
         <few-view slot="secondary" src="${secondary}"></few-view>
     </few-view>
 
 # model
 model:
-  primary: view/toc
+  primary:
+    items:
+      - doc
+      - example
+
   secondary: view/example
+
 
 # action
 action:

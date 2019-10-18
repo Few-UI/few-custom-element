@@ -7492,7 +7492,9 @@ define(['require'], function (require) { 'use strict';
 	 */
 	function parseView( str ) {
 	    let parser = new DOMParser();
-	    return parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild;
+	    let fragement = document.createDocumentFragment();
+	    fragement.appendChild( parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild );
+	    return fragement.firstChild;
 	}
 
 
