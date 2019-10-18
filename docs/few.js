@@ -25809,23 +25809,6 @@ define(['require'], function (require) { 'use strict';
 	         * view model
 	         */
 	        this._component = null;
-
-	        // SLOT: get all children and save at slot as template
-	        // TODO: we can do it outside and passin unit which will be better
-	        let size = this.childNodes.length;
-	        if ( size > 0 ) {
-	            this._slot = {
-	                domFragement: document.createDocumentFragment(),
-	                nameSlotMap: {}
-	            };
-	            for( let i = 0; i < size; i++ ) {
-	                let domNode = this.firstChild;
-	                if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
-	                    this._slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
-	                }
-	                this._slot.domFragement.appendChild( domNode );
-	            }
-	        }
 	    }
 
 	    async attributeChangedCallback( name, oldValue, newValue ) {
@@ -25834,8 +25817,7 @@ define(['require'], function (require) { 'use strict';
 	        if ( name === 'src' && newValue && oldValue !== newValue ) {
 	            this._pendingView = newValue;
 	            try {
-	                // clean up
-	                this.innerHTML = '';
+	                let parentComponent = getComponent( this );
 
 	                // TODO: clean up model except attribute defined by parent
 	                // also need to destroy its ref in parent
@@ -25851,7 +25833,7 @@ define(['require'], function (require) { 'use strict';
 	                    return;
 	                }
 
-	                this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
+	                this._component = new FewComponent( parentComponent, componentDef, modelPath );
 
 	                // View has too be initialized separately since it is async
 	                // let viewElem = await this._component.createView( componentDef.view );
@@ -25863,11 +25845,31 @@ define(['require'], function (require) { 'use strict';
 	                    return;
 	                }
 
+	                // SLOT: get all children and save at slot as template
+	                // TODO: we can do it outside and passin unit which will be better
+	                let size = this.childNodes.length;
+	                if ( size > 0 ) {
+	                    this._slot = {
+	                        domFragement: document.createDocumentFragment(),
+	                        nameSlotMap: {}
+	                    };
+	                    for( let i = 0; i < size; i++ ) {
+	                        let domNode = this.firstChild;
+	                        if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
+	                            this._slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
+	                        }
+	                        this._slot.domFragement.appendChild( domNode );
+	                    }
+	                }
+
+	                // clean up
+	                // TODO: this is conflict with slot processing, need to diff them with condition
+	                this.innerHTML = '';
 
 	                // SLOT: apply slot to current DOM
 	                // TODO: we can do it before atttachViewPage to save performance later
 	                let slotElements = this._component.getDomNode().getElementsByTagName( 'SLOT' );
-	                let size = slotElements.length;
+	                size = slotElements.length;
 	                if ( size > 0 ) {
 	                    let unNamedSlot = null;
 	                    for( let i = 0; i < size; i++ ) {

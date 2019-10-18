@@ -72,9 +72,9 @@ The loading flow will be:
       - not supporting variation at 'model' attribute for now
     - Otherwise wait for connect call back
   - connectedCallback
-    - setup the context correctly. For synchronized follow up
     - React on 'src' and render the view. ( async )
-    - backup slots after 1st async call so that slot subview gets time to init whatever it is
+    - setup the context here. <-- if we set it up before, it will impact slot element intialization
+    - **backup slots after 1st async call so that slot subview gets time to init whatever it is**
       - it should not impact parsing performance since anything in slot is managed/parsed by mainView already
 
 - processing subView
