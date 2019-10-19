@@ -13,7 +13,6 @@ export function parseView( str ) {
     return fragement.firstChild;
 }
 
-
 /**
  * Parse view string as DOM with interpretion
  * @param {string} str HTML String snippet as input
@@ -142,10 +141,12 @@ export function getComponent( element ) {
  * @returns {Element} Closest parent element which has view model context
  */
 export function getViewElement( element ) {
+    /*
     let scopeElem = getScopeElement( element );
     if ( scopeElem ) {
         return scopeElem.parentElement;
-    }
+    }*/
+    return getScopeElement( element );
 }
 
 /**

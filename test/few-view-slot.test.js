@@ -60,15 +60,13 @@ describe( 'Test slot feature in few-view element', () => {
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView">',
-              '<div class="few-scope">',
-                '<ul>',
-                  '<li><div slot="slot1">slot1</div></li>',
-                  '<li>5</li>',
-                  '<li><div>slotDiv</div>slotText</li>',
-                  '<li><div slot="slot2">slot2</div></li>',
-                '</ul>',
-              '</div>',
+            '<f-view src="testView" class="few-scope">',
+              '<ul>',
+                '<li><div slot="slot1">slot1</div></li>',
+                '<li>5</li>',
+                '<li><div>slotDiv</div>slotText</li>',
+                '<li><div slot="slot2">slot2</div></li>',
+              '</ul>',
             '</f-view>'
         ].join( '' ) );
     } );

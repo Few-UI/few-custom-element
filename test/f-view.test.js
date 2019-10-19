@@ -107,10 +107,8 @@ describe( 'Test few-view element', () => {
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView">',
-              '<div class="few-scope">',
-                '<div></div>',
-              '</div>',
+            '<f-view src="testView" class="few-scope">',
+              '<div></div>',
             '</f-view>'
         ].join( '' ) );
     } );
@@ -134,10 +132,8 @@ describe( 'Test few-view element', () => {
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView">',
-              '<div class="few-scope">',
-                '<div>5</div>',
-              '</div>',
+            '<f-view src="testView" class="few-scope">',
+              '<div>5</div>',
             '</f-view>'
         ].join( '' ) );
     } );
@@ -166,13 +162,11 @@ describe( 'Test few-view element', () => {
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView">',
+            '<f-view src="testView" class="few-scope">',
+              '<div>5</div>',
               '<div class="few-scope">',
-                '<div>5</div>',
-                '<div class="few-scope">',
-                  // eslint-disable-next-line no-template-curly-in-string
-                  '<div>${testVal}</div>',
-                '</div>',
+                // eslint-disable-next-line no-template-curly-in-string
+                '<div>${testVal}</div>',
               '</div>',
             '</f-view>' ].join( '' ) );
     } );
@@ -201,13 +195,11 @@ describe( 'Test few-view element', () => {
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView">',
-              '<div class="few-scope">',
-                '<div>5</div>',
-                '<div f-ignore="">',
-                  // eslint-disable-next-line no-template-curly-in-string
-                  '<div>${testVal}</div>',
-                '</div>',
+            '<f-view src="testView" class="few-scope">',
+              '<div>5</div>',
+              '<div f-ignore="">',
+                // eslint-disable-next-line no-template-curly-in-string
+                '<div>${testVal}</div>',
               '</div>',
             '</f-view>' ].join( '' ) );
     } );
@@ -247,12 +239,20 @@ describe( 'Test few-view element', () => {
         await wait( 50 );
 
         let elem = docElem.firstChild.firstChild;
-        expect( elem.outerHTML ).toEqual( '<f-view src="firstView"><div class="few-scope"><div>5</div></div></f-view>' );
+        expect( elem.outerHTML ).toEqual( [
+            '<f-view src="firstView" class="few-scope">',
+              '<div>5</div>',
+            '</f-view>'
+        ].join( '' ) );
 
         elem.setAttribute( 'src', 'secondView' );
         await wait( 100 );
 
-        expect( elem.outerHTML ).toEqual( '<f-view src="secondView"><div class="few-scope"><code style="color:red">7</code></div></f-view>' );
+        expect( elem.outerHTML ).toEqual( [
+            '<f-view src="secondView" class="few-scope">',
+              '<code style="color:red">7</code>',
+            '</f-view>'
+        ].join( '' ) );
     } );
 
     it( 'Verify few-view can be rendered correctly with model from parent', async() => {
@@ -295,15 +295,11 @@ describe( 'Test few-view element', () => {
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
-            '<f-view src="parentView">',
-              '<div class="few-scope">',
-                '<div>5</div>',
-                '<f-view src="subView" model="ctx">',
-                  '<div class="few-scope">',
-                    '<code>5</code>',
-                  '</div>',
-                '</f-view>',
-              '</div>',
+            '<f-view src="parentView" class="few-scope">',
+              '<div>5</div>',
+              '<f-view src="subView" model="ctx" class="few-scope">',
+                '<code>5</code>',
+              '</f-view>',
             '</f-view>'
         ].join( '' ) );
     } );

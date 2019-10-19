@@ -47,13 +47,14 @@ export function handleEvent( elem, methodName, e ) {
  */
 export function requestUpdate( elem, data, method ) {
     let viewElem = getViewElement( elem );
-    let component = getComponent( viewElem );
+    let parentElement = viewElem.parentElement;
+    let component = getComponent( parentElement );
     let actionName = method || viewElem.id;
     if ( component.hasAction( actionName ) ) {
         // TODO: need to tune performance to reduce over update
         return component.update( actionName, data );
     }
-    return requestUpdate( viewElem, data, actionName );
+    return requestUpdate( parentElement, data, actionName );
 }
 
 /**

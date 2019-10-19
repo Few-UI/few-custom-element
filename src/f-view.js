@@ -3,7 +3,7 @@
 import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import http from './http';
-import { getComponent, parseViewToDiv } from './few-utils';
+import { getComponent, parseView } from './few-utils';
 
 export default class FewView extends HTMLElement {
     static get tag() {
@@ -110,7 +110,7 @@ export default class FewView extends HTMLElement {
                 delete this._pendingView;
             } catch ( e ) {
                 if ( this._pendingView === newValue ) {
-                    this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
+                    this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
                 }
                 throw e;
             }

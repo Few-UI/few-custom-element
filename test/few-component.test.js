@@ -6,7 +6,7 @@ import FewComponent from '../src/few-component';
 import { wait } from './test-utils';
 
 describe( 'Test few-component', () => {
-    let rootElem;
+    let docElem;
     beforeEach( () =>{
         window.$few_test = {
             setValue: ( val ) => {
@@ -17,13 +17,13 @@ describe( 'Test few-component', () => {
             }
         };
 
-        rootElem = document.createElement( 'div' );
-        document.body.appendChild( rootElem );
+        docElem = document.createElement( 'div' );
+        document.body.appendChild( docElem );
     } );
 
     afterEach( () =>{
         delete window.$few_test;
-        document.body.removeChild( rootElem );
+        document.body.removeChild( docElem );
     } );
 
     it( 'Verify few-component can execute action without view', async() => {
@@ -107,15 +107,14 @@ describe( 'Test few-component', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachViewToPage( rootElem );
+        component.attachViewToPage( docElem );
 
         expect( await component.update( 'action.testAction' ) ).toEqual( 7 );
 
         expect( component._vm.model.testVal ).toEqual( 7 );
 
-        // TODO: No good way to assert for now, need to find a way to avoid using wait later
-        await wait( 200 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>7</div>' );
+        await wait( 100 );
+        expect( docElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
     it( 'Verify few-component can execute action with different options', async() => {
@@ -148,13 +147,18 @@ describe( 'Test few-component', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachViewToPage( rootElem );
+        component.attachViewToPage( docElem );
 
         expect( await component.update( 'testAction' ) ).toEqual( 6 );
 
         expect( component._vm.model.testVal ).toEqual( 6 );
 
         await wait( 100 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>6</div>' );
+
+        expect( docElem.outerHTML ).toEqual( [
+            '<div class="few-scope">',
+              '<div>6</div>',
+            '</div>'
+        ].join( '' ) );
     } );
 } );

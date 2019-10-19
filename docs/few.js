@@ -3897,18 +3897,6 @@ define(['require'], function (require) { 'use strict';
       return fragement.firstChild;
   }
 
-
-  /**
-   * Parse view string as DOM with interpretion
-   * @param {string} str HTML String snippet as input
-   * @returns {Element} DOM Element
-   */
-  function parseViewToDiv( str ) {
-      let newDom = document.createElement( 'div' );
-      newDom.innerHTML = str.trim();
-      return newDom;
-  }
-
   /**
    * evaluate string as Javascript expression
    * @param {string} input string as expression
@@ -4026,10 +4014,12 @@ define(['require'], function (require) { 'use strict';
    * @returns {Element} Closest parent element which has view model context
    */
   function getViewElement( element ) {
+      /*
       let scopeElem = getScopeElement( element );
       if ( scopeElem ) {
           return scopeElem.parentElement;
-      }
+      }*/
+      return getScopeElement( element );
   }
 
   /* eslint-env es6 */
@@ -4112,13 +4102,14 @@ define(['require'], function (require) { 'use strict';
    */
   function requestUpdate( elem, data, method ) {
       let viewElem = getViewElement( elem );
-      let component = getComponent( viewElem );
+      let parentElement = viewElem.parentElement;
+      let component = getComponent( parentElement );
       let actionName = method || viewElem.id;
       if ( component.hasAction( actionName ) ) {
           // TODO: need to tune performance to reduce over update
           return component.update( actionName, data );
       }
-      return requestUpdate( viewElem, data, actionName );
+      return requestUpdate( parentElement, data, actionName );
   }
 
   /**
@@ -22057,6 +22048,7 @@ define(['require'], function (require) { 'use strict';
 
       /**
        * attach current view to DOM in page
+       * TODO: Move it out of here...
        * @param {Element} elem DOM Element in page
        */
       attachViewToPage( elem ) {
@@ -22066,8 +22058,16 @@ define(['require'], function (require) { 'use strict';
            * - Then we render -> it will have some overhead
            * - Then the custom directive gets executed to make sure no crash with custom element logic
            */
-          setComponent( this._view.domNode, this );
-          elem.appendChild( this._view.domNode );
+          setComponent( elem, this );
+
+          let childNodes = this._view.domNode.childNodes;
+          let size = childNodes.length;
+          let fragment = document.createDocumentFragment();
+          for( let i = 0; i < size; i++ ) {
+              fragment.appendChild( childNodes[0] );
+          }
+          elem.appendChild( fragment );
+          this._view.domNode = elem;
           this._view.render( this._vm.model );
       }
 
@@ -22298,7 +22298,7 @@ define(['require'], function (require) { 'use strict';
                   delete this._pendingView;
               } catch ( e ) {
                   if ( this._pendingView === newValue ) {
-                      this.appendChild( parseViewToDiv( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
+                      this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
                   }
                   throw e;
               }

@@ -135,6 +135,7 @@ export default class FewComponent {
 
     /**
      * attach current view to DOM in page
+     * TODO: Move it out of here...
      * @param {Element} elem DOM Element in page
      */
     attachViewToPage( elem ) {
@@ -144,8 +145,16 @@ export default class FewComponent {
          * - Then we render -> it will have some overhead
          * - Then the custom directive gets executed to make sure no crash with custom element logic
          */
-        setComponent( this._view.domNode, this );
-        elem.appendChild( this._view.domNode );
+        setComponent( elem, this );
+
+        let childNodes = this._view.domNode.childNodes;
+        let size = childNodes.length;
+        let fragment = document.createDocumentFragment();
+        for( let i = 0; i < size; i++ ) {
+            fragment.appendChild( childNodes[0] );
+        }
+        elem.appendChild( fragment );
+        this._view.domNode = elem;
         this._view.render( this._vm.model );
     }
 

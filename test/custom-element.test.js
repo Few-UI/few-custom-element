@@ -3,7 +3,7 @@
 // with native browser
 
 import {
-    parseViewToDiv
+    parseView
 } from '../src/few-utils';
 import { wait } from './test-utils';
 
@@ -103,7 +103,7 @@ describe( 'Test Custom Element Life Cycle', () => {
         let viewHtml = `<${TestElem.tag()} id="testView" view="testView" scope="testScope">testText</${TestElem.tag()}>
                         <${TestElem.tag()} id="testView2" view="testView2" scope="testScope2">testText2</${TestElem.tag()}>`;
 
-        let elem = parseViewToDiv( viewHtml );
+        let elem = parseView( viewHtml );
         rootElem.appendChild( elem );
         lifecycleHook.push( 'last if sync' );
 
@@ -163,7 +163,7 @@ describe( 'Test Custom Element Life Cycle', () => {
                 `<${TestElem.tag()} id="testView2" view="testView2" scope="testScope2">testText2</${TestElem.tag()}>` +
             `</${TestElem.tag()}>`;
 
-        let elem = parseViewToDiv( viewHtml );
+        let elem = parseView( viewHtml );
         rootElem.appendChild( elem );
         expect( elem.outerHTML ).toEqual( `<div>${viewHtml}</div>` );
 

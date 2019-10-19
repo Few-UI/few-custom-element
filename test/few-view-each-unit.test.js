@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import FewComponent from '../src/few-component';
 
 describe( 'Test f-each in few-view', () => {
-    let rootElem;
+    let docElem;
 
     beforeEach( () =>{
         window.$few_test = {
@@ -17,13 +17,13 @@ describe( 'Test f-each in few-view', () => {
             }
         };
 
-        rootElem = document.createElement( 'div' );
-        document.body.appendChild( rootElem );
+        docElem = document.createElement( 'div' );
+        document.body.appendChild( docElem );
     } );
 
     afterEach( () => {
         delete window.$few_test;
-        document.body.removeChild( rootElem );
+        document.body.removeChild( docElem );
     } );
 
     it( 'Verify f-each can render data array correctly', async() => {
@@ -44,9 +44,13 @@ describe( 'Test f-each in few-view', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachViewToPage( rootElem );
+        component.attachViewToPage( docElem );
 
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-each(item of items)--><div>apple</div><div>banana</div>' );
+        expect( docElem.innerHTML ).toEqual( [
+            '<!--f-each(item of items)-->',
+            '<div>apple</div>',
+            '<div>banana</div>'
+        ].join( '' ) );
     } );
 
     it( 'Verify f-each can be rendered with siblings', async() => {
@@ -74,9 +78,9 @@ describe( 'Test f-each in few-view', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachViewToPage( rootElem );
+        component.attachViewToPage( docElem );
 
-        expect( rootElem.firstChild.innerHTML ).toEqual( [
+        expect( docElem.innerHTML ).toEqual( [
             '<!--f-each(item of items)-->',
             '<div>apple</div>',
             '<div>banana</div>',

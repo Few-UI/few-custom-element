@@ -6,7 +6,7 @@ import FewComponent from '../src/few-component';
 import { wait } from './test-utils';
 
 describe( 'Test f-cond in few-view', () => {
-    let rootElem;
+    let docElem;
 
     beforeEach( () =>{
         window.$few_test = {
@@ -18,13 +18,13 @@ describe( 'Test f-cond in few-view', () => {
             }
         };
 
-        rootElem = document.createElement( 'div' );
-        document.body.appendChild( rootElem );
+        docElem = document.createElement( 'div' );
+        document.body.appendChild( docElem );
     } );
 
     afterEach( () => {
         delete window.$few_test;
-        document.body.removeChild( rootElem );
+        document.body.removeChild( docElem );
     } );
 
     it( 'Verify f-cond works corretly for simple element', async() => {
@@ -50,19 +50,19 @@ describe( 'Test f-cond in few-view', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachViewToPage( rootElem );
+        component.attachViewToPage( docElem );
 
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>Hello</div>' );
+        expect( docElem.innerHTML ).toEqual( '<div>Hello</div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
     } );
 
     it( 'Verify f-cond works corretly for element with expression', async() => {
@@ -100,20 +100,20 @@ describe( 'Test f-cond in few-view', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachViewToPage( rootElem );
+        component.attachViewToPage( docElem );
 
         await wait( 200 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>5</div>' );
+        expect( docElem.innerHTML ).toEqual( '<div>5</div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<div>7</div>' );
+        expect( docElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
     it( 'Verify f-cond works corretly for nested element', async() => {
@@ -141,18 +141,18 @@ describe( 'Test f-cond in few-view', () => {
 
         await component.createView( componentDef.view );
 
-        component.attachViewToPage( rootElem );
+        component.attachViewToPage( docElem );
 
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
         await wait( 200 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<div><code style="color:blue">hello</code></div>' );
+        expect( docElem.innerHTML ).toEqual( '<div><code style="color:blue">hello</code></div>' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
     } );
 } );

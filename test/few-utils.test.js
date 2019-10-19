@@ -128,7 +128,7 @@ describe( 'Test cloneDeepJsonObject', () => {
 
 describe( 'Test getFormInput', () => {
     it( 'Verify getFormInput can get text value back', () => {
-        expect( getFormInput( parseViewToDiv( '' +
+        expect( getFormInput( parseView( '' +
         '<form>' +
           '<input type="text" name="attrA" value="valueA"></input>' +
           '<input type="text" name="attrB" value="valueB"></input>' +
@@ -142,21 +142,21 @@ describe( 'Test getFormInput', () => {
 
 describe( 'Test getComponent/setComponent', () => {
     it( 'Verify setComponent will error out when no input is undefined for element with id', () => {
-        let elem = parseViewToDiv( '<div id="test"></div>' ).firstChild;
+        let elem = parseView( '<div id="test"></div>' ).firstChild;
 
         expect( () => setComponent( elem ) )
           .toThrowError( 'setComponent(id:test) => componentObj is undefined' );
     } );
 
     it( 'Verify setComponent will error out when no input is undefined for element without id', () => {
-        let elem = parseViewToDiv( '<test-e></test-e>' ).firstChild;
+        let elem = parseView( '<test-e></test-e>' ).firstChild;
 
         expect( () => setComponent( elem ) )
           .toThrowError( 'setComponent(TEST-E) => componentObj is undefined' );
     } );
 
     it( 'Verify setComponent/getComonent works correctly when componentObj is defined', () => {
-        let elem = parseViewToDiv( '<test-e><sub-e></sub-e></test-e>' ).firstChild;
+        let elem = parseView( '<test-e><sub-e></sub-e></test-e>' ).firstChild;
         let subElem = elem.firstChild;
 
         setComponent( elem, { a: 3 } );
@@ -166,12 +166,12 @@ describe( 'Test getComponent/setComponent', () => {
     } );
 
     it( 'Verify getComonent works correctly will get nothing for elem which is not setup correctly', () => {
-        let elem = parseViewToDiv( '<test-e><sub-e></sub-e></test-e>' ).firstChild;
+        let elem = parseView( '<test-e><sub-e></sub-e></test-e>' ).firstChild;
         expect( getComponent( elem ) ).not.toBeDefined();
     } );
 
     it( 'Verify setComponent/getComonent works correctly for multi level component', () => {
-        let topComponent = parseViewToDiv( '' +
+        let topComponent = parseView( '' +
         '<top-component>' +
             '<top-div></top-div>' +
             '<sub-component>' +
@@ -191,12 +191,12 @@ describe( 'Test getComponent/setComponent', () => {
     } );
 
     it( 'Verify getViewElement works correctly will get nothing for elem which is not setup correctly', () => {
-        let elem = parseViewToDiv( '<test-e><sub-e></sub-e></test-e>' ).firstChild;
-        expect( getViewElement( elem ) ).not.toBeDefined();
+        let elem = parseView( '<test-e><sub-e></sub-e></test-e>' ).firstChild;
+        expect( getViewElement( elem ) ).toEqual( null );
     } );
 
     it( 'Verify getViewElement works correctly for multi level component', () => {
-        let topView = parseViewToDiv( '' +
+        let topView = parseView( '' +
         '<f-view>' +
             '<div>' +
                 '<top-div></top-div>' +
@@ -215,11 +215,11 @@ describe( 'Test getComponent/setComponent', () => {
         let subComponent = subView.lastChild;
         let subDiv = subComponent.firstChild;
 
-        setComponent( topComponent, { a: 3 } );
-        setComponent( subComponent, { b: 4 } );
+        setComponent( topView, { a: 3 } );
+        setComponent( subView, { b: 4 } );
 
         expect( getViewElement( subDiv ) ).toEqual( subView );
-        expect( getViewElement( subView ) ).toEqual( topView );
+        expect( getViewElement( subView.parentElement ) ).toEqual( topView );
         expect( getViewElement( topDiv ) ).toEqual( topView );
     } );
 } );
