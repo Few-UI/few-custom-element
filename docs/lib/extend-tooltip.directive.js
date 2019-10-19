@@ -45,7 +45,7 @@ define( [ 'few' ], ( few ) => {
                     position: relative;
                 }
                 .info {
-                    font-size: 0.8rem;
+                    font-size: 1.5rem;
                     width: 200px;
                     display: inline-block;
                     border: 1px solid black;

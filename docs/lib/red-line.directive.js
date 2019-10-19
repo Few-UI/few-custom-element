@@ -12,14 +12,14 @@ define( [ 'few' ], ( few ) => {
      * update all contents to red line
      * @param {FewViewUnit} unit few unit object
      */
-    exports.update = function( node ) {
-        let domNode = node.domNode;
+    exports.update = function( unit ) {
+        let domNode = unit.domNode;
         const shadow = domNode.shadowRoot || domNode.attachShadow( { mode: 'open' } );
 
         const style = document.createElement( 'style' );
 
         style.textContent = `
-            *:not(.info) {
+            * {
                 color: red;
                 text-decoration: underline;
             }
