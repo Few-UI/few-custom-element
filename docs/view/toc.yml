@@ -3,7 +3,7 @@ view:
   template:
     <ul>
       <li f-each="item of items">
-        <a onclick="${updateSelection}" style="${ items[selection].name === item.name ?'font-weight:bold':''}">${item.name}</a>
+        <a href="#" onclick="${updateSelection}" style="${ items[selection].name === item.name ?'font-weight:bold':''}">${item.name}</a>
       </li>
     </ul>
 

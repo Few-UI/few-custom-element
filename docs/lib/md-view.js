@@ -1,7 +1,21 @@
-
 /* eslint-env es6 */
 
-define( [ 'few', 'https://cdn.jsdelivr.net/npm/marked/marked.min.js' ], ( few, marked ) => {
+define( [ 'few',
+          '//cdn.jsdelivr.net/npm/marked/marked.min.js',
+          '//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/highlight.min.js'
+        ], ( few, marked, highlightjs ) => {
+    marked.setOptions( {
+        highlight: function( code, lang ) {
+            /*
+            if ( lang === 'js' ) {
+                return highlightjs.javascript( code );
+            } else if ( lang === 'html' ) {
+                return highlightjs.html( code );
+            }*/
+            return highlightjs.highlightAuto( code ).value;
+            //highlightjs.highlight( lang, code );
+        }
+    } );
     class SampleButton extends HTMLElement {
         static get tag() {
             return 'md-view';
@@ -115,7 +129,7 @@ define( [ 'few', 'https://cdn.jsdelivr.net/npm/marked/marked.min.js' ], ( few, m
             font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
             padding: 16px;
             overflow: auto;
-            font-size: 85%;
+            /*font-size: 85%;*/
             line-height: 1.45;
             background-color: #f6f8fa;
             border-radius: 3px;
@@ -129,11 +143,19 @@ define( [ 'few', 'https://cdn.jsdelivr.net/npm/marked/marked.min.js' ], ( few, m
             background-color: rgba(27,31,35,0.05);*/
             border-radius: 3px;
         }
+
             `;
 
             this._contentDOM = document.createElement( 'div' );
             shadowRoot.appendChild( style );
             shadowRoot.appendChild( this._contentDOM );
+
+            // Add highlightJs css
+            // <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/styles/default.min.css">
+            let hightlightCss = document.createElement( 'link' );
+            hightlightCss.rel = 'stylesheet';
+            hightlightCss.href = '//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/styles/default.min.css';
+            shadowRoot.appendChild( hightlightCss );
         }
 
         attributeChangedCallback( name, oldValue, newValue ) {

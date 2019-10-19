@@ -14,11 +14,11 @@ view:
 # model
 model:
   tocModel:
-    selection: 1
+    selection: 0
     items:
-      - name: view
+      - name: Introduction
         type: md
-        src: doc/view
+        src: doc/introduction
       - name: example
         type: view
         src: view/example

@@ -15,7 +15,7 @@ view:
 
 # model
 model:
-  showPrimary: false
+  showPrimary: true
 
 # action
 action:

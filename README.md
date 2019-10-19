@@ -25,5 +25,6 @@ npm test -- -debug
 ```
 
 ## Goal
+- Low code/No code
 - Transparent
 - Performance
