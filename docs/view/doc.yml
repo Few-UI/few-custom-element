@@ -1,7 +1,0 @@
-# view
-view:
-  template:
-    <md-view src="docs/component.md"></md-view>
-
-  import:
-    - lib/md-view
