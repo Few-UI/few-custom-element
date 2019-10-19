@@ -6,19 +6,26 @@ This repo is majorly for practice purpose and try to achieve:
 - Performance
 
 # How to Use
-- Get the `few.js` under `docs/lib`.
+- Get the `docs/few.js`.
 - Simply include it in HTML:
 ```html
     <script data-main="few.js" src="require.min.js"></script>
 ```
-- Then u can strart build your component. Refer to this site as example.
+- Then you can start build your component. Refer to this site as example.
 
 # Supported Features
-- Action Flow
-- Data binding
-- Slot without Shadow DOM
-- Condition and Loop in HTML Template
-- Ignore function while use it with other framework
+- [x] Action Flow
+- [x] Data binding
+- [ ] Custom Attribute as Unit
+- [x] Custom Attribute as Directive
+- [x] Slot without Shadow DOM
+- [x] Condition and Loop in HTML Template
+- [x] Ignore function while use it with other framework
+- [ ] Model Initialization
+- [ ] Virtual DOM
+- [ ] Reactive Update
+- [ ] Generic virtualization
+
 
 # Acknowledgement
 - This homework is inspired by:
