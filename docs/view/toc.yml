@@ -3,17 +3,18 @@ view:
   template:
     <ul>
       <li f-each="item of items">
-        <a onclick="${transientTo}">${item.name}</a>
+        <a onclick="${updateSelection}" style="${ items[selection].name === item.name ?'font-weight:bold':''}">${item.name}</a>
       </li>
     </ul>
 
 # action
 action:
-  transientTo:
-    name: few.requestUpdate
+  updateSelection:
     input:
-      element: ${scope.element}
-      data: ${scope.element.textContent}
+      selectedIndex: ${ items.findIndex((item) =>item.name === scope.element.textContent) }
+    output:
+      selection: selectedIndex
+
 
 
 
