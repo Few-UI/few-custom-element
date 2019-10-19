@@ -2,18 +2,19 @@
 
 define( [ 'few',
           '//cdn.jsdelivr.net/npm/marked/marked.min.js',
-          '//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/highlight.min.js'
-        ], ( few, marked, highlightjs ) => {
+          'lib/highlight.pack.js'
+        ], ( few, marked, hljs ) => {
     marked.setOptions( {
+        langPrefix: 'language-',
         highlight: function( code, lang ) {
             /*
             if ( lang === 'js' ) {
-                return highlightjs.javascript( code );
+                return hljs.javascript( code );
             } else if ( lang === 'html' ) {
-                return highlightjs.html( code );
+                return hljs.html( code );
             }*/
-            return highlightjs.highlightAuto( code ).value;
-            //highlightjs.highlight( lang, code );
+            // return hljs.highlightAuto( code ).value;
+            return hljs.highlight( lang, code ).value;
         }
     } );
     class SampleButton extends HTMLElement {
@@ -154,8 +155,11 @@ define( [ 'few',
             // <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/styles/default.min.css">
             let hightlightCss = document.createElement( 'link' );
             hightlightCss.rel = 'stylesheet';
-            hightlightCss.href = '//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/styles/default.min.css';
+            hightlightCss.href = 'css/github.css';
             shadowRoot.appendChild( hightlightCss );
+
+
+            hljs.initHighlightingOnLoad();
         }
 
         attributeChangedCallback( name, oldValue, newValue ) {
