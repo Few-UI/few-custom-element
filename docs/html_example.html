@@ -1,0 +1,39 @@
+<script>
+return {
+    model: {
+        primary: {
+            items: [
+                'doc',
+                'example'
+            ]
+        },
+        secondary: 'view/example'
+    },
+    action: {
+        toc: {
+            input: {
+                view: '${ "view/" + scope }'
+            },
+            output: {
+                secondary: 'view'
+            }
+        }
+    },
+    option: {
+        actionPaths: [
+            'action'
+        ],
+        stringTemplate: {
+            pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m',
+            index: 1
+        }
+    }
+}
+</script>
+
+<few-view src="view/frame">
+    <few-view slot="primary" id="toc" src="view/toc" model="primary"></few-view>
+    <few-view slot="secondary" src="${secondary}"></few-view>
+</few-view>
+
+

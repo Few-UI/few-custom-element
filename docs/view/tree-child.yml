@@ -24,22 +24,22 @@ action:
     name: setValue
     input:
       value:
-        element: '${scope.element}'
-        user_name: '${few.getFormInput(scope.element).user_name}'
+        element: ${scope.element}
+        user_name: ${few.getFormInput(scope.element).user_name}
 
   updateInput:
     import: lib/sample-utils
     name: testProcAsync
     input:
-      user_name: '${scope.user_name}'
+      user_name: ${scope.user_name}
     output:
       testMsg: ''
 
   submitInfo:
     name: few.requestUpdate
     input:
-      element: '${scope.element}'
-      data: '${scope.user_name}'
+      element: ${scope.element}
+      data: ${scope.user_name}
 
   totalUpdate:
     - setValue
@@ -52,6 +52,6 @@ option:
   actionPaths:
     - action
 #  stringTemplate:
-#    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+#    pattern: /^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m
 #    index: 1
 

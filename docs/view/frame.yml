@@ -21,9 +21,9 @@ model:
 action:
   switchPrimary:
     input:
-      val: '${!showPrimary}'
+      val: ${!showPrimary}
     output:
-      showPrimary: 'val'
+      showPrimary: val
 
 #option
 option:
@@ -31,6 +31,6 @@ option:
   actionPaths:
     - action
   stringTemplate:
-    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+    pattern: /^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m
     index: 1
 

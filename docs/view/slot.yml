@@ -17,10 +17,10 @@ model:
 action:
   updateSlotText:
     input:
-      slot1: '${slotText1 + " updated!"}'
-      slot2: '${slotText2 + " updated!"}'
+      slot1: ${slotText1 + " updated!"}
+      slot2: ${slotText2 + " updated!"}
     output:
-      slotText1: 'slot1'
-      slotText2: 'slot2'
+      slotText1: slot1
+      slotText2: slot2
 
 

@@ -24,6 +24,6 @@ option:
   actionPaths:
     - action
   stringTemplate:
-    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+    pattern: /^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m
     index: 1
 

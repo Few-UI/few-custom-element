@@ -20,7 +20,7 @@ action:
     import: lib/sample-utils
     name: setValue
     input:
-      message: '${scope}'
+      message: ${scope}
     output:
       testMsg: ''
 
@@ -28,7 +28,7 @@ action:
     import: lib/sample-utils
     name: log
     input:
-      message: '${dialogContext.valueFromParent + "+" + scope}'
+      message: ${dialogContext.valueFromParent + "+" + scope}
     output:
       dialogContext.valueFromParent: ''
 
@@ -42,6 +42,6 @@ option:
   actionPaths:
     - action
   stringTemplate:
-    pattern: '/^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m'
+    pattern: /^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m
     index: 1
 

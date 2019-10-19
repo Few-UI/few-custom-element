@@ -12,8 +12,8 @@ action:
   transientTo:
     name: few.requestUpdate
     input:
-      element: '${scope.element}'
-      data: '${scope.element.textContent}'
+      element: ${scope.element}
+      data: ${scope.element.textContent}
 
 
 

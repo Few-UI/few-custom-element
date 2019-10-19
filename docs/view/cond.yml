@@ -17,6 +17,6 @@ action:
     import: lib/sample-utils
     name: setValue
     input:
-      message: '${!testCond}'
+      message: ${!testCond}
     output:
       testCond: ''

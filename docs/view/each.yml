@@ -37,7 +37,7 @@ model:
 action:
   addTodo:
     input:
-      formInput: '${items.concat([few.getFormInput(scope.element)])}'
+      formInput: ${items.concat([few.getFormInput(scope.element)])}
     output:
-      items: 'formInput'
+      items: formInput
 

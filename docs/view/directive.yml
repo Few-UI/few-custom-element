@@ -20,9 +20,9 @@ model:
 action:
   updateSimpleText:
     input:
-      message: 'Tooltip text updated!'
+      message: Tooltip text updated!
     output:
-      simpleText: 'message'
+      simpleText: message
 
 
 
