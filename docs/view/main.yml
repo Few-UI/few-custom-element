@@ -2,34 +2,32 @@
 view:
   template:
     <f-view src="view/frame">
-        <f-view slot="primary" id="toc" src="view/toc" model="primary"></f-view>
+        <f-view slot="primary" id="toc" src="view/toc" model="tocModel"></f-view>
         <div slot="secondary">
-            <f-view f-cond="/^view\//.test(secondary)" src="${secondary}"></f-view>
-            <md-view f-cond="/^doc\//.test(secondary)" src="${secondary}"></f-view>
+            <f-view f-cond="/^view\//.test(content)" src="${content}"></f-view>
+            <md-view f-cond="/^doc\//.test(content)" src="${content}"></f-view>
         </div>
     </f-view>
-
   import:
     - lib/md-view
 
 # model
 model:
-  primary:
+  tocModel:
     items:
       - name: view
         src: doc/view
       - name: example
         src: view/example
-  secondary: view/example
-
+  content: view/example
 
 # action
 action:
   toc:
     input:
-      view: ${ primary.items.find((item) =>item.name === scope).src }
+      srcLink: ${ tocModel.items.find((item) =>item.name === scope).src }
     output:
-      secondary: view
+      content: srcLink
 
 # option
 option:
