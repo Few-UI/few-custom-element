@@ -30,14 +30,15 @@ describe( 'Test f-each in few-view', () => {
         let componentContent = [
             'view:',
             '  template:',
+            // eslint-disable-next-line no-template-curly-in-string
             '    <div f-each="item of items">${item.type}</div>',
             'model:',
             '  items:',
             '    - type: apple',
             '    - type: banana'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 
@@ -52,16 +53,22 @@ describe( 'Test f-each in few-view', () => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div f-each="item of items">${item.type}</div>',
-            '    <div>${testText}</div>',
+            [
+                '    ',
+                // eslint-disable-next-line no-template-curly-in-string
+                '<div f-each="item of items">${item.type}</div>',
+                // eslint-disable-next-line no-template-curly-in-string
+                '<div>${testText}</div>'
+
+            ].join( '' ),
             'model:',
             '  items:',
             '    - type: apple',
             '    - type: banana',
             '  testText: sibling'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 
@@ -69,6 +76,11 @@ describe( 'Test f-each in few-view', () => {
 
         component.attachViewToPage( rootElem );
 
-        expect( rootElem.firstChild.innerHTML ).toEqual( '<!--f-each(item of items)--><div>apple</div><div>banana</div> <div>sibling</div>' );
+        expect( rootElem.firstChild.innerHTML ).toEqual( [
+            '<!--f-each(item of items)-->',
+            '<div>apple</div>',
+            '<div>banana</div>',
+            '<div>sibling</div>'
+        ].join( '' ) );
     } );
 } );

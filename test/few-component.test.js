@@ -37,9 +37,9 @@ describe( 'Test few-component', () => {
             '      val: 7',
             '    output:',
             '      testVal: ""'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 
@@ -63,15 +63,16 @@ describe( 'Test few-component', () => {
             '  testAction2:',
             '    name: "$few_test.plusOne"',
             '    input:',
+            // eslint-disable-next-line no-template-curly-in-string
             '      val: ${scope}',
             '    output:',
             '      testVal: ""',
             '  testAction:',
             '    - action.testAction1',
             '    - action.testAction2'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 
@@ -87,6 +88,7 @@ describe( 'Test few-component', () => {
         let componentContent = [
             'view:',
             '  template:',
+            // eslint-disable-next-line no-template-curly-in-string
             '    <div>${testVal}</div>',
             'model:',
             '  testVal: 5',
@@ -97,9 +99,9 @@ describe( 'Test few-component', () => {
             '      val: 7',
             '    output:',
             '      testVal: ""'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 
@@ -138,9 +140,9 @@ describe( 'Test few-component', () => {
             '  actionPaths:',
             '    - action',
             '    - provider'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 
@@ -152,8 +154,7 @@ describe( 'Test few-component', () => {
 
         expect( component._vm.model.testVal ).toEqual( 6 );
 
-        // TODO: No good way to assert for now, need to find a way to avoid using wait later
-        await wait( 200 );
+        await wait( 100 );
         expect( rootElem.firstChild.innerHTML ).toEqual( '<div>6</div>' );
     } );
 } );

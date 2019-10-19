@@ -38,12 +38,13 @@ describe( 'Test f-cond in few-view', () => {
             '  testAction:',
             '    name: "$few_test.setValue"',
             '    input:',
+            // eslint-disable-next-line no-template-curly-in-string
             '      val: "${!testBoolean}"',
             '    output:',
             '      testBoolean: ""'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 
@@ -68,6 +69,7 @@ describe( 'Test f-cond in few-view', () => {
         let componentContent = [
             'view:',
             '  template:',
+            // eslint-disable-next-line no-template-curly-in-string
             '    <div f-cond="testBoolean">${testVal}</div>',
             'model:',
             '  testBoolean: true',
@@ -76,21 +78,23 @@ describe( 'Test f-cond in few-view', () => {
             '  toggle:',
             '    name: "$few_test.setValue"',
             '    input:',
-            '      val: "${!testBoolean}"',
+            // eslint-disable-next-line no-template-curly-in-string
+            '      val: ${!testBoolean}',
             '    output:',
             '      testBoolean: ""',
             '  updateVal:',
             '    name: "$few_test.plusOne"',
             '    input:',
-            '      val: "${testVal}"',
+            // eslint-disable-next-line no-template-curly-in-string
+            '      val: ${testVal}',
             '    output:',
             '      testVal: ""',
             '  testAction:',
             '    - updateVal',
             '    - toggle'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 
@@ -116,6 +120,7 @@ describe( 'Test f-cond in few-view', () => {
         let componentContent = [
             'view:',
             '  template:',
+            // eslint-disable-next-line no-template-curly-in-string
             '    <div f-cond="testBoolean"><code style="color:blue">${testMsg}</code></div>',
             'model:',
             '  testBoolean: false',
@@ -124,12 +129,13 @@ describe( 'Test f-cond in few-view', () => {
             '  testAction:',
             '    name: "$few_test.setValue"',
             '    input:',
+            // eslint-disable-next-line no-template-curly-in-string
             '      val: "${!testBoolean}"',
             '    output:',
             '      testBoolean: ""'
-        ];
+        ].join( '\n' );
 
-        let componentDef = yaml.safeLoad( componentContent.join( '\n' ) );
+        let componentDef = yaml.safeLoad( componentContent );
 
         let component = new FewComponent( null, componentDef );
 

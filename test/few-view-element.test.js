@@ -85,7 +85,7 @@ describe( 'Test few-view element', () => {
 
         await wait( 50 );
 
-        expect( docElem.firstChild.innerHTML ).toMatch( /^<f-view src="testView"><div><code style="color:red">testView.yml: YAMLSemanticError:.*/ );
+        expect( docElem.firstChild.innerHTML ).toMatch( /^<f-view src="testView"><div><code style="color:red">testView.yml: YAMLException:.*/ );
     } );
 
     it( 'Verify few-view still display when value is undefined', async() => {
