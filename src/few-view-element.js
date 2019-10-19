@@ -1,6 +1,6 @@
 /* eslint-env es6 */
 
-import YAML from 'yaml';
+import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import http from './http';
 import { getComponent, parseViewToDiv } from './few-utils';
@@ -39,7 +39,7 @@ export default class FewView extends HTMLElement {
                 let modelPath = this.getAttribute( 'model' );
 
                 // load component definition
-                let componentDef = YAML.parse( await http.get( `${newValue}.yml` ) );
+                let componentDef = yaml.safeLoad( await http.get( `${newValue}.yml` ) );
 
                 if ( this._pendingView !== newValue ) {
                     return;

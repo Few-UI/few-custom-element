@@ -11,6 +11,7 @@
     "document-register-element": "^1.14.3",
     "eslint": "^4.19.1",
     "jest": "^24.9.0",
+    "js-yaml": "^3.13.1",
     "mutationobserver-shim": "^0.3.3",
     "node-sass": "^4.12.0",
     "npm-run-all": "^4.1.5",
@@ -19,8 +20,7 @@
     "rollup-plugin-node-resolve": "^5.1.0",
     "rollup-plugin-postcss": "^2.0.3",
     "rollup-plugin-terser": "^5.0.0",
-    "serve": "^11.2.0",
-    "yaml": "^1.7.1"
+    "serve": "^11.2.0"
   },
   "scripts": {
     "build": "rollup -c",
