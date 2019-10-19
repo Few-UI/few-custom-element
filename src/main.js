@@ -1,6 +1,6 @@
 // main entrance for debug test site
 /* eslint-env es6 */
-import './few-view-element';
+import './f-view';
 import few from './few-global';
 
 export default few;

@@ -2,7 +2,7 @@
 /* eslint-env es6, jasmine */
 
 import http from '../src/http';
-import FewView from '../src/few-view-element';
+import FewView from '../src/f-view';
 import { wait } from './test-utils';
 import { parseView } from '../src/few-utils';
 
