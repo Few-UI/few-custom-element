@@ -3,16 +3,23 @@ view:
   template:
     <f-view src="view/frame">
         <f-view slot="primary" id="toc" src="view/toc" model="primary"></f-view>
-        <f-view slot="secondary" src="${secondary}"></f-view>
+        <div slot="secondary">
+            <f-view f-cond="/^view\//.test(secondary)" src="${secondary}"></f-view>
+            <md-view f-cond="/^doc\//.test(secondary)" src="${secondary}"></f-view>
+        </div>
     </f-view>
+
+  import:
+    - lib/md-view
 
 # model
 model:
   primary:
     items:
-      - doc
-      - example
-
+      - name: view
+        src: doc/view
+      - name: example
+        src: view/example
   secondary: view/example
 
 
@@ -20,7 +27,7 @@ model:
 action:
   toc:
     input:
-      view: ${ "view/" + scope }
+      view: ${ primary.items.find((item) =>item.name === scope).src }
     output:
       secondary: view
 

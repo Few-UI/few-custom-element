@@ -3,7 +3,7 @@ view:
   template:
     <ul>
       <li f-each="item of items">
-        <a herf="#" onclick="${transientTo}">${item}</a>
+        <a onclick="${transientTo}">${item.name}</a>
       </li>
     </ul>
 

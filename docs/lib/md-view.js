@@ -7,8 +7,8 @@ define( [ 'few', 'https://cdn.jsdelivr.net/npm/marked/marked.min.js' ], ( few, m
             return 'md-view';
         }
 
-        get clickAction() {
-            return this.getAttribute( 'click' );
+        static get observedAttributes() {
+            return [ 'src' ];
         }
 
         constructor() {
@@ -131,30 +131,23 @@ define( [ 'few', 'https://cdn.jsdelivr.net/npm/marked/marked.min.js' ], ( few, m
         }
             `;
 
-            let contentDOM = document.createElement( 'div' );
+            this._contentDOM = document.createElement( 'div' );
             shadowRoot.appendChild( style );
-            shadowRoot.appendChild( contentDOM );
-
-            let src = this.getAttribute( 'src' );
-
-            few.httpGet( src ).then( ( content ) => {
-                contentDOM.innerHTML = marked( content );
-            } );
-
-
-            /*
-            let newDom = document.createElement( 'div' );
-            newDom.innerHTML = '<button class="base-button" ><slot/></button>';
-            shadowRoot.appendChild( newDom.firstChild );
-            */
+            shadowRoot.appendChild( this._contentDOM );
         }
 
-        /*
-        Cannot do it here - need to load context from parent
         attributeChangedCallback( name, oldValue, newValue ) {
-            console.log( `${name}: ${oldValue} => ${newValue}` );
+            // console.log( `${name}: ${oldValue} => ${newValue}` );
+
+            if ( name === 'src' && newValue && oldValue !== newValue ) {
+                // do nothing
+                few.httpGet( `${newValue}.md` ).then( ( content ) => {
+                    this._contentDOM.innerHTML = marked( content );
+                } );
+            }
         }
-        */
     }
+
+
     customElements.define( SampleButton.tag, SampleButton );
 } );
