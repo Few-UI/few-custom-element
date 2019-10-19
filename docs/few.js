@@ -25872,8 +25872,8 @@ define(['require'], function (require) { 'use strict';
 	                size = slotElements.length;
 	                if ( size > 0 ) {
 	                    let unNamedSlot = null;
-	                    for( let i = 0; i < size; i++ ) {
-	                        let slotElem = slotElements[0];  // <-- HTMLCollection is a dynamic list
+	                    for( let i = size; i > 0; i-- ) {
+	                        let slotElem = slotElements[i - 1];  // <-- HTMLCollection is a dynamic list
 	                        let slotName = slotElem.getAttribute( 'name' );
 	                        if ( slotName && this._slot.nameSlotMap[slotName] ) {
 	                            slotElem.parentElement.replaceChild( this._slot.nameSlotMap[slotName], slotElem );
