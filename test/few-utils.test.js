@@ -197,16 +197,16 @@ describe( 'Test getComponent/setComponent', () => {
 
     it( 'Verify getViewElement works correctly for multi level component', () => {
         let topView = parseViewToDiv( '' +
-        '<few-view>' +
+        '<f-view>' +
             '<div>' +
                 '<top-div></top-div>' +
-                '<few-view>' +
+                '<f-view>' +
                     '<div>' +
                         '<sub-div></sub-div>' +
                     '</div>' +
-                '</few-view>' +
+                '</f-view>' +
             '</div>' +
-        '</few-view>'
+        '</f-view>'
         ).firstChild;
         let topComponent = topView.firstChild;
         let topDiv = topComponent.firstChild;

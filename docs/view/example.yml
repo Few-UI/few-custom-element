@@ -1,17 +1,17 @@
 # view
 view:
   template:
-    <few-view src="view/bind"></few-view>
+    <f-view src="view/bind"></f-view>
     <div class="splitter"></div>
-    <few-view src="view/directive"></few-view>
+    <f-view src="view/directive"></f-view>
     <div class="splitter"></div>
-    <few-view src="view/tree"></few-view>
+    <f-view src="view/tree"></f-view>
     <div class="splitter"></div>
-    <few-view src="view/cond"></few-view>
+    <f-view src="view/cond"></f-view>
     <div class="splitter"></div>
-    <few-view src="view/each"></few-view>
+    <f-view src="view/each"></f-view>
     <div class="splitter"></div>
-    <few-view src="view/slot"></few-view>
+    <f-view src="view/slot"></f-view>
 
   import:
     - lib/sample-button

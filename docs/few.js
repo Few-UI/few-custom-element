@@ -25795,7 +25795,7 @@ define(['require'], function (require) { 'use strict';
 
 	class FewView extends HTMLElement {
 	    static get tag() {
-	        return 'few-view';
+	        return 'f-view';
 	    }
 
 	    static get observedAttributes() {

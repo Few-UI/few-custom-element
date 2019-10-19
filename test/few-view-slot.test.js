@@ -49,18 +49,18 @@ describe( 'Test slot feature in few-view element', () => {
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent.join( '\n' ) ) );
 
         docElem.appendChild( parseView( [
-            '<few-view src="testView">',
+            '<f-view src="testView">',
               '<div>slotDiv</div>',
               '<div slot="slot2">slot2</div>',
               'slotText',
               '<div slot="slot1">slot1</div>',
-            '</few-view>'
+            '</f-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<few-view src="testView">',
+            '<f-view src="testView">',
               '<div class="few-scope">',
                 '<ul>',
                   '<li><div slot="slot1">slot1</div></li>',
@@ -69,7 +69,7 @@ describe( 'Test slot feature in few-view element', () => {
                   '<li><div slot="slot2">slot2</div></li>',
                 '</ul>',
               '</div>',
-            '</few-view>'
+            '</f-view>'
         ].join( '' ) );
     } );
 } );

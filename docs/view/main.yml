@@ -1,10 +1,10 @@
 # view
 view:
   template:
-    <few-view src="view/frame">
-        <few-view slot="primary" id="toc" src="view/toc" model="primary"></few-view>
-        <few-view slot="secondary" src="${secondary}"></few-view>
-    </few-view>
+    <f-view src="view/frame">
+        <f-view slot="primary" id="toc" src="view/toc" model="primary"></f-view>
+        <f-view slot="secondary" src="${secondary}"></f-view>
+    </f-view>
 
 # model
 model:

@@ -3,7 +3,7 @@ view:
   template:
     <div>
       <h2>View in View</h2>
-      <few-view id="dialog" src="view/tree-child" model="dialogContext"></few-view>
+      <f-view id="dialog" src="view/tree-child" model="dialogContext"></f-view>
       <h3>Update from Form</h3>
       <code>${'Name in Form:' + testMsg}</code>
     </div>

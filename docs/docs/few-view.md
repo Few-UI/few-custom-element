@@ -16,14 +16,14 @@
 Considering case below:
 ```html
 <!--mainView-->
-<few-view src="frame">
-    <few-view slot="slot1" src="view1"></few-view>
+<f-view src="frame">
+    <f-view slot="slot1" src="view1"></f-view>
     <div slot="slot2">
-        <few-view src="view2"></few-view>
+        <f-view src="view2"></f-view>
     <div>
     <!--unnamed slot-->
-    <few-view src="view3"></few-view>
-</few-view>
+    <f-view src="view3"></f-view>
+</f-view>
 ```
 
 Basically, the slot case, we need to achieve:

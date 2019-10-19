@@ -7,7 +7,7 @@ import { getComponent, parseViewToDiv } from './few-utils';
 
 export default class FewView extends HTMLElement {
     static get tag() {
-        return 'few-view';
+        return 'f-view';
     }
 
     static get observedAttributes() {
