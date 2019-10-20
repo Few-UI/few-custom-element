@@ -1,13 +1,13 @@
 # view
 view:
   template:
-    <div class="container">
-      <div class="row">
+    <div class="container few-sample-app-frame">
+      <div class="row few-sample-app-main-row">
         <div class="column column-20" f-cond="showPrimary">
           <slot name="primary"></slot>
         </div>
-        <div class="vertical-splitter" onclick="${switchPrimary}"></div>
-        <div class="column column-80">
+        <div class="few-sample-app-vertical-splitter" onclick="${switchPrimary}"></div>
+        <div class="column few-sample-app-content">
           <slot name="secondary"></slot>
         </div>
       </div>

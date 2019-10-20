@@ -2,15 +2,15 @@
 view:
   template:
     <f-view src="view/bind"></f-view>
-    <div class="splitter"></div>
+    <div class="few-sample-app-block-break"></div>
     <f-view src="view/directive"></f-view>
-    <div class="splitter"></div>
+    <div class="few-sample-app-block-break"></div>
     <f-view src="view/tree"></f-view>
-    <div class="splitter"></div>
+    <div class="few-sample-app-block-break"></div>
     <f-view src="view/cond"></f-view>
-    <div class="splitter"></div>
+    <div class="few-sample-app-block-break"></div>
     <f-view src="view/each"></f-view>
-    <div class="splitter"></div>
+    <div class="few-sample-app-block-break"></div>
     <f-view src="view/slot"></f-view>
 
   import:

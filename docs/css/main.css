@@ -37,7 +37,6 @@
     fill: #f4f5f6;
 }
 
-
 .button, button, input[type='button'], input[type='reset'], input[type='submit'] {
     background-color: #24292e;
     border: 0.1rem solid #24292e;
@@ -46,32 +45,7 @@
 a {
     color: #0366d6;
     text-decoration: none;
-}
-
-a {
     background-color: initial;
-}
-
-.block-break {
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 1px #eeeeee solid;
-}
-
-
-.vertical-splitter {
-    -webkit-flex: 0 0 8px;
-    flex: 0 0 8px;
-    position: relative;
-    touch-action: none;
-    background-color: transparent;
-    margin-left: 8px;
-    border-left: 1px #eeeeee solid;
-}
-
-.vertical-splitter:hover {
-    border-left: 2px #9b4dca solid;
-    cursor: pointer;
 }
 
 ::-webkit-scrollbar {
@@ -81,4 +55,57 @@ a {
 
 ::-webkit-scrollbar-thumb {
     background: #aaaaaa;
+}
+
+/* application specific */
+.few-samle-app {
+    position: fixed;
+    width: 100%;
+    height: calc(100% - 5.2rem);
+;
+}
+
+.few-sample-app-frame {
+    height: 100%;
+    padding-right: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    max-width: unset;
+}
+
+.few-sample-app-main-row {
+    width: 100%;
+    height: inherit;
+    margin-left: unset;
+}
+
+.few-sample-app-content {
+    overflow: auto;
+    width: 100%;
+}
+
+.few-sample-app-block-break {
+    margin-top: 4rem;
+    padding-top: 1.2rem;
+    border-top: 1px #eeeeee solid;
+}
+
+.few-sample-app-vertical-splitter {
+    -webkit-flex: 0 0 8px;
+    flex: 0 0 8px;
+    position: relative;
+    touch-action: none;
+    background-color: transparent;
+    margin-left: 8px;
+    border-left: 1px #eeeeee solid;
+}
+
+.few-sample-app-vertical-splitter:hover {
+    border-left: 2px #9b4dca solid;
+    cursor: pointer;
+}
+
+.few-sample-app-md-align-polyfill {
+    width: 100%;
+    height: 2em;
 }
