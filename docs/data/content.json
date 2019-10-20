@@ -1,0 +1,10 @@
+[
+    {
+        "name": "Introduction",
+        "src": "doc/introduction.md"
+    },
+    {
+        "name": "Examples",
+        "src": "view/example.yml"
+    }
+]

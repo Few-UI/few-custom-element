@@ -117,6 +117,15 @@ export default class FewComponent {
     }
 
     /**
+     * load model
+     */
+    async loadModel() {
+        if ( this._vm.init ) {
+            await this._update( this._vm.init, undefined, false );
+        }
+    }
+
+    /**
      * set view for current view model
      * @param {Object} view view input
      * @returns {Promise} promise with view element
@@ -250,17 +259,14 @@ export default class FewComponent {
         return this._getActionDefinition( methodName );
     }
 
-
     /**
      * evaluate method in view model
-     * @param {string} methodName method name in view model
+     * @param {object} actionDef action definition as JSON object
      * @param {object} scope input from upstream
      * @param {boolean} updateView if true will update view
      * @returns {Promise} promise with scope value
      */
-    async update( methodName, scope, updateView = true ) {
-        let actionDef = this._getActionDefinition( methodName );
-
+    async _update( actionDef, scope, updateView ) {
         let res = null;
         if ( _.isArray( actionDef ) ) {
             res = await actionDef.reduce( async( scope, name ) => {
@@ -275,5 +281,19 @@ export default class FewComponent {
         }
 
         return res;
+    }
+
+
+    /**
+     * evaluate method in view model
+     * @param {string} methodName method name in view model
+     * @param {object} scope input from upstream
+     * @param {boolean} updateView if true will update view
+     * @returns {Promise} promise with scope value
+     */
+    async update( methodName, scope, updateView = true ) {
+        let actionDef = this._getActionDefinition( methodName );
+
+        return await this._update( actionDef, scope, updateView );
     }
 }

@@ -4,9 +4,13 @@ view:
     <f-view src="view/frame">
         <f-view slot="primary" src="view/toc" model="tocModel"></f-view>
         <div slot="secondary">
-            <div f-cond="tocModel.items[tocModel.selection].type === 'view'" class="few-sample-app-md-align-polyfill"></div>
-            <f-view f-cond="tocModel.items[tocModel.selection].type === 'view'" src="${tocModel.items[tocModel.selection].src}"></f-view>
-            <md-view f-cond="tocModel.items[tocModel.selection].type === 'md'" src="${tocModel.items[tocModel.selection].src}"></f-view>
+            <div f-cond="/\.yml$/.test(tocModel.items[tocModel.selection].src)" class="few-sample-app-md-align-polyfill"></div>
+            <f-view f-cond="/\.yml$/.test(tocModel.items[tocModel.selection].src)"
+                    src="${tocModel.items[tocModel.selection].src.replace(/\.yml$/,'')}">
+            </f-view>
+            <md-view f-cond="/\.md$/.test(tocModel.items[tocModel.selection].src)"
+                     src="${tocModel.items[tocModel.selection].src.replace(/\.md$/,'')}">
+            </md-view>
         </div>
     </f-view>
   import:
@@ -16,13 +20,28 @@ view:
 model:
   tocModel:
     selection: 0
-    items:
-      - name: Introduction
-        type: md
-        src: doc/introduction
-      - name: example
-        type: view
-        src: view/example
+
+# init
+init:
+  - loadContent
+
+# action
+action:
+  getContent:
+    name: few.httpGet
+    input:
+      url: data/content.json
+
+  parseJson:
+    name: JSON.parse
+    input:
+      val: ${scope}
+    output:
+      tocModel.items: ''
+
+  loadContent:
+    - getContent
+    - parseJson
 
 # option
 option:

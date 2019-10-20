@@ -22030,6 +22030,15 @@ define(['require'], function (require) { 'use strict';
       }
 
       /**
+       * load model
+       */
+      async loadModel() {
+          if ( this._vm.init ) {
+              await this._update( this._vm.init, undefined, false );
+          }
+      }
+
+      /**
        * set view for current view model
        * @param {Object} view view input
        * @returns {Promise} promise with view element
@@ -22163,17 +22172,14 @@ define(['require'], function (require) { 'use strict';
           return this._getActionDefinition( methodName );
       }
 
-
       /**
        * evaluate method in view model
-       * @param {string} methodName method name in view model
+       * @param {object} actionDef action definition as JSON object
        * @param {object} scope input from upstream
        * @param {boolean} updateView if true will update view
        * @returns {Promise} promise with scope value
        */
-      async update( methodName, scope, updateView = true ) {
-          let actionDef = this._getActionDefinition( methodName );
-
+      async _update( actionDef, scope, updateView ) {
           let res = null;
           if ( lodash.isArray( actionDef ) ) {
               res = await actionDef.reduce( async( scope, name ) => {
@@ -22188,6 +22194,20 @@ define(['require'], function (require) { 'use strict';
           }
 
           return res;
+      }
+
+
+      /**
+       * evaluate method in view model
+       * @param {string} methodName method name in view model
+       * @param {object} scope input from upstream
+       * @param {boolean} updateView if true will update view
+       * @returns {Promise} promise with scope value
+       */
+      async update( methodName, scope, updateView = true ) {
+          let actionDef = this._getActionDefinition( methodName );
+
+          return await this._update( actionDef, scope, updateView );
       }
   }
 
@@ -22234,6 +22254,9 @@ define(['require'], function (require) { 'use strict';
                   }
 
                   this._component = new FewComponent( parentComponent, componentDef, modelPath );
+
+                  // Load model
+                  await this._component.loadModel();
 
                   // View has too be initialized separately since it is async
                   // let viewElem = await this._component.createView( componentDef.view );

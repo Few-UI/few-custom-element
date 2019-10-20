@@ -47,6 +47,9 @@ export default class FewView extends HTMLElement {
 
                 this._component = new FewComponent( parentComponent, componentDef, modelPath );
 
+                // Load model
+                await this._component.loadModel();
+
                 // View has too be initialized separately since it is async
                 // let viewElem = await this._component.createView( componentDef.view );
                 // this.appendChild( viewElem );
