@@ -69,6 +69,8 @@ export default class FewView extends HTMLElement {
                         let domNode = this.firstChild;
                         if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
                             this._slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
+                            // remove slot attribute to avoid complication
+                            domNode.removeAttribute( 'slot' );
                         }
                         this._slot.domFragement.appendChild( domNode );
                     }
