@@ -40,6 +40,11 @@ define( [], () => {
         } );
     };
 
+    exports.getMovieListFromOmdb = function( filterString ) {
+        var data = 'http://www.omdbapi.com/?s=' + encodeURIComponent( filterString ) + '&apikey=4bca95fd&page=' + 0;
+        return data;
+    };
+
     return exports;
 } );
 

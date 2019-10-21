@@ -21,7 +21,7 @@ This repo is majorly for practice purpose and try to achieve:
 - [x] Slot without Shadow DOM
 - [x] Condition and Loop in HTML Template
 - [x] Ignore function while use it with other framework
-- [ ] Model Initialization
+- [x] Model Initialization
 - [ ] Virtual DOM
 - [ ] Reactive Update
 - [ ] Generic virtualization
