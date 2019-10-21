@@ -22,6 +22,7 @@ This repo is majorly for practice purpose and try to achieve:
 - [x] Condition and Loop in HTML Template
 - [x] Ignore function while use it with other framework
 - [x] Model Initialization
+- [ ] Client side router
 - [ ] Virtual DOM
 - [ ] Reactive Update
 - [ ] Generic virtualization

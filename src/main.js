@@ -2,6 +2,7 @@
 /* eslint-env es6 */
 import './f-view';
 import few from './few-global';
+import './few-router';
 
 export default few;
 

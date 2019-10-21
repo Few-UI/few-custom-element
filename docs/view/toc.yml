@@ -4,7 +4,7 @@ view:
     <div class="few-sample-app-md-align-polyfill"></div>
     <ul>
       <li f-each="item of items">
-        <a href="#" onclick="${updateSelection}" style="${ items[selection].name === item.name ?'font-weight:bold':''}">${item.name}</a>
+        <a href="${ '#' + item.name}" onclick="${updateSelection}" style="${ items[selection].name === item.name ?'font-weight:bold':''}">${item.name}</a>
       </li>
     </ul>
 

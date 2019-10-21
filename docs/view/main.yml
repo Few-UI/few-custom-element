@@ -32,7 +32,7 @@ action:
   getContent:
     name: few.httpGet
     input:
-      url: data/content.json
+      url: config/content.json
 
   parseJson:
     name: JSON.parse
