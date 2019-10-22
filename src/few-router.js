@@ -26,6 +26,7 @@ function _start() {
     // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onhashchange
     win.addEventListener( 'hashchange', _hashChangeHandler );
 
+
     console.log( `router started with ${document.URL}` );
 }
 
@@ -34,10 +35,19 @@ function _start() {
  * @param {Event} e hash change event
  */
 function _hashChangeHandler( e ) {
-    for( let unit in _routingUnits ) {
-        _routingUnits[unit].processURL( e.newURL );
-    }
+    _processURL( e.newURL );
     console.log( `win.hashchange! ${e.oldURL} => ${e.newURL}` );
+}
+
+
+/**
+ * internal method to process URL
+ * @param {string} url current URL transit to
+ */
+function _processURL( url ) {
+    for( let unit in _routingUnits ) {
+        _routingUnits[unit].processURL( url );
+    }
 }
 
 /**

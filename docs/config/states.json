@@ -1,4 +1,7 @@
-{
-    "url": "/:tocModel.selection",
-    "view": "view/main"
-}
+[
+    {
+        "url": "/:tocModel.selection",
+        "view": "view/main"
+    }
+]
+

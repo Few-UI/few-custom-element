@@ -19,9 +19,9 @@ view:
     - lib/md-view
 
 # model
-model:
-  tocModel:
-    selection: Introduction
+# model:
+#   tocModel:
+#     selection: Introduction
 
 # init
 init:
