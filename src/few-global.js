@@ -83,3 +83,5 @@ export default exports = {
 
 // set it at global
 window.few = exports;
+
+// load router

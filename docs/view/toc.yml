@@ -4,7 +4,7 @@ view:
     <div class="few-sample-app-md-align-polyfill"></div>
     <ul>
       <li f-each="item of items">
-        <a href="${ '#' + item.name}" onclick="${updateSelection}" style="${ items[selection].name === item.name ?'font-weight:bold':''}">${item.name}</a>
+        <a href="${ '#' + item.name}" onclick="${updateSelection}" style="${ selection === item.name ?'font-weight:bold':''}">${item.name}</a>
       </li>
     </ul>
 
@@ -12,9 +12,9 @@ view:
 action:
   updateSelection:
     input:
-      selectedIndex: ${ items.findIndex((item) =>item.name === scope.element.textContent) }
+      selectedItem: ${ scope.element.textContent }
     output:
-      selection: selectedIndex
+      selection: selectedItem
 
 
 

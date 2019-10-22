@@ -8,6 +8,8 @@ let win = typeof window !== 'undefined' && window;
 const POPSTATE = 'popState';
 const HASHCHANGE = 'hashchange';
 
+let _routingUnits = [];
+
 /**
  * Set the window listeners to trigger the routes
  * @param {boolean} autoExec - see route.start
@@ -32,7 +34,30 @@ function _start() {
  * @param {Event} e hash change event
  */
 function _hashChangeHandler( e ) {
+    for( let unit in _routingUnits ) {
+        _routingUnits[unit].processURL( e.newURL );
+    }
     console.log( `win.hashchange! ${e.oldURL} => ${e.newURL}` );
+}
+
+/**
+ * register router element
+ * @param {Element} routerElem route element
+ */
+export function register( routerElem ) {
+    _routingUnits.push( routerElem );
+
+    // init current element
+    routerElem.processURL( document.URL );
+}
+
+/**
+ * unregister router element
+ * @param {Element} routerElem
+ */
+export function unregister( routerElem ) {
+    // do nothing
+    _routingUnits = _routingUnits.filter( elem => elem !== routerElem );
 }
 
 /**
@@ -71,3 +96,10 @@ export function stop() {
 }
 
 start();
+
+export default {
+    start,
+    stop,
+    register,
+    unregister
+};

@@ -78,7 +78,7 @@ class FewViewEachUnit extends FewViewUnit {
         let vForLst = childUnits.length;
         // let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
         let vForRes = vm[setName];
-        let vForResLength = vForRes ? vForRes.length : 0;
+        let vForResLength = vForRes ? vForRes.length || Object.keys( vForRes ).length : 0;
 
         // TODO:we can do either length check, order check, shallow compare...
         if ( vForLst  > vForResLength ) {
@@ -109,10 +109,11 @@ class FewViewEachUnit extends FewViewUnit {
         // Re-render template set
         if ( vForResLength > 0 ) {
             let iCount = 0;
+            let keys = Object.keys( vForRes );
             // re-fetch children because of one side effect
             this.getChildren().map( ( ch ) => {
                 let vVar = {};
-                vVar[varName] = vForRes[iCount++];
+                vVar[varName] = vForRes[keys[iCount++]];
                 return ch.render( Object.assign( Object.assign( {}, vm ), vVar ) );
             } );
         }

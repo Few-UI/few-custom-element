@@ -4139,6 +4139,8 @@ define(['require'], function (require) { 'use strict';
   // set it at global
   window.few = exports$1;
 
+  // load router
+
   var lodash = createCommonjsModule(function (module, exports) {
   (function() {
 
@@ -21790,7 +21792,7 @@ define(['require'], function (require) { 'use strict';
           let vForLst = childUnits.length;
           // let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
           let vForRes = vm[setName];
-          let vForResLength = vForRes ? vForRes.length : 0;
+          let vForResLength = vForRes ? vForRes.length || Object.keys( vForRes ).length : 0;
 
           // TODO:we can do either length check, order check, shallow compare...
           if ( vForLst  > vForResLength ) {
@@ -21819,10 +21821,11 @@ define(['require'], function (require) { 'use strict';
           // Re-render template set
           if ( vForResLength > 0 ) {
               let iCount = 0;
+              let keys = Object.keys( vForRes );
               // re-fetch children because of one side effect
               this.getChildren().map( ( ch ) => {
                   let vVar = {};
-                  vVar[varName] = vForRes[iCount++];
+                  vVar[varName] = vForRes[keys[iCount++]];
                   return ch.render( Object.assign( Object.assign( {}, vm ), vVar ) );
               } );
           }
@@ -22338,6 +22341,9 @@ define(['require'], function (require) { 'use strict';
   let _started = false;
 
   let win = typeof window !== 'undefined' && window;
+  const HASHCHANGE = 'hashchange';
+
+  let _routingUnits = [];
 
   /**
    * Set the window listeners to trigger the routes
@@ -22363,7 +22369,30 @@ define(['require'], function (require) { 'use strict';
    * @param {Event} e hash change event
    */
   function _hashChangeHandler( e ) {
+      for( let unit in _routingUnits ) {
+          _routingUnits[unit].processURL( e.newURL );
+      }
       console.log( `win.hashchange! ${e.oldURL} => ${e.newURL}` );
+  }
+
+  /**
+   * register router element
+   * @param {Element} routerElem route element
+   */
+  function register( routerElem ) {
+      _routingUnits.push( routerElem );
+
+      // init current element
+      routerElem.processURL( document.URL );
+  }
+
+  /**
+   * unregister router element
+   * @param {Element} routerElem
+   */
+  function unregister( routerElem ) {
+      // do nothing
+      _routingUnits = _routingUnits.filter( elem => elem !== routerElem );
   }
 
   /**
@@ -22388,7 +22417,75 @@ define(['require'], function (require) { 'use strict';
       }
   }
 
+  /**
+   * Stop client router service
+   */
+  function stop() {
+      if ( _started ) {
+          if ( win ) {
+              // win.removeEventListener( POPSTATE, _processURL );
+              win.removeEventListener( HASHCHANGE, _hashChangeHandler );
+      }
+      _started = false;
+    }
+  }
+
   start();
+
+  var router = {
+      start,
+      stop,
+      register,
+      unregister
+  };
+
+  /**
+   * load JSON config
+   * @param {string} configPath path for JSON configuration
+   * @returns {Promise} promise with configuratino JSON object
+   */
+  async function loadConfig( configPath ) {
+      return JSON.parse( await http.get( configPath ) );
+  }
+
+  class FewSpace extends HTMLElement {
+      static get tag() {
+          return 'f-space';
+      }
+
+      static get observedAttributes() {
+          return [ 'src' ];
+      }
+
+      constructor() {
+          super();
+
+          this._routeConfigPromise = null;
+      }
+
+      async attributeChangedCallback( name, oldValue, newValue ) {
+          // console.log( `${name}: ${oldValue} => ${newValue}` );
+
+          if ( name === 'src' && newValue && oldValue !== newValue ) {
+              // load router config
+              this._routeConfigPromise = loadConfig( `${newValue}.json` );
+          }
+      }
+
+      connectedCallback() {
+          router.register( this );
+      }
+
+      disconnectedCallback() {
+          router.unregister( this );
+      }
+
+      async processURL( url ) {
+          let config = await this._routeConfigPromise;
+          console.log( `f-space: processing ${url} with ${JSON.stringify( config )}` );
+      }
+  }
+  customElements.define( FewSpace.tag, FewSpace );
 
   // main entrance for debug test site
 

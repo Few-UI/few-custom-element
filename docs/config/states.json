@@ -1,0 +1,4 @@
+{
+    "url": "/:tocModel.selection",
+    "view": "view/main"
+}
