@@ -1,7 +1,7 @@
 import http from './http';
 import router from './few-router';
 import FewComponent from './few-component';
-import { setComponent } from './few-utils';
+import { getComponent, setComponent } from './few-utils';
 import set from 'lodash/set';
 
 
@@ -44,11 +44,11 @@ function getPathFromBase( href ) {
  * math url with pre-defined pattern
  * @param {string} pattern pattern as string
  * @param {string} urlParamStr input url
- * @returns {object} pramter structure
+ * @param {object} params param object
+ * @returns {boolean} true if url matches
  */
-function matchUrl( pattern, urlParamStr ) {
+function matchUrl( pattern, urlParamStr, params ) {
     // TODO: for now just make it work, blindly say map and return value
-    let res = {};
     let keys = DEFAULT_PARSER( pattern );
     let values = DEFAULT_PARSER( urlParamStr );
 
@@ -57,11 +57,11 @@ function matchUrl( pattern, urlParamStr ) {
         if ( key ) {
             key = key.replace( /^:/, '' );
             let value = values[n];
-            set( res, key, value );
+            set( params, key, value );
         }
     }
 
-    return res;
+    return true;
 }
 
 /**
@@ -86,6 +86,8 @@ export default class FewRoute extends HTMLElement {
         super();
 
         this._routeConfigPromise = null;
+
+        this._currState = null;
     }
 
     async attributeChangedCallback( name, oldValue, newValue ) {
@@ -113,22 +115,31 @@ export default class FewRoute extends HTMLElement {
 
         for( let key in states ) {
             let state = states[key];
-            let params = matchUrl( state.url, urlParamStr );
-            if( params ) {
-                // matching, process and break
-                // TODO: fake component
-                let componentDef = {
-                    model: {
-                        data: params
-                    }
-                };
+            if ( this._currState === state ) {
+                let component = getComponent( this );
+                if ( matchUrl( state.url, urlParamStr, component._vm.model.data ) ) {
+                    component._requestViewUpdate();
+                    break;
+                }
+            } else {
+                let params = {};
+                if( matchUrl( state.url, urlParamStr, params ) ) {
+                    // matching, process and break
+                    // TODO: fake component
+                    let componentDef = {
+                        model: {
+                            data: params
+                        }
+                    };
 
+                    let component = new FewComponent( null, componentDef );
+                    setComponent( this, component );
 
-                let component = new FewComponent( null, componentDef );
-                setComponent( this, component );
+                    this.innerHTML = `<f-view src="${state.view}" model="data"></f-view>`;
 
-                this.innerHTML = `<f-view src="${state.view}" model="data"></f-view>`;
-                break;
+                    this._currState = state;
+                    break;
+                }
             }
         }
     }
