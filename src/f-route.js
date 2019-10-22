@@ -73,9 +73,9 @@ async function loadConfig( configPath ) {
     return JSON.parse( await http.get( configPath ) );
 }
 
-export default class FewSpace extends HTMLElement {
+export default class FewRoute extends HTMLElement {
     static get tag() {
-        return 'f-space';
+        return 'f-route';
     }
 
     static get observedAttributes() {
@@ -133,4 +133,4 @@ export default class FewSpace extends HTMLElement {
         }
     }
 }
-customElements.define( FewSpace.tag, FewSpace );
+customElements.define( FewRoute.tag, FewRoute );

@@ -22360,9 +22360,6 @@ define(['require'], function (require) { 'use strict';
 
       // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onhashchange
       win.addEventListener( 'hashchange', _hashChangeHandler );
-
-
-      console.log( `router started with ${document.URL}` );
   }
 
   /**
@@ -22371,7 +22368,6 @@ define(['require'], function (require) { 'use strict';
    */
   function _hashChangeHandler( e ) {
       _processURL( e.newURL );
-      console.log( `win.hashchange! ${e.oldURL} => ${e.newURL}` );
   }
 
 
@@ -22398,7 +22394,7 @@ define(['require'], function (require) { 'use strict';
 
   /**
    * unregister router element
-   * @param {Element} routerElem
+   * @param {Element} routerElem router element
    */
   function unregister( routerElem ) {
       // do nothing
@@ -23812,9 +23808,9 @@ define(['require'], function (require) { 'use strict';
       return JSON.parse( await http.get( configPath ) );
   }
 
-  class FewSpace extends HTMLElement {
+  class FewRoute extends HTMLElement {
       static get tag() {
-          return 'f-space';
+          return 'f-route';
       }
 
       static get observedAttributes() {
@@ -23872,7 +23868,7 @@ define(['require'], function (require) { 'use strict';
           }
       }
   }
-  customElements.define( FewSpace.tag, FewSpace );
+  customElements.define( FewRoute.tag, FewRoute );
 
   // main entrance for debug test site
 

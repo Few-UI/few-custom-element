@@ -25,9 +25,6 @@ function _start() {
 
     // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onhashchange
     win.addEventListener( 'hashchange', _hashChangeHandler );
-
-
-    console.log( `router started with ${document.URL}` );
 }
 
 /**
@@ -36,7 +33,6 @@ function _start() {
  */
 function _hashChangeHandler( e ) {
     _processURL( e.newURL );
-    console.log( `win.hashchange! ${e.oldURL} => ${e.newURL}` );
 }
 
 
@@ -63,7 +59,7 @@ export function register( routerElem ) {
 
 /**
  * unregister router element
- * @param {Element} routerElem
+ * @param {Element} routerElem router element
  */
 export function unregister( routerElem ) {
     // do nothing
