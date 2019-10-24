@@ -11,6 +11,10 @@
   - iframe level solution
   - Solution/Doc for CSS
 
+## Load approach
+- Dynamic import JS
+- Append new HTML Element, interpret through HTML Engine
+
 ## Cross communication approach between container
 - Eventbus (need adopt)
 - Hijack and Event Delegation
