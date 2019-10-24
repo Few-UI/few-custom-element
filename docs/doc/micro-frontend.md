@@ -3,12 +3,18 @@
   - First class should be native framework for sure
 - Runtime integration, not build time
   - Get functionality by paying performance trade off
+- No/low adption to actual app to container
 - Separate dev and separate deploy strategy
 - Proper routing and lifecycle hook
 - Provide both
   - Component level solution
   - iframe level solution
   - Solution/Doc for CSS
+
+## Cross communication approach between container
+- Eventbus (need adopt)
+- Hijack and Event Delegation
+- Href
 
 # Reference
 https://martinfowler.com/articles/micro-frontends.html
