@@ -6,7 +6,7 @@
         ], ( few, marked, hljs ) => {*/
 
 import few from 'few';
-import marked from '//cdn.jsdelivr.net/npm/marked/marked.min.js';
+import marked from 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
 import hljs from 'lib/highlight.pack.js';
     marked.setOptions( {
         langPrefix: 'language-',
