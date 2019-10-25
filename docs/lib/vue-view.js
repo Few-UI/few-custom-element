@@ -2,7 +2,7 @@
 
 define( [
           '//cdn.jsdelivr.net/npm/vue/dist/vue.js',
-          'lib/httpVueLoader'
+          'lib/httpVueLoader.js'
         ], ( Vue, httpVueLoader ) => {
     class VueView extends HTMLElement {
         static get tag() {

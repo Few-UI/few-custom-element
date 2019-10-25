@@ -12,7 +12,7 @@ export default {
     input: 'src/main.js',
     output: {
         file: 'docs/few.js',
-        format: 'amd',
+        format: 'system',
         sourcemap: true
     },
     plugins: [

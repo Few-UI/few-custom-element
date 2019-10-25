@@ -7,8 +7,27 @@
 
     <title>Few</title>
 
-    <!-- AMD Loader -->
-    <script data-main="few.js" src="lib/require.min.js"></script>
+    <script type="systemjs-importmap">
+    {
+        "imports": {
+            "few": "./few.js",
+            "lib/": "./lib/"
+        }
+    }
+    </script>
+    <!-- load a locally hosted module -->
+    <script type="systemjs-module" src="import:./few.js"></script>
+
+    <script src="lib/systemjs/system.js"></script>
+
+    <script>
+        window.systemJsImport = System.__proto__.import;
+        System.__proto__.import = function(dep) {
+            const hasExt = /(css|json|wasm|cjs|js)$/.test(dep) && dep !== 'few';
+            return window.systemJsImport.apply( System, [ hasExt? dep : dep + '.js' ] );
+        }
+    </script>
+    <script>System.import('/lib/systemjs/extras/amd.js')</script>
 
     <!-- css based on https://milligram.io -->
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">

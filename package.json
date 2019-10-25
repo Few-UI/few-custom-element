@@ -20,7 +20,8 @@
     "rollup-plugin-node-resolve": "^5.1.0",
     "rollup-plugin-postcss": "^2.0.3",
     "rollup-plugin-terser": "^5.0.0",
-    "serve": "^11.2.0"
+    "serve": "^11.2.0",
+    "systemjs": "^6.1.4"
   },
   "scripts": {
     "build": "rollup -c",
