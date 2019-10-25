@@ -1,6 +1,7 @@
 # view
 view:
   template:
+    <!--
     <f-view src="view/frame">
       <f-view slot="primary" src="view/toc" model="tocModel"></f-view>
       <div slot="secondary">
@@ -15,8 +16,11 @@ view:
         </md-view>
       </div>
     </f-view>
+    -->
+    <vue-view src="vue/test"></vue-view>
   import:
     - lib/md-view
+    - lib/vue-view
 
 # model
 # model:
