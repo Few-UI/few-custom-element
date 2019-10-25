@@ -10,6 +10,12 @@ steal.config( {
     // baseURL: '../lib/',
     babelOptions: {
         presets: [ 'react' ]
+    },
+    paths: {
+        // github site is using https
+        // steal has an issue that by default // will applied as http
+        // For now use workaround below to match to https
+        '//cdn.jsdelivr.net/*' : 'https://cdn.jsdelivr.net/*.js'
     }
 } );
 
