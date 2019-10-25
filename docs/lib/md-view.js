@@ -7,13 +7,6 @@ import hljs from '//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/hi
 marked.setOptions( {
     langPrefix: 'language-',
     highlight: function( code, lang ) {
-        /*
-        if ( lang === 'js' ) {
-            return hljs.javascript( code );
-        } else if ( lang === 'html' ) {
-            return hljs.html( code );
-        }*/
-        // return hljs.highlightAuto( code ).value;
         return hljs.highlight( lang, code ).value;
     }
 } );
@@ -32,10 +25,6 @@ class MarkdownView extends HTMLElement {
         const shadowRoot = this.shadowRoot || this.attachShadow( { mode: 'open' } );
 
         // Apply style to shadow DOM
-        // let style = document.createElement( 'style' );
-        // style.textContent = buttonCss;
-        // shadowRoot.appendChild( style );
-
         const style = document.createElement( 'style' );
         style.textContent = `
     body {
