@@ -8,9 +8,11 @@ import { terser } from 'rollup-plugin-terser';
 // `npm run dev` -> `production` is false
 const production = !process.env.ROLLUP_WATCH;
 
+
 export default {
     input: 'src/main.js',
     output: {
+        name: 'few',
         file: 'docs/few.js',
         format: 'amd',
         sourcemap: true

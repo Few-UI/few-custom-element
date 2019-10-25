@@ -7,8 +7,8 @@
 
     <title>Few</title>
 
-    <!-- AMD Loader -->
-    <script data-main="few.js" src="lib/require.min.js"></script>
+    <!-- Module Loader -->
+    <script src="lib/steal/steal.js" config="steal.config.js" main="few"></script>
 
     <!-- css based on https://milligram.io -->
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
@@ -23,10 +23,10 @@
     <div class="few-sample-app-block-break"></div>
 
     <!-- main content, which will control by router -->
-    <f-route src="config/states" class="few-samle-app"></f-route>
+    <f-route src="config/states" class="few-sample-app"></f-route>
 
     <!--
-    <f-view src="view/main" class="few-samle-app"></f-view>
+    <f-view src="view/main" class="few-sample-app"></f-view>
     -->
 </body>
 </html>

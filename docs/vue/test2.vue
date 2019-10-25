@@ -1,20 +1,13 @@
 <template>
-    <div>
-        <div class="hello">Hello {{who}}</div>
-        <Test2></Test2>
-    </div>
+    <div class="hello">Hello {{who}}</div>
 </template>
 
 <script>
-let Test2 = require("vue/test2.vue");
 module.exports = {
     data: function() {
         return {
             who: 'world'
         }
-    },
-    components: {
-        Test2
     }
 }
 </script>

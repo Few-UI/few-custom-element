@@ -1,9 +1,13 @@
 /* eslint-env es6 */
 
-define( [ 'few',
+/*requirejs( [ 'few',
           '//cdn.jsdelivr.net/npm/marked/marked.min.js',
           'lib/highlight.pack.js'
-        ], ( few, marked, hljs ) => {
+        ], ( few, marked, hljs ) => {*/
+
+import few from 'few';
+import marked from '//cdn.jsdelivr.net/npm/marked/marked.min.js';
+import hljs from 'lib/highlight.pack.js';
     marked.setOptions( {
         langPrefix: 'language-',
         highlight: function( code, lang ) {
@@ -176,4 +180,4 @@ define( [ 'few',
 
 
     customElements.define( SampleButton.tag, SampleButton );
-} );
+// } );

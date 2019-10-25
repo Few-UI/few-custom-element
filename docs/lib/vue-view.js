@@ -1,9 +1,12 @@
 /* eslint-env es6 */
 
-define( [
+/*define( [
           '//cdn.jsdelivr.net/npm/vue/dist/vue.js',
           'lib/httpVueLoader'
-        ], ( Vue, httpVueLoader ) => {
+        ], ( Vue, httpVueLoader ) => {*/
+
+import Vue from '//cdn.jsdelivr.net/npm/vue/dist/vue.esm.browser.js';
+import httpVueLoader from 'lib/httpVueLoader';
     class VueView extends HTMLElement {
         static get tag() {
             return 'vue-view';
@@ -30,17 +33,30 @@ define( [
                 let match = path.match( /\/(\S+)$/ );
                 let componentName = match ? match[1] : path;
                 // httpVueLoader.register( Vue, `${path}.vue` );
+                let component = httpVueLoader( `${path}.vue` );
 
                 let opts = {
                     el: this._docElem,
                     template: `<${componentName}></${componentName}>`,
-                    components: {},
-                    data: {
-                        message: 'Hello Vue!'
-                    }
+                    components: {}
                 };
 
-                opts.components[componentName] = httpVueLoader( `${path}.vue` );
+
+                /*
+                httpVueLoader.langProcessor.esm = function( scriptText ) {
+                    return scriptText;
+                };
+                */
+
+                let defaultHttpVueLoaderRequire = httpVueLoader.require;
+                httpVueLoader.require = function( str ) {
+                    if ( /\.vue$/.test( str ) ) {
+                        return httpVueLoader( str );
+                    }
+                    return defaultHttpVueLoaderRequire.apply( httpVueLoader, [ str ] );
+                };
+
+                opts.components[componentName] = component;
 
                 var app = new Vue( opts );
             }
@@ -49,4 +65,4 @@ define( [
 
 
     customElements.define( VueView.tag, VueView );
-} );
+// } );
