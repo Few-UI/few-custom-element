@@ -5,7 +5,7 @@
           'lib/httpVueLoader'
         ], ( Vue, httpVueLoader ) => {*/
 
-import Vue from 'https://cdn.jsdelivr.net/npm/vue/dist/vue.esm.browser.js';
+import Vue from '//cdn.jsdelivr.net/npm/vue/dist/vue.esm.browser.js';
 import httpVueLoader from 'lib/httpVueLoader';
     class VueView extends HTMLElement {
         static get tag() {

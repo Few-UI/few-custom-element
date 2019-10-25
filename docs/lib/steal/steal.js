@@ -1950,7 +1950,7 @@ function logloads(loads) {
 
 	if(doubleSlash.test(inHref)) {
 		// Default to http
-		return 'http:' + inHref;
+		return (/^https:/.test(inBase) ? 'https:' : 'http:' ) + inHref;
 	}
 
     if (isWindows)
