@@ -1,9 +1,9 @@
 /* eslint-env es6 */
 
-define( [ 'few',
+define( [
           '//cdn.jsdelivr.net/npm/marked/marked.min.js',
           'lib/highlight.pack.js'
-        ], ( few, marked, hljs ) => {
+        ], ( marked, hljs ) => {
     marked.setOptions( {
         langPrefix: 'language-',
         highlight: function( code, lang ) {

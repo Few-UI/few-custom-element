@@ -4,7 +4,7 @@
 global
 */
 
-define( [ 'few' ], ( few ) => {
+define( [ ], ( ) => {
     let exports = {};
 
     /**

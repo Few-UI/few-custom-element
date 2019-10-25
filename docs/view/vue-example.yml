@@ -1,0 +1,7 @@
+view:
+  template:
+    <h2>Vue View</h2>
+    <vue-view src="vue/test"></vue-view>
+
+  import:
+    - lib/vue-view
