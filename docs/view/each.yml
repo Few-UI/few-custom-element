@@ -4,7 +4,7 @@ view:
     <h2>Each</h2>
     <form onsubmit="${action.addTodo}">
       <label for="item">Todo:</label>
-      <input id="item" type="text" name="item_desc">
+      <input id="item" type="text" name="item_desc" />
       <label for="status">Status:</label>
       <select id="status" name="item_status">
         <option value="Pending">Pending</option>

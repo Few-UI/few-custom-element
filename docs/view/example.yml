@@ -13,7 +13,7 @@ view:
     <div class="few-sample-app-block-break"></div>
     <f-view src="view/slot"></f-view>
     <div class="few-sample-app-block-break"></div>
-    <f-view src="view/vue-example"></f-view>
+    <f-view src="view/vue"></f-view>
 
   import:
     - lib/sample-button

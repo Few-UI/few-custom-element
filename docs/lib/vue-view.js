@@ -14,10 +14,12 @@ class VueView extends HTMLElement {
     constructor() {
         super();
 
+        /*
         let elem = document.createElement( 'div' );
         let shadowRoot = this.shadowRoot || this.attachShadow( { mode: 'open' } );
         shadowRoot.appendChild( elem );
         this._docElem = elem;
+        */
     }
 
     attributeChangedCallback( name, oldValue, newValue ) {
@@ -29,7 +31,7 @@ class VueView extends HTMLElement {
             let component = httpVueLoader( `${path}.vue` );
 
             let opts = {
-                el: this._docElem,
+                el: this,
                 template: `<${componentName}></${componentName}>`,
                 components: {}
             };

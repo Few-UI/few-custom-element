@@ -1,0 +1,7 @@
+# view
+view:
+  template:
+    <h2>Vue</h2>
+    <vue-view src="vue/todo"></vue-view>
+  import:
+    - lib/vue-view
