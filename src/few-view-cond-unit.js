@@ -32,12 +32,13 @@ class FewViewCondUnit extends FewViewUnit {
         let name = this.constructor.KEY;
 
         let vExpr = this.getInput( name );
-        let vIfRes = evalExpression( vExpr, vm, true );
+        let vIfRes = Boolean( evalExpression( vExpr, vm, true ) );
         let vIfLst = this.getValue( name );
-        if ( vIfLst === undefined || vIfLst !== Boolean( vIfRes ) ) {
+        let vStateUnit = this.getChildren()[0];
+        if ( vIfLst === undefined || vIfLst !== vIfRes ) {
             let parentNode = domNode.parentNode;
             if( vIfRes ) {
-                newNode = this.getChildren()[0].render( vm );
+                newNode = vStateUnit.render( vm );
                 if ( newNode !== domNode ) {
                     parentNode.replaceChild( newNode, domNode );
                 }
@@ -45,8 +46,10 @@ class FewViewCondUnit extends FewViewUnit {
                 newNode = document.createComment( `f-cond ${vExpr} = ${vIfRes}` );
                 parentNode.replaceChild( newNode, domNode );
             }
+        } else if ( vIfRes ) {
+            vStateUnit.render( vm );
         }
-        this.setValue( name, Boolean( vIfRes ) );
+        this.setValue( name, vIfRes  );
 
         return newNode;
     }

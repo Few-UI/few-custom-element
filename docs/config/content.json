@@ -6,5 +6,9 @@
     "Examples": {
         "name": "Examples",
         "src": "view/example.yml"
+    },
+    "Micro-Frontends": {
+        "name": "Micro-Frontends",
+        "src": "view/micro-frontends.yml"
     }
 }

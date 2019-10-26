@@ -3,7 +3,7 @@ view:
   template:
     <h2>Slot</h2>
     <button onclick="${updateSlotText}">Update</button>
-    <f-view src="view/slot-frame">
+    <f-view src="view/examples/slot-frame">
         <code slot="slot1">${slotText1}</code>
         <code slot="slot2">${slotText2}</code>
     </f-view>

@@ -1,0 +1,22 @@
+# view
+view:
+  template:
+    <f-view src="view/examples/each"></f-view>
+    <div class="few-sample-app-block-break"></div>
+    <f-view src="view/vue"></f-view>
+    <div class="few-sample-app-block-break"></div>
+
+  import:
+    - lib/sample-button
+    - lib/red-line.directive
+    - lib/extend-tooltip.directive
+
+#option
+option:
+# scopePath: scope
+  actionPaths:
+    - action
+  stringTemplate:
+    pattern: /^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m
+    index: 1
+
