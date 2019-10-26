@@ -1,9 +1,9 @@
 # view
 view:
   template:
-    <f-view src="view/examples/each"></f-view>
+    <f-view src="view/micro/few-todo"></f-view>
     <div class="few-sample-app-block-break"></div>
-    <f-view src="view/vue"></f-view>
+    <f-view src="view/micro/vue-todo"></f-view>
     <div class="few-sample-app-block-break"></div>
 
   import:

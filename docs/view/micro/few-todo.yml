@@ -1,0 +1,43 @@
+# view
+view:
+  template:
+    <h2>Few Todo</h2>
+    <form onsubmit="${action.addTodo}">
+      <label for="item">Todo:</label>
+      <input id="item" type="text" name="item_desc" />
+      <label for="status">Status:</label>
+      <select id="status" name="item_status">
+        <option value="Pending">Pending</option>
+        <option value="Done">Done</option>
+        <option value="In Progress">In Progress</option>
+      </select>
+      <button type="submit">Add</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr f-each="item of items">
+          <td>${item.item_desc}</td>
+          <td>${item.item_status}</td>
+        </tr>
+      </tbody>
+    </table>
+
+# model
+model:
+  items: []
+
+# update
+action:
+  addTodo:
+    input:
+      formInput: ${items.concat([few.getFormInput(scope.element)])}
+    output:
+      items: formInput
+

@@ -5,10 +5,10 @@
     },
     "Examples": {
         "name": "Examples",
-        "src": "view/example.yml"
+        "src": "view/examples/example.yml"
     },
     "Micro-Frontends": {
         "name": "Micro-Frontends",
-        "src": "view/micro-frontends.yml"
+        "src": "view/micro/micro.yml"
     }
 }
