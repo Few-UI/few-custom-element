@@ -149,7 +149,7 @@ describe( 'Test slot feature in few-view element', () => {
             '</f-view>'
         ].join( '' ) ) );
 
-        await wait( 50 );
+        await wait( 100 );
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
@@ -173,7 +173,7 @@ describe( 'Test slot feature in few-view element', () => {
 
         await component.update( 'updateData' );
 
-        await wait( 100 );
+        await wait( 200 );
 
         expect( elem.outerHTML ).toEqual( [
             '<f-view src="mainView" class="few-scope">',

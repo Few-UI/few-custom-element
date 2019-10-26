@@ -79,6 +79,7 @@ class FewViewEachUnit extends FewViewUnit {
         let vForLst = childUnits.length;
         // let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
         let vForRes = _get( vm, setName );
+        // let vForRes = vm[setName];
         let vForResLength = vForRes ? vForRes.length || Object.keys( vForRes ).length : 0;
 
         // TODO:we can do either length check, order check, shallow compare...

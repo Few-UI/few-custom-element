@@ -1,0 +1,7 @@
+# view
+view:
+  template:
+    <jsx-view src="view/advance/jsx/test"></jsx-view>
+
+  import:
+    - lib/jsx-view

@@ -22982,6 +22982,7 @@ define(['require'], function (require) { 'use strict';
           let vForLst = childUnits.length;
           // let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
           let vForRes = get_1( vm, setName );
+          // let vForRes = vm[setName];
           let vForResLength = vForRes ? vForRes.length || Object.keys( vForRes ).length : 0;
 
           // TODO:we can do either length check, order check, shallow compare...

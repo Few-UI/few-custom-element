@@ -10,5 +10,9 @@
     "Advance": {
         "name": "Advance",
         "src": "view/advance/advance.yml"
+    },
+    "JSX": {
+        "name": "JSX",
+        "src": "view/advance/react.yml"
     }
 }
