@@ -8,6 +8,7 @@ steal.config( {
     // Sould be able to play it with config but let us not over engineering this for now
     // baseURL: '../lib/',
     babelOptions: {
+        // https://stealjs.com/docs/config.babelOptions.html
         presets: [ 'react' ]
     },
     paths: {
