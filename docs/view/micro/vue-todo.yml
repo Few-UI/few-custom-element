@@ -2,6 +2,6 @@
 view:
   template:
     <h2>Vue Todo</h2>
-    <vue-view src="vue/todo"></vue-view>
+    <vue-view src="view/micro/vue/todo"></vue-view>
   import:
     - lib/vue-view

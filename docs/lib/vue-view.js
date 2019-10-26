@@ -26,7 +26,7 @@ class VueView extends HTMLElement {
         if ( name === 'src' && newValue && oldValue !== newValue ) {
             // parse component name
             let path = newValue;
-            let match = path.match( /\/(\S+)$/ );
+            let match = path.match( /\/([^/]+)$/ );
             let componentName = match ? match[1] : path;
             let component = httpVueLoader( `${path}.vue` );
 

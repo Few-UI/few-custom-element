@@ -8,7 +8,7 @@
         <option value="Done">Done</option>
         <option value="In Progress">In Progress</option>
       </select>
-      <button type="submit">Add</button>
+      <button type="submit" class="vue-button">Add</button>
     </form>
 </template>
 
@@ -34,3 +34,10 @@ module.exports = {
     }
 }
 </script>
+
+<style>
+.vue-button {
+    background-color: #42b983;
+    border-color: #42b983;
+}
+</style>

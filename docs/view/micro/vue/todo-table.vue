@@ -1,5 +1,5 @@
 <template>
-    <table class="vue-text">
+    <table class="vue-style">
       <thead>
         <tr>
           <th>Description</th>
@@ -22,7 +22,7 @@ module.exports = {
 </script>
 
 <style>
-.vue-text {
+.vue-style {
     color: #42b983;
 }
 </style>

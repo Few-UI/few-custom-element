@@ -6,8 +6,8 @@
 </template>
 
 <script>
-let TodoForm = require("vue/todo-form.vue");
-let TodoTable = require("vue/todo-table.vue");
+let TodoForm = require("./todo-form.vue");
+let TodoTable = require("./todo-table.vue");
 module.exports = {
     data: function() {
         return {
