@@ -1,0 +1,20 @@
+# view
+view:
+  template:
+    <h2>Few Todo</h2>
+    <f-view src="view/micro/few/todo-form" id="todo-form"></f-view>
+    <f-view src="view/micro/few/todo-table" model="todo"></f-view>
+
+# model
+model:
+  todo:
+    items: []
+
+# update
+action:
+  todo-form:
+    input:
+      updatedItems: ${todo.items.concat([scope])}
+    output:
+      todo.items: updatedItems
+

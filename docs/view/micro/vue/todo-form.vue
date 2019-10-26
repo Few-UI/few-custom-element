@@ -20,7 +20,7 @@ module.exports = {
         return {
             id: '',
             item_desc: '',
-            item_status: ''
+            item_status: 'Pending'
         };
     } ,
     methods: {

@@ -1,4 +1,5 @@
 /* eslint-env es6 */
+import _get from 'lodash/get';
 import viewUnitFactory, { FewViewUnit } from './few-view-unit';
 
 class FewViewEachUnit extends FewViewUnit {
@@ -77,7 +78,7 @@ class FewViewEachUnit extends FewViewUnit {
         let templNode = this.getInput( templKey );
         let vForLst = childUnits.length;
         // let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
-        let vForRes = vm[setName];
+        let vForRes = _get( vm, setName );
         let vForResLength = vForRes ? vForRes.length || Object.keys( vForRes ).length : 0;
 
         // TODO:we can do either length check, order check, shallow compare...

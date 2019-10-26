@@ -1,0 +1,17 @@
+# view
+view:
+  template:
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr f-each="item of items">
+          <td>${item.item_desc}</td>
+          <td>${item.item_status}</td>
+        </tr>
+      </tbody>
+    </table>

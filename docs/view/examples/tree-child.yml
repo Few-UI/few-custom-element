@@ -9,8 +9,6 @@ view:
       <button type="submit">${testMsg}</button>
       <div>${valueFromParent}</div>
     </form>
-  import:
-    - lib/sample-button
 
 # model
 model:

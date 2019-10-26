@@ -1,15 +1,13 @@
 # view
 view:
   template:
-    <f-view src="view/micro/few-todo"></f-view>
+    <f-view src="view/micro/few/todo"></f-view>
     <div class="few-sample-app-block-break"></div>
-    <f-view src="view/micro/vue-todo"></f-view>
+    <vue-view src="view/micro/vue/todo"></vue-view>
     <div class="few-sample-app-block-break"></div>
 
   import:
-    - lib/sample-button
-    - lib/red-line.directive
-    - lib/extend-tooltip.directive
+    - lib/vue-view
 
 #option
 option:

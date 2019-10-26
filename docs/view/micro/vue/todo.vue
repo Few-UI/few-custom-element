@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h2>Vue Todo</h2>
         <todo-form v-bind:items="todoList"></todo-form>
         <todo-table v-bind:items="todoList"></todo-table>
     </div>
