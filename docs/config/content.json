@@ -3,12 +3,12 @@
         "name": "Introduction",
         "src": "doc/introduction.md"
     },
-    "Examples": {
-        "name": "Examples",
-        "src": "view/examples/example.yml"
+    "Basic": {
+        "name": "Basic",
+        "src": "view/basic/basic.yml"
     },
-    "Micro-Frontends": {
-        "name": "Micro-Frontends",
-        "src": "view/micro/micro.yml"
+    "Advance": {
+        "name": "Advance",
+        "src": "view/advance/advance.yml"
     }
 }
