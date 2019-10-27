@@ -29,9 +29,9 @@ class JsxView extends HTMLElement {
     attributeChangedCallback( name, oldValue, newValue ) {
         if ( name === 'src' && newValue && oldValue !== newValue ) {
         // NOTE: This makes current component only available with stealJS
-        System.import( 'view/advance/jsx/todo.jsx' ).then( ( TestView ) => {
+        System.import( 'view/advance/jsx/todo.jsx' ).then( ( JsxView ) => {
             ReactDOM.render(
-              React.createElement( TestView.default, { testVal: 'Hello World' }, null ),
+              React.createElement( JsxView.default, null ),
               this
             );
         } );

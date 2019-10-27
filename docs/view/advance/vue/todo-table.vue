@@ -1,5 +1,5 @@
 <template>
-    <table class="vue-style">
+    <table>
       <thead>
         <tr>
           <th>Description</th>
@@ -20,9 +20,3 @@ module.exports = {
     props: ['items'],
 }
 </script>
-
-<style>
-.vue-style {
-    color: #42b983;
-}
-</style>

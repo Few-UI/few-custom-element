@@ -1,6 +1,6 @@
 /* eslint-env es6 */
 
-import Vue from '//cdn.jsdelivr.net/npm/vue/dist/vue.esm.browser';
+import Vue from 'https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min';
 import httpVueLoader from '//cdn.jsdelivr.net/npm/http-vue-loader@1.4.1/src/httpVueLoader.min';
 class VueView extends HTMLElement {
     static get tag() {

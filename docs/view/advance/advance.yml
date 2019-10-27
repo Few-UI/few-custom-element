@@ -5,9 +5,12 @@ view:
     <div class="few-sample-app-block-break"></div>
     <vue-view src="view/advance/vue/todo"></vue-view>
     <div class="few-sample-app-block-break"></div>
+    <jsx-view src="view/advance/jsx/test"></jsx-view>
+    <div class="few-sample-app-block-break"></div>
 
   import:
     - lib/vue-view
+    - lib/jsx-view
 
 #option
 option:
