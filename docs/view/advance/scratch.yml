@@ -1,0 +1,7 @@
+# view
+view:
+  template:
+    <lit-todo></lit-todo>
+
+  import:
+    - view/advance/lit/lit-todo
