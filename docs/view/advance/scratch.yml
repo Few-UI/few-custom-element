@@ -1,7 +1,7 @@
 # view
 view:
   template:
-    <lit-todo></lit-todo>
+    <todo-lit></todo-lit>
 
   import:
-    - view/advance/lit/lit-todo
+    - view/advance/lit/todo-lit

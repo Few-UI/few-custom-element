@@ -2,12 +2,24 @@
 
 // workaround for stealJS loading
 // import { LitElement, html } from 'lit-element';
-import './lit-todo-table';
 import { html } from 'lit-html';
 import { LitElement } from 'lit-element';
 
 // Extend the LitElement base class
-class MyElement extends LitElement {
+class TodoTableLitElement extends LitElement {
+    // properties getter
+    // 2 level of watcher (todo level and table level) are required to make sure render
+    // will be triggerred top to bottom. (which does not make sense)
+    static get properties() {
+        return {
+            items: { type: Array }
+        };
+    }
+
+    constructor() {
+        super();
+    }
+
     /**
      * Implement `render` to define a template for your element.
      *
@@ -24,8 +36,22 @@ class MyElement extends LitElement {
          */
         this.dummy;
         return html `
-          <h2>Lit Todo</h2>
-          <lit-todo-table></lit-todo-table>
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${this.items.map( item => html `
+              <tr>
+                <td>${item.item_desc}</td>
+                <td>${item.item_status}</td>
+              </tr>
+              ` )}
+            </tbody>
+          </table>
         `;
     }
 
@@ -38,5 +64,6 @@ class MyElement extends LitElement {
         return this;
     }
 }
+
 // Register the new element with the browser.
-customElements.define( 'lit-todo', MyElement );
+customElements.define( 'todo-table-lit', TodoTableLitElement );
