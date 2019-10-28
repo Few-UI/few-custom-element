@@ -24,14 +24,6 @@ class TodoLitElement extends LitElement {
     constructor() {
         super();
         this.items = [
-            {
-                item_desc: 'Apple',
-                item_status: 'Done'
-            },
-            {
-                item_desc: 'Banana',
-                item_status: 'Done'
-            }
         ];
     }
 
