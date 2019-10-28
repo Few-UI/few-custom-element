@@ -17,19 +17,19 @@ steal.config( {
         // For now use workaround below to match to https
         '//cdn.jsdelivr.net/*' : 'https://cdn.jsdelivr.net/*.js',
         // For stealJSX
-        react: '//cdn.jsdelivr.net/npm/react@16.11.0/umd/react.development.js',
-        'steal-jsx': '//cdn.jsdelivr.net/npm/steal-react-jsx@0.0.4/steal-react-jsx.js',
+        react: 'https://cdn.jsdelivr.net/npm/react@16.11.0/umd/react.development.js',
+        'steal-jsx': 'https://cdn.jsdelivr.net/npm/steal-react-jsx@0.0.4/steal-react-jsx.js',
         // lit-element
-        'lit-element': '//cdn.jsdelivr.net/npm/lit-element@2.2.1/lit-element.js',
-        'lit-element/*': '//cdn.jsdelivr.net/npm/lit-element@2.2.1/*.js',
+        'lit-element': 'https://cdn.jsdelivr.net/npm/lit-element@2.2.1/lit-element.js',
+        'lit-element/*': 'https://cdn.jsdelivr.net/npm/lit-element@2.2.1/*.js',
         /*
         'lib/updating-element': '//cdn.jsdelivr.net/npm/lit-element@2.2.1/lib/updating-element.js',
         'lib/decorators': '//cdn.jsdelivr.net/npm/lit-element@2.2.1/lib/decorators.js',
         'lib/css-tag': '//cdn.jsdelivr.net/npm/lit-element@2.2.1/lib/css-tag.js',
         */
         // lit-html
-        'lit-html/*': '//cdn.jsdelivr.net/npm/lit-html@1.1.2/*.js',
-        'lit-html': '//cdn.jsdelivr.net/npm/lit-html@1.1.2/lit-html.js'
+        'lit-html/*': 'https://cdn.jsdelivr.net/npm/lit-html@1.1.2/*.js',
+        'lit-html': 'https://cdn.jsdelivr.net/npm/lit-html@1.1.2/lit-html.js'
     },
     meta: {
       'lit-element': {
