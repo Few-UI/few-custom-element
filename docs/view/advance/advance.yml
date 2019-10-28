@@ -1,11 +1,11 @@
 # view
 view:
   template:
-    <f-view src="view/advance/few/todo"></f-view>
+    <f-view src="./few/todo"></f-view>
     <div class="few-sample-app-block-break"></div>
     <vue-view src="view/advance/vue/todo"></vue-view>
     <div class="few-sample-app-block-break"></div>
-    <jsx-view src="view/advance/jsx/test"></jsx-view>
+    <jsx-view src="view/advance/jsx/todo"></jsx-view>
     <div class="few-sample-app-block-break"></div>
     <todo-lit></todo-lit>
     <div class="few-sample-app-block-break"></div>
@@ -13,14 +13,4 @@ view:
   import:
     - lib/vue-view
     - lib/jsx-view
-    - view/advance/lit/todo-lit
-
-#option
-option:
-# scopePath: scope
-  actionPaths:
-    - action
-  stringTemplate:
-    pattern: /^\s*\${\s*([\S\s\r\n]*)\s*}\s*$/m
-    index: 1
-
+    - ./lit/todo-lit

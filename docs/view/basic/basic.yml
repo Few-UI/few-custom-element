@@ -1,17 +1,17 @@
 # view
 view:
   template:
-    <f-view src="view/basic/bind"></f-view>
+    <f-view src="./bind"></f-view>
     <div class="few-sample-app-block-break"></div>
-    <f-view src="view/basic/directive"></f-view>
+    <f-view src="./directive"></f-view>
     <div class="few-sample-app-block-break"></div>
-    <f-view src="view/basic/tree"></f-view>
+    <f-view src="./tree"></f-view>
     <div class="few-sample-app-block-break"></div>
-    <f-view src="view/basic/cond"></f-view>
+    <f-view src="./cond"></f-view>
     <div class="few-sample-app-block-break"></div>
-    <f-view src="view/basic/each"></f-view>
+    <f-view src="./each"></f-view>
     <div class="few-sample-app-block-break"></div>
-    <f-view src="view/basic/slot"></f-view>
+    <f-view src="./slot"></f-view>
 
 #option
 option:

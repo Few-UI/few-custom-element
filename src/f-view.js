@@ -3,7 +3,7 @@
 import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import http from './http';
-import { getComponent, parseView } from './few-utils';
+import { getComponent, getViewElement, parseView } from './few-utils';
 
 export default class FewView extends HTMLElement {
     static get tag() {
@@ -18,16 +18,41 @@ export default class FewView extends HTMLElement {
         super();
 
         /**
-         * view model
+         * component
          */
         this._component = null;
+
+        /**
+         * view path
+         */
+        this._currentView = null;
+    }
+
+    getViewPath() {
+        if ( /\//.test( this._currentView ) ) {
+            return this._currentView.replace( /\/[^/]+$/, '/' );
+        }
+    }
+
+    _processPath( path, fromParent ) {
+        if( /^\.\.?\//.test( path ) ) {
+            let parentPath = fromParent ? getViewElement( this ).getViewPath() : this.getViewPath();
+            if( parentPath ) {
+                return parentPath + path;
+            }
+        }
+        return path;
     }
 
     async attributeChangedCallback( name, oldValue, newValue ) {
         // console.log( `${name}: ${oldValue} => ${newValue}` );
 
         if ( name === 'src' && newValue && oldValue !== newValue ) {
-            this._pendingView = newValue;
+            let newViewPath = this._processPath( newValue, true );
+
+            this._currentView = newViewPath;
+
+
             try {
                 let parentComponent = getComponent( this );
 
@@ -39,9 +64,9 @@ export default class FewView extends HTMLElement {
                 let modelPath = this.getAttribute( 'model' );
 
                 // load component definition
-                let componentDef = yaml.safeLoad( await http.get( `${newValue}.yml` ) );
+                let componentDef = yaml.safeLoad( await http.get( `${newViewPath}.yml` ) );
 
-                if ( this._pendingView !== newValue ) {
+                if ( this._currentView !== newViewPath ) {
                     return;
                 }
 
@@ -54,9 +79,14 @@ export default class FewView extends HTMLElement {
                 // let viewElem = await this._component.createView( componentDef.view );
                 // this.appendChild( viewElem );
 
+                // TODO: need to refactor
+                if( componentDef.view.import ) {
+                    componentDef.view.import = componentDef.view.import.map( path => this._processPath( path ) );
+                }
+
                 await this._component.createView( componentDef.view );
 
-                if ( this._pendingView !== newValue ) {
+                if ( this._currentView !== newViewPath ) {
                     return;
                 }
 
@@ -112,10 +142,10 @@ export default class FewView extends HTMLElement {
 
                 this._component.attachViewToPage( this );
 
-                delete this._pendingView;
+                // delete this._pendingView;
             } catch ( e ) {
-                if ( this._pendingView === newValue ) {
-                    this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
+                if ( this._currentView === newViewPath ) {
+                    this.appendChild( parseView( `<code style="color:red" >${newViewPath}.yml: ${e}</code>` ) );
                 }
                 throw e;
             }
