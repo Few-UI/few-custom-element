@@ -119,7 +119,7 @@ export default class FewComponent {
     /**
      * load model
      */
-    async loadModel() {
+    async init() {
         if ( this._vm.init ) {
             await this._update( this._vm.init, undefined, false );
         }
