@@ -2,8 +2,8 @@
 view:
   template:
     <h2>Few Todo</h2>
-    <f-view src="view/advance/few/todo-form" id="todo-form"></f-view>
-    <f-view src="view/advance/few/todo-table" model="todo"></f-view>
+    <few-view src="view/advance/few/todo-form" id="todo-form"></few-view>
+    <few-view src="view/advance/few/todo-table" model="todo"></few-view>
 
 # model
 model:

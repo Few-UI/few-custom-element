@@ -1,20 +1,20 @@
 # view
 view:
   template:
-    <f-view src="view/frame">
-      <f-view slot="primary" src="view/toc" model="tocModel"></f-view>
+    <few-view src="view/frame">
+      <few-view slot="primary" src="view/toc" model="tocModel"></few-view>
       <div slot="secondary">
         <div f-cond="/\.yml$/.test(tocModel.items[tocModel.selection].src)"
               class="few-sample-app-md-align-polyfill">
         </div>
-        <f-view f-cond="/\.yml$/.test(tocModel.items[tocModel.selection].src)"
+        <few-view f-cond="/\.yml$/.test(tocModel.items[tocModel.selection].src)"
                    src="${tocModel.items[tocModel.selection].src.replace(/\.yml$/,'')}">
-        </f-view>
+        </few-view>
         <md-view f-cond="/\.md$/.test(tocModel.items[tocModel.selection].src)"
                     src="${tocModel.items[tocModel.selection].src.replace(/\.md$/,'')}">
         </md-view>
       </div>
-    </f-view>
+    </few-view>
   import:
     - lib/md-view
 

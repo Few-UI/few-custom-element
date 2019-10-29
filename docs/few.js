@@ -20922,6 +20922,61 @@ define(['require'], function (require) { 'use strict';
 
   /* eslint-env es6 */
 
+  let _directives = {};
+
+  /**
+   * Register/define attribute directives in few
+   * @param {string} name directive name
+   * @param {FewDirective} directive attribute directive definition
+   */
+  function defineDirective( name, directive ) {
+      _directives[name] = directive;
+  }
+
+  /**
+   * Get attribute directive definition
+   * @param {string} name directive name
+   * @returns {FewDirective} attribute directive definition
+   */
+  function getDirective( name ) {
+      return _directives[name];
+  }
+
+  /* eslint-env es6 */
+  let FewViewNullUnit = {
+      KEY: 'f-ignore'
+  };
+
+  let _filterElements = {
+
+  };
+
+  /**
+   * Register/define element which will be
+   * @param {string} nodeName Element name all in upper case
+   */
+  function excludeElement( nodeName ) {
+      _filterElements[nodeName] = true;
+  }
+
+  /**
+   * Check if element is excluded by few
+   * @param {string} nodeName element name all in uppercase
+   * @returns {boolean} if true few will ignore the element
+   */
+  function isExcluded( nodeName ) {
+      return _filterElements[nodeName];
+  }
+
+  var nullUnitFactory = {
+      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE &&
+                  ( isExcluded( domNode.nodeName ) ||
+                    domNode.hasAttribute( FewViewNullUnit.KEY ) ),
+      createUnit: () => null
+  };
+
+  /* eslint-env es6 */
+
   /**
    * Parse view string as DOM without interpret it
    * TODO no for now and needs to be enahanced
@@ -21072,6 +21127,155 @@ define(['require'], function (require) { 'use strict';
       }
       return path;
   }
+
+  /* eslint-env es6 */
+  // Simple http implementation
+
+  /**
+   * simple http get
+   * @param {string} theUrl url as string
+   * @returns {Promise} promise
+   */
+  function httpGet( theUrl ) {
+      return new Promise( ( resolve, reject ) => {
+          let xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = () => {
+              if ( xhr.readyState === 4 && xhr.status !== 404 ) {
+                  resolve( xhr.responseText );
+              }
+          };
+
+          xhr.onerror = () => {
+              reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+          };
+
+          xhr.onloadend = function() {
+              if ( xhr.status === 404 ) {
+                  reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+              }
+          };
+
+          xhr.open( 'GET', theUrl, true ); // true for asynchronous
+          xhr.send( null );
+      } );
+  }
+
+  var http = {
+      get: httpGet
+  };
+
+  /* eslint-env es6 */
+
+  let exports$1;
+
+  /**
+   * Run method in view model
+   * @param {Element} elem DOM Element
+   * @param {string} methodName method name in view model
+   * @param {object}  e event object as context
+   * @returns {Promise} evaluation as promise
+   */
+  function handleEvent( elem, methodName, e ) {
+      /*
+          return false from within a jQuery event handler is effectively the same as calling
+          both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
+
+          e.preventDefault() will prevent the default event from occuring.
+          e.stopPropagation() will prevent the event from bubbling up.
+          return false will do both.
+
+          Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
+          notably, return false does not stop the event from bubbling up.
+
+          Source: John Resig
+      */
+      e.preventDefault();
+      // e.stopPropagation();
+
+      let component = getComponent( elem );
+      return component.update( methodName, {
+          element: elem,
+          event: e
+      } );
+  }
+
+  /**
+   * Request update to parent view model
+   * @param {Element} elem DOM Element  as context
+   * @param {object}  data data as request input
+   * @param {string}  method action name
+   * @returns {Promise} evaluation as promise
+   */
+  function requestUpdate( elem, data, method ) {
+      let viewElem = getViewElement( elem );
+      let parentElement = viewElem.parentElement;
+      let component = getComponent( parentElement );
+      let actionName = method || viewElem.id;
+      if ( component.hasAction( actionName ) ) {
+          // TODO: need to tune performance to reduce over update
+          return component.update( actionName, data );
+      }
+      return requestUpdate( parentElement, data, actionName );
+  }
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Element} shadowRoot Shadow root element for shadow DOM
+   */
+  function importDocStyle( shadowRoot ) {
+      let linkElems = document.head.querySelectorAll( 'link' );
+      linkElems.forEach( ( elem )=>{
+          if ( elem.rel === 'stylesheet' ) {
+              shadowRoot.appendChild( elem.cloneNode() );
+          }
+      } );
+  }
+
+  /**
+   * default load function
+   * @param {Array} moduleNames array of name or rel path for modules as key
+   * @returns {Promise} promise with module objects
+   */
+  let _loadCallback = function( moduleNames ) {
+      return Promise.all( moduleNames.map( ( key ) => {
+          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
+      } ) );
+  };
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Array} deps Dependency as string or array of string
+   * @returns {Promise} promise with dependencies
+   */
+  function load$2( deps ) {
+      return _loadCallback( deps );
+  }
+
+  /**
+   * Set loader function for few
+   * @param {Function} callback loader function as callback
+   */
+  function setLoader( callback ) {
+      _loadCallback = callback;
+  }
+
+  var few = exports$1 = {
+      handleEvent,
+      requestUpdate,
+      getFormInput,
+      getViewElement,
+      importDocStyle,
+      httpGet,
+      load: load$2,
+      setLoader,
+      exclude: excludeElement,
+      directive: defineDirective
+  };
+
+  // set it at global
+  window.few = exports$1;
+
+  // load router
 
   /* eslint-env es6 */
 
@@ -21310,7 +21514,7 @@ define(['require'], function (require) { 'use strict';
       }
 
       async _executeAction( actionDef, scope ) {
-          let dep =  actionDef.import ? ( await few.load( actionDef.import ) )[0] : window;
+          let dep =  actionDef.import ? ( await few.load( [ actionDef.import ] ) )[0] : window;
 
           // backup and apply scope
           // For now only support on level scope
@@ -21384,210 +21588,6 @@ define(['require'], function (require) { 'use strict';
           return await this._update( actionDef, scope, updateView );
       }
   }
-
-  /* eslint-env es6 */
-
-  let _directives = {};
-
-  /**
-   * Register/define attribute directives in few
-   * @param {string} name directive name
-   * @param {FewDirective} directive attribute directive definition
-   */
-  function defineDirective( name, directive ) {
-      _directives[name] = directive;
-  }
-
-  /**
-   * Get attribute directive definition
-   * @param {string} name directive name
-   * @returns {FewDirective} attribute directive definition
-   */
-  function getDirective( name ) {
-      return _directives[name];
-  }
-
-  /* eslint-env es6 */
-  let FewViewNullUnit = {
-      KEY: 'f-ignore'
-  };
-
-  let _filterElements = {
-
-  };
-
-  /**
-   * Register/define element which will be
-   * @param {string} nodeName Element name all in upper case
-   */
-  function excludeElement( nodeName ) {
-      _filterElements[nodeName] = true;
-  }
-
-  /**
-   * Check if element is excluded by few
-   * @param {string} nodeName element name all in uppercase
-   * @returns {boolean} if true few will ignore the element
-   */
-  function isExcluded( nodeName ) {
-      return _filterElements[nodeName];
-  }
-
-  var nullUnitFactory = {
-      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE &&
-                  ( isExcluded( domNode.nodeName ) ||
-                    domNode.hasAttribute( FewViewNullUnit.KEY ) ),
-      createUnit: () => null
-  };
-
-  /* eslint-env es6 */
-  // Simple http implementation
-
-  /**
-   * simple http get
-   * @param {string} theUrl url as string
-   * @returns {Promise} promise
-   */
-  function httpGet( theUrl ) {
-      return new Promise( ( resolve, reject ) => {
-          let xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = () => {
-              if ( xhr.readyState === 4 && xhr.status !== 404 ) {
-                  resolve( xhr.responseText );
-              }
-          };
-
-          xhr.onerror = () => {
-              reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
-          };
-
-          xhr.onloadend = function() {
-              if ( xhr.status === 404 ) {
-                  reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
-              }
-          };
-
-          xhr.open( 'GET', theUrl, true ); // true for asynchronous
-          xhr.send( null );
-      } );
-  }
-
-  var http = {
-      get: httpGet
-  };
-
-  /* eslint-env es6 */
-
-  let exports$1;
-
-  /**
-   * Run method in view model
-   * @param {Element} elem DOM Element
-   * @param {string} methodName method name in view model
-   * @param {object}  e event object as context
-   * @returns {Promise} evaluation as promise
-   */
-  function handleEvent( elem, methodName, e ) {
-      /*
-          return false from within a jQuery event handler is effectively the same as calling
-          both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
-
-          e.preventDefault() will prevent the default event from occuring.
-          e.stopPropagation() will prevent the event from bubbling up.
-          return false will do both.
-
-          Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
-          notably, return false does not stop the event from bubbling up.
-
-          Source: John Resig
-      */
-      e.preventDefault();
-      // e.stopPropagation();
-
-      let component = getComponent( elem );
-      return component.update( methodName, {
-          element: elem,
-          event: e
-      } );
-  }
-
-  /**
-   * Request update to parent view model
-   * @param {Element} elem DOM Element  as context
-   * @param {object}  data data as request input
-   * @param {string}  method action name
-   * @returns {Promise} evaluation as promise
-   */
-  function requestUpdate( elem, data, method ) {
-      let viewElem = getViewElement( elem );
-      let parentElement = viewElem.parentElement;
-      let component = getComponent( parentElement );
-      let actionName = method || viewElem.id;
-      if ( component.hasAction( actionName ) ) {
-          // TODO: need to tune performance to reduce over update
-          return component.update( actionName, data );
-      }
-      return requestUpdate( parentElement, data, actionName );
-  }
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {Element} shadowRoot Shadow root element for shadow DOM
-   */
-  function importDocStyle( shadowRoot ) {
-      let linkElems = document.head.querySelectorAll( 'link' );
-      linkElems.forEach( ( elem )=>{
-          if ( elem.rel === 'stylesheet' ) {
-              shadowRoot.appendChild( elem.cloneNode() );
-          }
-      } );
-  }
-
-  /**
-   * default load function
-   * @param {Array} moduleNames array of name or rel path for modules as key
-   * @returns {Promise} promise with module objects
-   */
-  let _loadCallback = function( moduleNames ) {
-      return Promise.all( moduleNames.map( ( key ) => {
-          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
-      } ) );
-  };
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {Array} deps Dependency as string or array of string
-   * @returns {Promise} promise with dependencies
-   */
-  function load$2( deps ) {
-      return _loadCallback( deps );
-  }
-
-  /**
-   * Set loader function for few
-   * @param {Function} callback loader function as callback
-   */
-  function setLoader( callback ) {
-      _loadCallback = callback;
-  }
-
-  var few$1 = exports$1 = {
-      handleEvent,
-      requestUpdate,
-      getFormInput,
-      getViewElement,
-      importDocStyle,
-      httpGet,
-      load: load$2,
-      setLoader,
-      exclude: excludeElement,
-      directive: defineDirective
-  };
-
-  // set it at global
-  window.few = exports$1;
-
-  // load router
 
   /* eslint-env es6 */
 
@@ -23408,7 +23408,7 @@ define(['require'], function (require) { 'use strict';
           if ( baseUrl ) {
               view.import = view.import.map( path => resolvePath( baseUrl, path ) );
           }
-          await few$1.load( view.import );
+          await few.load( view.import );
       }
 
       // TODO: hard code to src="" for now
@@ -23428,7 +23428,7 @@ define(['require'], function (require) { 'use strict';
 
   class FewView extends HTMLElement {
       static get tag() {
-          return 'f-view';
+          return 'few-view';
       }
 
       static get observedAttributes() {
@@ -23513,10 +23513,6 @@ define(['require'], function (require) { 'use strict';
                       }
                   }
 
-                  // clean up
-                  // TODO: this is conflict with slot processing, need to diff them with condition
-                  this.innerHTML = '';
-
                   // SLOT: apply slot to current DOM
                   // TODO: we can do it before atttachViewPage to save performance later
                   let slotElements = this._component.getDomNode().getElementsByTagName( 'SLOT' );
@@ -23543,6 +23539,8 @@ define(['require'], function (require) { 'use strict';
                   // One time apply, no dynamic feature for now
                   _slot = null;
 
+                  // clean up
+                  this.innerHTML = '';
 
                   this._component.attachViewToPage( this );
 
@@ -23900,7 +23898,7 @@ define(['require'], function (require) { 'use strict';
 
   class FewRoute extends HTMLElement {
       static get tag() {
-          return 'f-route';
+          return 'few-route';
       }
 
       static get observedAttributes() {
@@ -23965,7 +23963,7 @@ define(['require'], function (require) { 'use strict';
                       let component = new FewComponent( null, componentDef );
                       setComponent( this, component );
 
-                      this.innerHTML = `<f-view src="${state.view}" model="data"></f-view>`;
+                      this.innerHTML = `<few-view src="${state.view}" model="data"></few-view>`;
 
                       this._currState = state;
                       break;
@@ -23981,7 +23979,7 @@ define(['require'], function (require) { 'use strict';
   // even though Rollup is bundling all your files together, errors and
   // logs will still point to your original source modules
 
-  return few$1;
+  return few;
 
 });
 //# sourceMappingURL=few.js.map

@@ -2,7 +2,7 @@
 /* eslint-env es6, jasmine */
 
 import http from '../src/http';
-import FewView from '../src/f-view';
+import FewView from '../src/few-view';
 import { wait } from './test-utils';
 import { parseView, getComponent } from '../src/few-utils';
 
@@ -49,25 +49,25 @@ describe( 'Test slot feature in few-view element', () => {
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent ) );
 
         docElem.appendChild( parseView( [
-            '<f-view src="testView">',
+            '<few-view src="testView">',
               '<div>slotDiv</div>',
               '<div slot="slot2">slot2</div>',
               'slotText',
               '<div slot="slot1">slot1</div>',
-            '</f-view>'
+            '</few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView" class="few-scope">',
+            '<few-view src="testView" class="few-scope">',
               '<ul>',
                 '<li><div>slot1</div></li>',
                 '<li>5</li>',
                 '<li><div>slotDiv</div>slotText</li>',
                 '<li><div>slot2</div></li>',
               '</ul>',
-            '</f-view>'
+            '</few-view>'
         ].join( '' ) );
     } );
 
@@ -98,14 +98,14 @@ describe( 'Test slot feature in few-view element', () => {
                 // do it this way so that in assert it will be no space
                 // NOTE: 1st element needs enough space to follow yml syntax
                 '    ',
-                '<f-view src="slotTemplate">',
+                '<few-view src="slotTemplate">',
                   // eslint-disable-next-line no-template-curly-in-string
                   '<code slot="slot2">${testVal2}</code>',
                   // eslint-disable-next-line no-template-curly-in-string
                   '<code>${testVal}</code>',
                   // eslint-disable-next-line no-template-curly-in-string
                   '<code slot="slot1">${testVal1}</code>',
-                '</f-view>'
+                '</few-view>'
             ].join( '' ),
             'model:',
             '  testVal: 5',
@@ -145,16 +145,16 @@ describe( 'Test slot feature in few-view element', () => {
         } );
 
         docElem.appendChild( parseView( [
-            '<f-view src="mainView">',
-            '</f-view>'
+            '<few-view src="mainView">',
+            '</few-view>'
         ].join( '' ) ) );
 
         await wait( 100 );
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
-            '<f-view src="mainView" class="few-scope">',
-              '<f-view src="slotTemplate" class="few-scope">',
+            '<few-view src="mainView" class="few-scope">',
+              '<few-view src="slotTemplate" class="few-scope">',
                 '<ul>',
                   '<li>',
                     '<code>6</code>',
@@ -165,8 +165,8 @@ describe( 'Test slot feature in few-view element', () => {
                     '<code>7</code>',
                   '</li>',
                 '</ul>',
-              '</f-view>',
-            '</f-view>'
+              '</few-view>',
+            '</few-view>'
         ].join( '' ) );
 
         let component = getComponent( elem );
@@ -176,8 +176,8 @@ describe( 'Test slot feature in few-view element', () => {
         await wait( 200 );
 
         expect( elem.outerHTML ).toEqual( [
-            '<f-view src="mainView" class="few-scope">',
-              '<f-view src="slotTemplate" class="few-scope">',
+            '<few-view src="mainView" class="few-scope">',
+              '<few-view src="slotTemplate" class="few-scope">',
                 '<ul>',
                   '<li>',
                     '<code>7</code>',
@@ -188,12 +188,12 @@ describe( 'Test slot feature in few-view element', () => {
                     '<code>8</code>',
                   '</li>',
                 '</ul>',
-              '</f-view>',
-            '</f-view>'
+              '</few-view>',
+            '</few-view>'
         ].join( '' ) );
     } );
 
-   it( 'Verify slot function for f-view element as slot', async() => {
+   it( 'Verify slot function for few-view element as slot', async() => {
        let slotTemplateContent = [
             'view:',
             '  template:',
@@ -242,31 +242,31 @@ describe( 'Test slot feature in few-view element', () => {
         } );
 
         docElem.appendChild( parseView( [
-            '<f-view src="slotTemplate">',
-              '<f-view slot="slot2" src="secondView"></f-view>',
-              '<f-view slot="slot1" src="firstView"></f-view>',
-            '</f-view>'
+            '<few-view src="slotTemplate">',
+              '<few-view slot="slot2" src="secondView"></few-view>',
+              '<few-view slot="slot1" src="firstView"></few-view>',
+            '</few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
-            '<f-view src="slotTemplate" class="few-scope">',
+            '<few-view src="slotTemplate" class="few-scope">',
               '<ul>',
                 '<li>',
-                  '<f-view src="firstView" class="few-scope">',
+                  '<few-view src="firstView" class="few-scope">',
                     '<div>5</div>',
-                  '</f-view>',
+                  '</few-view>',
                 '</li>',
                 '<li>5</li>',
                 '<li>',
-                  '<f-view src="secondView" class="few-scope">',
+                  '<few-view src="secondView" class="few-scope">',
                     '<code style="color:red">7</code>',
-                  '</f-view>',
+                  '</few-view>',
                 '</li>',
               '</ul>',
-            '</f-view>'
+            '</few-view>'
         ].join( '' ) );
     } );
 } );

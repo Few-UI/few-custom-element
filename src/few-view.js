@@ -8,7 +8,7 @@ import { getComponent, parseView } from './few-utils';
 
 export default class FewView extends HTMLElement {
     static get tag() {
-        return 'f-view';
+        return 'few-view';
     }
 
     static get observedAttributes() {
@@ -93,10 +93,6 @@ export default class FewView extends HTMLElement {
                     }
                 }
 
-                // clean up
-                // TODO: this is conflict with slot processing, need to diff them with condition
-                this.innerHTML = '';
-
                 // SLOT: apply slot to current DOM
                 // TODO: we can do it before atttachViewPage to save performance later
                 let slotElements = this._component.getDomNode().getElementsByTagName( 'SLOT' );
@@ -123,6 +119,8 @@ export default class FewView extends HTMLElement {
                 // One time apply, no dynamic feature for now
                 _slot = null;
 
+                // clean up
+                this.innerHTML = '';
 
                 this._component.attachViewToPage( this );
 

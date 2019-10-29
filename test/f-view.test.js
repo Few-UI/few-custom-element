@@ -2,7 +2,7 @@
 /* eslint-env es6, jasmine */
 
 import http from '../src/http';
-import FewView from '../src/f-view';
+import FewView from '../src/few-view';
 import { wait } from './test-utils';
 import { parseView } from '../src/few-utils';
 
@@ -49,7 +49,7 @@ describe( 'Test few-view element', () => {
         };
 
         docElem.appendChild( parseView( [
-            '<f-view src="testView"></f-view>'
+            '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
@@ -57,13 +57,13 @@ describe( 'Test few-view element', () => {
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView">',
+            '<few-view src="testView">',
               '<div>',
                 '<code style="color:red">',
                   'testView.yml: httpGet(testView.yml) =&gt; 404: Not Found',
                 '</code>',
               '</div>',
-            '</f-view>'
+            '</few-view>'
         ].join( '' ) );
     } );
 
@@ -80,12 +80,12 @@ describe( 'Test few-view element', () => {
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent ) );
 
         docElem.appendChild( parseView( [
-            '<f-view src="testView"></f-view>'
+            '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
-        expect( docElem.firstChild.innerHTML ).toMatch( /^<f-view src="testView"><div><code style="color:red">testView.yml: YAMLException:.*/ );
+        expect( docElem.firstChild.innerHTML ).toMatch( /^<few-view src="testView"><div><code style="color:red">testView.yml: YAMLException:.*/ );
     } );
 
     it( 'Verify few-view still display when value is undefined', async() => {
@@ -101,15 +101,15 @@ describe( 'Test few-view element', () => {
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent ) );
 
         docElem.appendChild( parseView( [
-            '<f-view src="testView"></f-view>'
+            '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView" class="few-scope">',
+            '<few-view src="testView" class="few-scope">',
               '<div></div>',
-            '</f-view>'
+            '</few-view>'
         ].join( '' ) );
     } );
 
@@ -126,15 +126,15 @@ describe( 'Test few-view element', () => {
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent ) );
 
         docElem.appendChild( parseView( [
-            '<f-view src="testView"></f-view>'
+            '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView" class="few-scope">',
+            '<few-view src="testView" class="few-scope">',
               '<div>5</div>',
-            '</f-view>'
+            '</few-view>'
         ].join( '' ) );
     } );
 
@@ -156,19 +156,19 @@ describe( 'Test few-view element', () => {
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent ) );
 
         docElem.appendChild( parseView( [
-            '<f-view src="testView"></f-view>'
+            '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView" class="few-scope">',
+            '<few-view src="testView" class="few-scope">',
               '<div>5</div>',
               '<div class="few-scope">',
                 // eslint-disable-next-line no-template-curly-in-string
                 '<div>${testVal}</div>',
               '</div>',
-            '</f-view>' ].join( '' ) );
+            '</few-view>' ].join( '' ) );
     } );
 
     it( 'Verify few-view will ignore element with f-ignore', async() => {
@@ -189,19 +189,19 @@ describe( 'Test few-view element', () => {
         spyOn( http, 'get' ).and.returnValue( Promise.resolve( ymlContent ) );
 
         docElem.appendChild( parseView( [
-            '<f-view src="testView"></f-view>'
+            '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<f-view src="testView" class="few-scope">',
+            '<few-view src="testView" class="few-scope">',
               '<div>5</div>',
               '<div f-ignore="">',
                 // eslint-disable-next-line no-template-curly-in-string
                 '<div>${testVal}</div>',
               '</div>',
-            '</f-view>' ].join( '' ) );
+            '</few-view>' ].join( '' ) );
     } );
 
     it( 'Verify few-view can be updated while changing view attribute', async() => {
@@ -233,25 +233,25 @@ describe( 'Test few-view element', () => {
         } );
 
         docElem.appendChild( parseView( [
-            '<f-view src="firstView"></f-view>'
+            '<few-view src="firstView"></few-view>'
         ].join( '' ) ) );
 
         await wait( 50 );
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
-            '<f-view src="firstView" class="few-scope">',
+            '<few-view src="firstView" class="few-scope">',
               '<div>5</div>',
-            '</f-view>'
+            '</few-view>'
         ].join( '' ) );
 
         elem.setAttribute( 'src', 'secondView' );
         await wait( 100 );
 
         expect( elem.outerHTML ).toEqual( [
-            '<f-view src="secondView" class="few-scope">',
+            '<few-view src="secondView" class="few-scope">',
               '<code style="color:red">7</code>',
-            '</f-view>'
+            '</few-view>'
         ].join( '' ) );
     } );
 
@@ -263,7 +263,7 @@ describe( 'Test few-view element', () => {
                 '    ',
                 // eslint-disable-next-line no-template-curly-in-string
                 '<div>${ctx.testVal}</div>',
-                '<f-view src="subView" model="ctx"></f-view>'
+                '<few-view src="subView" model="ctx"></few-view>'
             ].join( '' ),
             'model:',
             '  ctx:',
@@ -288,19 +288,19 @@ describe( 'Test few-view element', () => {
         } );
 
         docElem.appendChild( parseView( [
-            '<f-view src="parentView"></f-view>'
+            '<few-view src="parentView"></few-view>'
         ].join( '' ) ) );
 
         await wait( 100 );
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
-            '<f-view src="parentView" class="few-scope">',
+            '<few-view src="parentView" class="few-scope">',
               '<div>5</div>',
-              '<f-view src="subView" model="ctx" class="few-scope">',
+              '<few-view src="subView" model="ctx" class="few-scope">',
                 '<code>5</code>',
-              '</f-view>',
-            '</f-view>'
+              '</few-view>',
+            '</few-view>'
         ].join( '' ) );
     } );
 } );

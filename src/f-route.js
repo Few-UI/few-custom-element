@@ -75,7 +75,7 @@ async function loadConfig( configPath ) {
 
 export default class FewRoute extends HTMLElement {
     static get tag() {
-        return 'f-route';
+        return 'few-route';
     }
 
     static get observedAttributes() {
@@ -140,7 +140,7 @@ export default class FewRoute extends HTMLElement {
                     let component = new FewComponent( null, componentDef );
                     setComponent( this, component );
 
-                    this.innerHTML = `<f-view src="${state.view}" model="data"></f-view>`;
+                    this.innerHTML = `<few-view src="${state.view}" model="data"></few-view>`;
 
                     this._currState = state;
                     break;
