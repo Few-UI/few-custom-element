@@ -23483,7 +23483,7 @@ define(['require'], function (require) { 'use strict';
 
                   this._component = new FewComponent( parentComponent, componentDef, modelPath );
 
-                  // Load model
+                  // Load init function
                   await this._component.init();
 
                   this._component.setView( await fewViewFactory.createView( componentDef.view,
@@ -23495,20 +23495,21 @@ define(['require'], function (require) { 'use strict';
 
                   // SLOT: get all children and save at slot as template
                   // TODO: we can do it outside and passin unit which will be better
+                  let _slot = null;
                   let size = this.childNodes.length;
                   if ( size > 0 ) {
-                      this._slot = {
+                      _slot = {
                           domFragement: document.createDocumentFragment(),
                           nameSlotMap: {}
                       };
                       for( let i = 0; i < size; i++ ) {
                           let domNode = this.firstChild;
                           if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
-                              this._slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
+                              _slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
                               // remove slot attribute to avoid complication
                               domNode.removeAttribute( 'slot' );
                           }
-                          this._slot.domFragement.appendChild( domNode );
+                          _slot.domFragement.appendChild( domNode );
                       }
                   }
 
@@ -23525,8 +23526,8 @@ define(['require'], function (require) { 'use strict';
                       for( let i = size; i > 0; i-- ) {
                           let slotElem = slotElements[i - 1];  // <-- HTMLCollection is a dynamic list
                           let slotName = slotElem.getAttribute( 'name' );
-                          if ( slotName && this._slot.nameSlotMap[slotName] ) {
-                              slotElem.parentElement.replaceChild( this._slot.nameSlotMap[slotName], slotElem );
+                          if ( slotName && _slot.nameSlotMap[slotName] ) {
+                              slotElem.parentElement.replaceChild( _slot.nameSlotMap[slotName], slotElem );
                           } else if( !unNamedSlot ) {
                               // match thi 1st unnamed slot
                               unNamedSlot = slotElem;
@@ -23535,12 +23536,12 @@ define(['require'], function (require) { 'use strict';
 
                       // if we have unname slot, put all the rest into unname slot
                       if ( unNamedSlot ) {
-                          unNamedSlot.parentElement.replaceChild( this._slot.domFragement, unNamedSlot );
+                          unNamedSlot.parentElement.replaceChild( _slot.domFragement, unNamedSlot );
                       }
                   }
 
-                  // One time apply, no dynamic featue
-                  delete this._slot;
+                  // One time apply, no dynamic feature for now
+                  _slot = null;
 
 
                   this._component.attachViewToPage( this );
