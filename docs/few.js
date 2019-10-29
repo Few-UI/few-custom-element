@@ -23640,6 +23640,7 @@ define(['require'], function (require) { 'use strict';
                   };
               }
           }
+
           _started = true;
       }
   }
@@ -23943,7 +23944,21 @@ define(['require'], function (require) { 'use strict';
 
           for( let key in states ) {
               let state = states[key];
-              if ( this._currState === state ) {
+              if( !urlParamStr && key === '0' ) {
+                  let componentDef = {
+                      model: {
+                          data: {}
+                      }
+                  };
+
+                  let component = new FewComponent( null, componentDef );
+                  setComponent( this, component );
+
+                  this.innerHTML = `<few-view src="${state.view}" model="data"></few-view>`;
+
+                  this._currState = state;
+                  break;
+              } else if ( this._currState === state ) {
                   let component = getComponent( this );
                   if ( matchUrl( state.url, urlParamStr, component._vm.model.data ) ) {
                       component._requestViewUpdate();

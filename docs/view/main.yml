@@ -41,9 +41,16 @@ action:
     output:
       tocModel.items: ''
 
+  initSelection:
+    input:
+      val: ${tocModel.selection || Object.keys(scope)[0]}
+    output:
+      tocModel.selection: 'val'
+
   loadContent:
     - getContent
     - parseJson
+    - initSelection
 
 # option
 option:

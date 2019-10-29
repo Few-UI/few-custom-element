@@ -84,6 +84,7 @@ export function start() {
                 };
             }
         }
+
         _started = true;
     }
 }

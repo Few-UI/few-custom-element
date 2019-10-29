@@ -41,6 +41,15 @@ function getPathFromBase( href ) {
 }
 
 /**
+ * Get the part after base
+ * @param {string} href - fullpath
+ * @returns {string} path from base
+ */
+function getBaseUrl( href ) {
+  return ( href || loc.href || '' ).replace( /#.+$/, '' );
+}
+
+/**
  * math url with pre-defined pattern
  * @param {string} pattern pattern as string
  * @param {string} urlParamStr input url
@@ -120,7 +129,21 @@ export default class FewRoute extends HTMLElement {
 
         for( let key in states ) {
             let state = states[key];
-            if ( this._currState === state ) {
+            if( !urlParamStr && key === '0' ) {
+                let componentDef = {
+                    model: {
+                        data: {}
+                    }
+                };
+
+                let component = new FewComponent( null, componentDef );
+                setComponent( this, component );
+
+                this.innerHTML = `<few-view src="${state.view}" model="data"></few-view>`;
+
+                this._currState = state;
+                break;
+            } else if ( this._currState === state ) {
                 let component = getComponent( this );
                 if ( matchUrl( state.url, urlParamStr, component._vm.model.data ) ) {
                     component._requestViewUpdate();
