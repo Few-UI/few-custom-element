@@ -1,7 +1,7 @@
 /* eslint-env es6 */
 import './few-global';
 import _ from 'lodash';
-import htmlViewFactory from './few-view';
+import htmlViewFactory from './few-view-factory';
 import moduleLoader from './few-module-loader';
 import StringTemplateParser from './string-template-parser';
 

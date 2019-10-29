@@ -1,7 +1,7 @@
 // NOTE: Example code from google, will be deleted later
 /* eslint-env es6, jasmine */
 
-import htmlViewFactory from '../src/few-view';
+import htmlViewFactory from '../src/few-view-factory';
 import StringTemplateParser from '../src/string-template-parser';
 
 describe( 'Test few-view', () => {
