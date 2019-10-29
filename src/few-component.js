@@ -134,6 +134,7 @@ export default class FewComponent {
      * @param {Element} elem DOM Element in page
      */
     attachViewToPage( elem ) {
+        elem.innerHTML = '';
         /**
          * - The raw temple is a HTML which all custom element functon is not executed.
          * - We need to attach the view to actual page so all the custom element render takes priority

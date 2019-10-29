@@ -86,6 +86,56 @@ export function getFormInput( elem ) {
 }
 
 /**
+ * applySlot to template element. Both inputs will be mutated in this API.
+ * @param {Element} templateElem template element that contains slot definition
+ * @param {Element} srcElem source element that contains actual slot element
+ */
+export function applySlot( templateElem, srcElem ) {
+    // SLOT: get all children and save at slot as template
+    // TODO: we can do it outside and passin unit which will be better
+    let _slot = null;
+    let size = srcElem.childNodes.length;
+    if ( size > 0 ) {
+        _slot = {
+            domFragement: document.createDocumentFragment(),
+            nameSlotMap: {}
+        };
+        for( let i = 0; i < size; i++ ) {
+            let domNode = srcElem.firstChild;
+            if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
+                _slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
+                // remove slot attribute to avoid complication
+                domNode.removeAttribute( 'slot' );
+            }
+            _slot.domFragement.appendChild( domNode );
+        }
+    }
+
+    // SLOT: apply slot to current DOM
+    // TODO: we can do it before atttachViewPage to save performance later
+    let slotElements = templateElem.getElementsByTagName( 'SLOT' );
+    size = slotElements.length;
+    if ( size > 0 ) {
+        let unNamedSlot = null;
+        for( let i = size; i > 0; i-- ) {
+            let slotElem = slotElements[i - 1];  // <-- HTMLCollection is a dynamic list
+            let slotName = slotElem.getAttribute( 'name' );
+            if ( slotName && _slot.nameSlotMap[slotName] ) {
+                slotElem.parentElement.replaceChild( _slot.nameSlotMap[slotName], slotElem );
+            } else if( !unNamedSlot ) {
+                // match thi 1st unnamed slot
+                unNamedSlot = slotElem;
+            }
+        }
+
+        // if we have unname slot, put all the rest into unname slot
+        if ( unNamedSlot ) {
+            unNamedSlot.parentElement.replaceChild( _slot.domFragement, unNamedSlot );
+        }
+    }
+}
+
+/**
  * Check if element has scope defined
  *
  * @param {Element} element Current DOM Element

@@ -4,7 +4,8 @@ import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import fewViewFactory from './few-view-factory';
 import http from './http';
-import { getComponent, parseView } from './few-utils';
+import { getComponent, parseView, applySlot } from './few-utils';
+
 
 export default class FewView extends HTMLElement {
     static get tag() {
@@ -35,18 +36,12 @@ export default class FewView extends HTMLElement {
         }
     }
 
+
     async attributeChangedCallback( name, oldValue, newValue ) {
-        // console.log( `${name}: ${oldValue} => ${newValue}` );
-
         if ( name === 'src' && newValue && oldValue !== newValue ) {
-            let newViewPath = newValue;
-
-            this._currentView = newViewPath;
-
+            this._currentView = newValue;
 
             try {
-                let parentComponent = getComponent( this );
-
                 // TODO: clean up model except attribute defined by parent
                 // also need to destroy its ref in parent
                 // this._component.model = _.filter( modelPath );
@@ -55,79 +50,39 @@ export default class FewView extends HTMLElement {
                 let modelPath = this.getAttribute( 'model' );
 
                 // load component definition
-                let componentDef = yaml.safeLoad( await http.get( `${newViewPath}.yml` ) );
+                let componentDef = yaml.safeLoad( await http.get( `${newValue}.yml` ) );
 
-                if ( this._currentView !== newViewPath ) {
+                if ( this._currentView !== newValue ) {
                     return;
                 }
 
-                this._component = new FewComponent( parentComponent, componentDef, modelPath );
+                // Create component and call init definition
+                this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
 
-                // Load init function
                 await this._component.init();
 
-                this._component.setView( await fewViewFactory.createView( componentDef.view,
-                    this._component._strTplParser, this.getViewPath() ) );
-
-                if ( this._currentView !== newViewPath ) {
+                if ( this._currentView !== newValue ) {
                     return;
                 }
 
-                // SLOT: get all children and save at slot as template
-                // TODO: we can do it outside and passin unit which will be better
-                let _slot = null;
-                let size = this.childNodes.length;
-                if ( size > 0 ) {
-                    _slot = {
-                        domFragement: document.createDocumentFragment(),
-                        nameSlotMap: {}
-                    };
-                    for( let i = 0; i < size; i++ ) {
-                        let domNode = this.firstChild;
-                        if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
-                            _slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
-                            // remove slot attribute to avoid complication
-                            domNode.removeAttribute( 'slot' );
-                        }
-                        _slot.domFragement.appendChild( domNode );
-                    }
+                // compile view
+                let unit = await fewViewFactory.createView( componentDef.view,
+                    this._component._strTplParser, this.getViewPath() );
+                this._component.setView( unit );
+
+                if ( this._currentView !== newValue ) {
+                    return;
                 }
 
-                // SLOT: apply slot to current DOM
-                // TODO: we can do it before atttachViewPage to save performance later
-                let slotElements = this._component.getDomNode().getElementsByTagName( 'SLOT' );
-                size = slotElements.length;
-                if ( size > 0 ) {
-                    let unNamedSlot = null;
-                    for( let i = size; i > 0; i-- ) {
-                        let slotElem = slotElements[i - 1];  // <-- HTMLCollection is a dynamic list
-                        let slotName = slotElem.getAttribute( 'name' );
-                        if ( slotName && _slot.nameSlotMap[slotName] ) {
-                            slotElem.parentElement.replaceChild( _slot.nameSlotMap[slotName], slotElem );
-                        } else if( !unNamedSlot ) {
-                            // match thi 1st unnamed slot
-                            unNamedSlot = slotElem;
-                        }
-                    }
+                // apply slot
+                // TODO: consider re-apply and switch view later
+                applySlot( this._component.getDomNode(), this );
 
-                    // if we have unname slot, put all the rest into unname slot
-                    if ( unNamedSlot ) {
-                        unNamedSlot.parentElement.replaceChild( _slot.domFragement, unNamedSlot );
-                    }
-                }
-
-                // One time apply, no dynamic feature for now
-                _slot = null;
-
-                // clean up
-                this.innerHTML = '';
-
+                // attach to page
                 this._component.attachViewToPage( this );
-
-                // delete this._pendingView;
             } catch ( e ) {
-                if ( this._currentView === newViewPath ) {
-                    this.appendChild( parseView( `<code style="color:red" >${newViewPath}.yml: ${e}</code>` ) );
+                if ( this._currentView === newValue ) {
+                    this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
                 }
                 throw e;
             }
