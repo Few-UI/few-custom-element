@@ -1,7 +1,7 @@
 /* eslint-env es6 */
 import './few-global';
 import _ from 'lodash';
-import htmlViewFactory from './few-view-factory';
+import fewViewFactory from './few-view-factory';
 import moduleLoader from './few-module-loader';
 import StringTemplateParser from './string-template-parser';
 
@@ -133,7 +133,7 @@ export default class FewComponent {
     async createView( view ) {
         await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
 
-        this._view = htmlViewFactory.createView( view.template, this._strTplParser );
+        this._view = fewViewFactory.createView( view.template, this._strTplParser );
 
         return this._view;
 
