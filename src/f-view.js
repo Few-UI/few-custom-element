@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import fewViewFactory from './few-view-factory';
 import http from './http';
-import { getComponent, getViewElement, parseView, resolvePath } from './few-utils';
+import { getComponent, parseView } from './few-utils';
 
 export default class FewView extends HTMLElement {
     static get tag() {
