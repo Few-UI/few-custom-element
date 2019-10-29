@@ -1,8 +1,7 @@
 /* eslint-env es6 */
-import './few-global';
+import few from './few-global';
 import _ from 'lodash';
 import fewViewFactory from './few-view-factory';
-import moduleLoader from './few-module-loader';
 import StringTemplateParser from './string-template-parser';
 
 import {
@@ -50,10 +49,6 @@ export default class FewComponent {
          * Default options
          */
         this._option = componentDef.option || {};
-
-        if ( !this._option.moduleLoader ) {
-            this._option.moduleLoader = moduleLoader;
-        }
 
         if ( !this._option.scopePath ) {
             this._option.scopePath = 'scope';
@@ -126,12 +121,12 @@ export default class FewComponent {
     }
 
     /**
-     * set view for current view model
+     * create view for current view model
      * @param {Object} view view input
      * @returns {Promise} promise with view element
      */
     async createView( view ) {
-        await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
+        await few.load( view.import ? view.import : [] );
 
         this._view = fewViewFactory.createView( view.template, this._strTplParser );
 
@@ -140,6 +135,14 @@ export default class FewComponent {
         // let elem = this._view.render( this._vm.model );
         // setComponent( elem, this );
         // return elem;
+    }
+
+    /**
+     * set view for current view model
+     * @param {Object} view view input
+     */
+    setView( view ) {
+        this._view = view;
     }
 
     /**
@@ -223,7 +226,7 @@ export default class FewComponent {
     }
 
     async _executeAction( actionDef, scope ) {
-        let dep =  actionDef.import ? await this._option.moduleLoader.loadModule( actionDef.import ) : window;
+        let dep =  actionDef.import ? ( await few.load( actionDef.import ) )[0] : window;
 
         // backup and apply scope
         // For now only support on level scope
@@ -268,7 +271,7 @@ export default class FewComponent {
      */
     async _update( actionDef, scope, updateView ) {
         let res = null;
-        if ( _.isArray( actionDef ) ) {
+        if ( Array.isArray( actionDef ) ) {
             res = await actionDef.reduce( async( scope, name ) => {
                 return this.update( name, await scope, false );
             }, scope );

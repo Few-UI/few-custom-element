@@ -70,6 +70,34 @@ export function importDocStyle( shadowRoot ) {
     } );
 }
 
+/**
+ * default load function
+ * @param {Array} moduleNames array of name or rel path for modules as key
+ * @returns {Promise} promise with module objects
+ */
+let _loadCallback = function( moduleNames ) {
+    return Promise.all( moduleNames.map( ( key ) => {
+        return import( key );
+    } ) );
+};
+
+/**
+ * Import Global Document Style Sheet to shadow DOM
+ * @param {Array} deps Dependency as string or array of string
+ * @returns {Promise} promise with dependencies
+ */
+export function load( deps ) {
+    return _loadCallback( deps );
+}
+
+/**
+ * Set loader function for few
+ * @param {Function} callback loader function as callback
+ */
+export function setLoader( callback ) {
+    _loadCallback = callback;
+}
+
 export default exports = {
     handleEvent,
     requestUpdate,
@@ -77,6 +105,8 @@ export default exports = {
     getViewElement,
     importDocStyle,
     httpGet,
+    load,
+    setLoader,
     exclude: excludeElement,
     directive: defineDirective
 };

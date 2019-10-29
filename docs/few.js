@@ -4125,6 +4125,34 @@ define(['require'], function (require) { 'use strict';
       } );
   }
 
+  /**
+   * default load function
+   * @param {Array} moduleNames array of name or rel path for modules as key
+   * @returns {Promise} promise with module objects
+   */
+  let _loadCallback = function( moduleNames ) {
+      return Promise.all( moduleNames.map( ( key ) => {
+          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
+      } ) );
+  };
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Array} deps Dependency as string or array of string
+   * @returns {Promise} promise with dependencies
+   */
+  function load$2( deps ) {
+      return _loadCallback( deps );
+  }
+
+  /**
+   * Set loader function for few
+   * @param {Function} callback loader function as callback
+   */
+  function setLoader( callback ) {
+      _loadCallback = callback;
+  }
+
   var few = exports$1 = {
       handleEvent,
       requestUpdate,
@@ -4132,6 +4160,8 @@ define(['require'], function (require) { 'use strict';
       getViewElement,
       importDocStyle,
       httpGet,
+      load: load$2,
+      setLoader,
       exclude: excludeElement,
       directive: defineDirective
   };
@@ -23040,45 +23070,8 @@ define(['require'], function (require) { 'use strict';
   viewUnitFactory.addFactory( condUnitFactory );
   viewUnitFactory.addFactory( varUnitFactory );
 
-  var htmlViewFactory = {
+  var fewViewFactory = {
       createView: ( templateString, parser ) => viewUnitFactory.createUnit( parseView( templateString ), parser )
-  };
-
-  /* eslint-env es6 */
-  // Default module loader for few, for difference case user may need to implement
-  // there own
-  // In this OOTB example, we assume we are using single bundle without code split.
-  // So ther is a simple delegate for this purpose
-  // import FewButton from './few-button';
-
-  /**
-   * load single module
-   * @param {string} moduleName module name or rel path as key
-   * @returns {Promise} promise with module object
-   */
-  function loadModule( moduleName ) {
-      /*
-      if ( /few-button$/.test( moduleName ) ) {
-          return Promise.resolve( FewButton );
-      }
-      */
-      return new Promise(function (resolve, reject) { require([ moduleName ], function (m) { resolve(_interopNamespace(m)); }, reject) });
-  }
-
-  /**
-   * load single module
-   * @param {Array} moduleNames array of name or rel path for modules as key
-   * @returns {Promise} promise with module objects
-   */
-  function loadModules( moduleNames ) {
-      return Promise.all( moduleNames.map( ( key ) => {
-          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
-      } ) );
-  }
-
-  var moduleLoader = {
-      loadModule,
-      loadModules
   };
 
   /* eslint-env es6 */
@@ -23158,10 +23151,6 @@ define(['require'], function (require) { 'use strict';
            */
           this._option = componentDef.option || {};
 
-          if ( !this._option.moduleLoader ) {
-              this._option.moduleLoader = moduleLoader;
-          }
-
           if ( !this._option.scopePath ) {
               this._option.scopePath = 'scope';
           }
@@ -23226,27 +23215,35 @@ define(['require'], function (require) { 'use strict';
       /**
        * load model
        */
-      async loadModel() {
+      async init() {
           if ( this._vm.init ) {
               await this._update( this._vm.init, undefined, false );
           }
       }
 
       /**
-       * set view for current view model
+       * create view for current view model
        * @param {Object} view view input
        * @returns {Promise} promise with view element
        */
       async createView( view ) {
-          await this._option.moduleLoader.loadModules( view.import ? view.import : [] );
+          await few.load( view.import ? view.import : [] );
 
-          this._view = htmlViewFactory.createView( view.template, this._strTplParser );
+          this._view = fewViewFactory.createView( view.template, this._strTplParser );
 
           return this._view;
 
           // let elem = this._view.render( this._vm.model );
           // setComponent( elem, this );
           // return elem;
+      }
+
+      /**
+       * set view for current view model
+       * @param {Object} view view input
+       */
+      setView( view ) {
+          this._view = view;
       }
 
       /**
@@ -23330,7 +23327,7 @@ define(['require'], function (require) { 'use strict';
       }
 
       async _executeAction( actionDef, scope ) {
-          let dep =  actionDef.import ? await this._option.moduleLoader.loadModule( actionDef.import ) : window;
+          let dep =  actionDef.import ? ( await few.load( actionDef.import ) )[0] : window;
 
           // backup and apply scope
           // For now only support on level scope
@@ -23375,7 +23372,7 @@ define(['require'], function (require) { 'use strict';
        */
       async _update( actionDef, scope, updateView ) {
           let res = null;
-          if ( lodash.isArray( actionDef ) ) {
+          if ( Array.isArray( actionDef ) ) {
               res = await actionDef.reduce( async( scope, name ) => {
                   return this.update( name, await scope, false );
               }, scope );
@@ -23475,7 +23472,7 @@ define(['require'], function (require) { 'use strict';
                   this._component = new FewComponent( parentComponent, componentDef, modelPath );
 
                   // Load model
-                  await this._component.loadModel();
+                  await this._component.init();
 
                   // View has too be initialized separately since it is async
                   // let viewElem = await this._component.createView( componentDef.view );
