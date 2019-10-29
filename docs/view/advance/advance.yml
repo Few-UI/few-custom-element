@@ -7,10 +7,10 @@ view:
     <div class="few-sample-app-block-break"></div>
     <jsx-view src="./jsx/todo"></jsx-view>
     <div class="few-sample-app-block-break"></div>
-    <todo-lit></todo-lit>
+    <lit-todo></lit-todo>
     <div class="few-sample-app-block-break"></div>
 
   import:
     - lib/vue-view
     - lib/jsx-view
-    - ./lit/todo-lit
+    - ./lit/lit-todo

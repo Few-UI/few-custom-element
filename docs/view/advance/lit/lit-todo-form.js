@@ -107,4 +107,4 @@ class TodoFormLitElement extends LitElement {
     }
 }
 // Register the new element with the browser.
-customElements.define( 'todo-form-lit', TodoFormLitElement );
+customElements.define( 'lit-todo-form', TodoFormLitElement );

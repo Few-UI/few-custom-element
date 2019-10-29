@@ -5,16 +5,11 @@
 import { html } from 'lit-html';
 import { LitElement } from 'lit-element';
 
-import './todo-form-lit';
-import './todo-table-lit';
-
 // Extend the LitElement base class
-class TodoLitElement extends LitElement {
+class TodoTableLitElement extends LitElement {
     // properties getter
-    // - It defines a basic watcher by 'a === b'.
-    // - It could bind with attribute change with exact same attribue,
-    //   on current element(not inside template), which is all in lower-case
-    // - You can do further customization by other interface
+    // 2 level of watcher (todo level and table level) are required to make sure render
+    // will be triggerred top to bottom. (which does not make sense)
     static get properties() {
         return {
             items: { type: Array }
@@ -23,8 +18,6 @@ class TodoLitElement extends LitElement {
 
     constructor() {
         super();
-        this.items = [
-        ];
     }
 
     /**
@@ -43,19 +36,23 @@ class TodoLitElement extends LitElement {
          */
         this.dummy;
         return html `
-          <h2>Lit Todo</h2>
-          <todo-form-lit @event-add-todo="${this.addTodo}">
-            <button>Test</button>
-          </todo-form-lit>
-          <todo-table-lit .items=${this.items}></todo-table-lit>
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${this.items.map( item => html `
+              <tr>
+                <td>${item.item_desc}</td>
+                <td>${item.item_status}</td>
+              </tr>
+              ` )}
+            </tbody>
+          </table>
         `;
-    }
-
-    addTodo( e ) {
-        // 'prop' watcher uses 'a === b', so here need to use immutable logic
-        // (concat), instead of mutation (push).
-        // this.items.push( e.detail );
-        this.items = this.items.concat( [ e.detail ] );
     }
 
     // AFX: Trick to not use shadow-dom for getting CSS Effect for now.
@@ -67,5 +64,6 @@ class TodoLitElement extends LitElement {
         return this;
     }
 }
+
 // Register the new element with the browser.
-customElements.define( 'todo-lit', TodoLitElement );
+customElements.define( 'lit-todo-table', TodoTableLitElement );
