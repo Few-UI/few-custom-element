@@ -21383,15 +21383,32 @@ define(['require'], function (require) { 'use strict';
               parent._children.push( this );
           }
 
+          // Load Scope
+          this._vm = {};
+          if ( scopeExpr ) {
+              let parentScope = evalExpression( scopeExpr, this._parent._vm.model );
+              // Object.assign( parentScope, this._vm.model );
+              this._vm.model = parentScope;
+          } else {
+              this._vm.model = {};
+          }
+
+          /**
+           * component definition
+           */
+          if ( componentDef ) {
+              if ( componentDef.model ) {
+                  Object.assign( this._vm.model, componentDef.model );
+                  delete componentDef.model;
+              }
+              Object.assign( this._vm, componentDef );
+          }
+
           /**
            * view object
            */
           this._view = null;
 
-          /**
-           * component definition
-           */
-          this._vm = componentDef;
 
           /**
            * Dirty flag, we can put it to model, for now put it here
@@ -21413,25 +21430,9 @@ define(['require'], function (require) { 'use strict';
           }
           this._option.actionPaths.push( '' );
 
-          if ( !this._option.stringTemplate ) {
-              this._option.stringTemplate = {
-                  // eslint-disable-next-line no-template-curly-in-string
-                  pattern: '/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$/m',
-                  index: 1
-              };
-          }
-
           // Load string template
           this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
 
-          // Load Scope
-          if ( scopeExpr ) {
-              let parentScope = evalExpression( scopeExpr, this._parent._vm.model );
-              Object.assign( parentScope, this._vm.model );
-              this._vm.model = parentScope;
-          } else if ( !this._vm.model ) {
-              this._vm.model = {};
-          }
 
           /**
            * method update view
