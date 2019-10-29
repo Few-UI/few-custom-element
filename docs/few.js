@@ -3827,350 +3827,6 @@ define(['require'], function (require) { 'use strict';
 
   var jsYaml$1 = jsYaml;
 
-  /* eslint-env es6 */
-
-  let _directives = {};
-
-  /**
-   * Register/define attribute directives in few
-   * @param {string} name directive name
-   * @param {FewDirective} directive attribute directive definition
-   */
-  function defineDirective( name, directive ) {
-      _directives[name] = directive;
-  }
-
-  /**
-   * Get attribute directive definition
-   * @param {string} name directive name
-   * @returns {FewDirective} attribute directive definition
-   */
-  function getDirective( name ) {
-      return _directives[name];
-  }
-
-  /* eslint-env es6 */
-  let FewViewNullUnit = {
-      KEY: 'f-ignore'
-  };
-
-  let _filterElements = {
-
-  };
-
-  /**
-   * Register/define element which will be
-   * @param {string} nodeName Element name all in upper case
-   */
-  function excludeElement( nodeName ) {
-      _filterElements[nodeName] = true;
-  }
-
-  /**
-   * Check if element is excluded by few
-   * @param {string} nodeName element name all in uppercase
-   * @returns {boolean} if true few will ignore the element
-   */
-  function isExcluded( nodeName ) {
-      return _filterElements[nodeName];
-  }
-
-  var nullUnitFactory = {
-      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE &&
-                  ( isExcluded( domNode.nodeName ) ||
-                    domNode.hasAttribute( FewViewNullUnit.KEY ) ),
-      createUnit: () => null
-  };
-
-  /* eslint-env es6 */
-
-  /**
-   * Parse view string as DOM without interpret it
-   * TODO no for now and needs to be enahanced
-   * @param {string} str view template as string
-   * @returns {Element} DOM Element
-   */
-  function parseView( str ) {
-      let parser = new DOMParser();
-      let fragement = document.createDocumentFragment();
-      fragement.appendChild( parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild );
-      return fragement.firstChild;
-  }
-
-  /**
-   * evaluate string as Javascript expression
-   * @param {string} input string as expression
-   * @param {Object} params parameters as name value pair
-   * @param {boolean} ignoreError if true the error is not thrown
-   * @return {*} evaluation result
-   *
-   * TODO: match name with function parameters
-   * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
-   */
-  let evalExpression = function( input, params, ignoreError ) {
-    const names = params ? Object.keys( params ) : [];
-    const vals = params ? Object.values( params ) : [];
-    try {
-        return new Function( ...names, `return ${input};` )( ...vals );
-    } catch( e ) {
-        if ( !ignoreError ) {
-            throw new Error( `evalExpression('${input}') => ${e.message}` );
-        } else {
-            return undefined;
-        }
-    }
-  };
-
-
-  /**
-   * fastest way to copy a pure JSON object, use on your own risk
-   * https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
-   *
-   * @param {Object} obj Current DOM Element
-   * @returns {Object} new cloned object
-   */
-  function cloneDeepJsonObject( obj ) {
-      return obj ? JSON.parse( JSON.stringify( obj ) ) : obj;
-  }
-
-  /**
-   * get form input from Form HTML Element
-   * @param {Element} elem Form element
-   * @returns {Object} from input as name value pair
-   */
-  function getFormInput( elem ) {
-      let res = {};
-      // TODO: not consider custom element for now
-      if( elem.tagName === 'FORM' ) {
-          let nodeList = elem.elements;
-          for ( let i = 0; i < nodeList.length; i++ ) {
-              if ( nodeList[i].nodeName === 'INPUT' && nodeList[i].type === 'text' ) {
-                  // Update text input
-                  nodeList[i].value.toLocaleUpperCase();
-              }
-
-              // only supports naming input
-              if( nodeList[i].name ) {
-                  res[nodeList[i].name] = nodeList[i].value;
-              }
-          }
-      }
-      return res;
-  }
-
-  /**
-   * Check if element has scope defined
-   *
-   * @param {Element} element Current DOM Element
-   * @returns {boolean} true if element has scope defined
-   */
-  function hasScope( element ) {
-      return element && element.classList && element.classList.contains( 'few-scope' );
-  }
-
-  /**
-   * Get closest parent element which has view model context
-   * NOTE: IE may need polyfill below -
-   * https://github.com/jonathantneal/closest
-   *
-   * @param {Element} element Current DOM Element
-   * @returns {Element} Closest parent element which has view model context
-   */
-  function getScopeElement( element ) {
-      return element.closest( '.few-scope' );
-  }
-
-  /**
-   * Attach component object on specific element
-   * @param {Element} element DOM Element
-   * @param {Object} componentObj componentObject
-   */
-  function setComponent( element, componentObj ) {
-      if ( element && componentObj ) {
-          element._vm = componentObj;
-          element.classList.add( 'few-scope' );
-      } else {
-        throw new Error( `setComponent(${element ?  element.id ? `id:${element.id}` : element.tagName  : 'undefined'}) => componentObj is undefined` );
-      }
-  }
-
-  /**
-   * Get view model context from closet parent element which has it
-   *
-   * @param {Element} element DOM Element
-   * @returns {Object} view model object context
-   */
-  function getComponent( element ) {
-      let scopeElem = getScopeElement( element );
-      if( scopeElem ) {
-          return scopeElem._vm;
-      }
-  }
-
-  /**
-   * Get closest few view element
-   *
-   * @param {Element} element Current DOM Element
-   * @returns {Element} Closest parent element which has view model context
-   */
-  function getViewElement( element ) {
-      /*
-      let scopeElem = getScopeElement( element );
-      if ( scopeElem ) {
-          return scopeElem.parentElement;
-      }*/
-      return getScopeElement( element );
-  }
-
-  /* eslint-env es6 */
-  // Simple http implementation
-
-  /**
-   * simple http get
-   * @param {string} theUrl url as string
-   * @returns {Promise} promise
-   */
-  function httpGet( theUrl ) {
-      return new Promise( ( resolve, reject ) => {
-          let xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = () => {
-              if ( xhr.readyState === 4 && xhr.status !== 404 ) {
-                  resolve( xhr.responseText );
-              }
-          };
-
-          xhr.onerror = () => {
-              reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
-          };
-
-          xhr.onloadend = function() {
-              if ( xhr.status === 404 ) {
-                  reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
-              }
-          };
-
-          xhr.open( 'GET', theUrl, true ); // true for asynchronous
-          xhr.send( null );
-      } );
-  }
-
-  var http = {
-      get: httpGet
-  };
-
-  /* eslint-env es6 */
-
-  let exports$1;
-
-  /**
-   * Run method in view model
-   * @param {Element} elem DOM Element
-   * @param {string} methodName method name in view model
-   * @param {object}  e event object as context
-   * @returns {Promise} evaluation as promise
-   */
-  function handleEvent( elem, methodName, e ) {
-      /*
-          return false from within a jQuery event handler is effectively the same as calling
-          both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
-
-          e.preventDefault() will prevent the default event from occuring.
-          e.stopPropagation() will prevent the event from bubbling up.
-          return false will do both.
-
-          Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
-          notably, return false does not stop the event from bubbling up.
-
-          Source: John Resig
-      */
-      e.preventDefault();
-      // e.stopPropagation();
-
-      let component = getComponent( elem );
-      return component.update( methodName, {
-          element: elem,
-          event: e
-      } );
-  }
-
-  /**
-   * Request update to parent view model
-   * @param {Element} elem DOM Element  as context
-   * @param {object}  data data as request input
-   * @param {string}  method action name
-   * @returns {Promise} evaluation as promise
-   */
-  function requestUpdate( elem, data, method ) {
-      let viewElem = getViewElement( elem );
-      let parentElement = viewElem.parentElement;
-      let component = getComponent( parentElement );
-      let actionName = method || viewElem.id;
-      if ( component.hasAction( actionName ) ) {
-          // TODO: need to tune performance to reduce over update
-          return component.update( actionName, data );
-      }
-      return requestUpdate( parentElement, data, actionName );
-  }
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {Element} shadowRoot Shadow root element for shadow DOM
-   */
-  function importDocStyle( shadowRoot ) {
-      let linkElems = document.head.querySelectorAll( 'link' );
-      linkElems.forEach( ( elem )=>{
-          if ( elem.rel === 'stylesheet' ) {
-              shadowRoot.appendChild( elem.cloneNode() );
-          }
-      } );
-  }
-
-  /**
-   * default load function
-   * @param {Array} moduleNames array of name or rel path for modules as key
-   * @returns {Promise} promise with module objects
-   */
-  let _loadCallback = function( moduleNames ) {
-      return Promise.all( moduleNames.map( ( key ) => {
-          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
-      } ) );
-  };
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {Array} deps Dependency as string or array of string
-   * @returns {Promise} promise with dependencies
-   */
-  function load$2( deps ) {
-      return _loadCallback( deps );
-  }
-
-  /**
-   * Set loader function for few
-   * @param {Function} callback loader function as callback
-   */
-  function setLoader( callback ) {
-      _loadCallback = callback;
-  }
-
-  var few = exports$1 = {
-      handleEvent,
-      requestUpdate,
-      getFormInput,
-      getViewElement,
-      importDocStyle,
-      httpGet,
-      load: load$2,
-      setLoader,
-      exclude: excludeElement,
-      directive: defineDirective
-  };
-
-  // set it at global
-  window.few = exports$1;
-
-  // load router
-
   var lodash = createCommonjsModule(function (module, exports) {
   (function() {
 
@@ -21266,6 +20922,662 @@ define(['require'], function (require) { 'use strict';
 
   /* eslint-env es6 */
 
+  /**
+   * Parse view string as DOM without interpret it
+   * TODO no for now and needs to be enahanced
+   * @param {string} str view template as string
+   * @returns {Element} DOM Element
+   */
+  function parseView( str ) {
+      let parser = new DOMParser();
+      let fragement = document.createDocumentFragment();
+      fragement.appendChild( parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild );
+      return fragement.firstChild;
+  }
+
+  /**
+   * evaluate string as Javascript expression
+   * @param {string} input string as expression
+   * @param {Object} params parameters as name value pair
+   * @param {boolean} ignoreError if true the error is not thrown
+   * @return {*} evaluation result
+   *
+   * TODO: match name with function parameters
+   * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
+   */
+  let evalExpression = function( input, params, ignoreError ) {
+    const names = params ? Object.keys( params ) : [];
+    const vals = params ? Object.values( params ) : [];
+    try {
+        return new Function( ...names, `return ${input};` )( ...vals );
+    } catch( e ) {
+        if ( !ignoreError ) {
+            throw new Error( `evalExpression('${input}') => ${e.message}` );
+        } else {
+            return undefined;
+        }
+    }
+  };
+
+
+  /**
+   * fastest way to copy a pure JSON object, use on your own risk
+   * https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+   *
+   * @param {Object} obj Current DOM Element
+   * @returns {Object} new cloned object
+   */
+  function cloneDeepJsonObject( obj ) {
+      return obj ? JSON.parse( JSON.stringify( obj ) ) : obj;
+  }
+
+  /**
+   * get form input from Form HTML Element
+   * @param {Element} elem Form element
+   * @returns {Object} from input as name value pair
+   */
+  function getFormInput( elem ) {
+      let res = {};
+      // TODO: not consider custom element for now
+      if( elem.tagName === 'FORM' ) {
+          let nodeList = elem.elements;
+          for ( let i = 0; i < nodeList.length; i++ ) {
+              if ( nodeList[i].nodeName === 'INPUT' && nodeList[i].type === 'text' ) {
+                  // Update text input
+                  nodeList[i].value.toLocaleUpperCase();
+              }
+
+              // only supports naming input
+              if( nodeList[i].name ) {
+                  res[nodeList[i].name] = nodeList[i].value;
+              }
+          }
+      }
+      return res;
+  }
+
+  /**
+   * Check if element has scope defined
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {boolean} true if element has scope defined
+   */
+  function hasScope( element ) {
+      return element && element.classList && element.classList.contains( 'few-scope' );
+  }
+
+  /**
+   * Get closest parent element which has view model context
+   * NOTE: IE may need polyfill below -
+   * https://github.com/jonathantneal/closest
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {Element} Closest parent element which has view model context
+   */
+  function getScopeElement( element ) {
+      return element.closest( '.few-scope' );
+  }
+
+  /**
+   * Attach component object on specific element
+   * @param {Element} element DOM Element
+   * @param {Object} componentObj componentObject
+   */
+  function setComponent( element, componentObj ) {
+      if ( element && componentObj ) {
+          element._vm = componentObj;
+          element.classList.add( 'few-scope' );
+      } else {
+        throw new Error( `setComponent(${element ?  element.id ? `id:${element.id}` : element.tagName  : 'undefined'}) => componentObj is undefined` );
+      }
+  }
+
+  /**
+   * Get view model context from closet parent element which has it
+   *
+   * @param {Element} element DOM Element
+   * @returns {Object} view model object context
+   */
+  function getComponent( element ) {
+      let scopeElem = getScopeElement( element );
+      if( scopeElem ) {
+          return scopeElem._vm;
+      }
+  }
+
+  /**
+   * Get closest few view element
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {Element} Closest parent element which has view model context
+   */
+  function getViewElement( element ) {
+      /*
+      let scopeElem = getScopeElement( element );
+      if ( scopeElem ) {
+          return scopeElem.parentElement;
+      }*/
+      return getScopeElement( element );
+  }
+
+  /* eslint-env es6 */
+
+  /**
+   * String Template Parser
+   */
+  class StringTemplateParser {
+      constructor( template ) {
+          let tpl = template ? template : this.constructor.defaultTemplate;
+
+          // regular expression object
+          this._regExpObj = evalExpression( tpl.pattern );
+
+          // match index
+          this._matchIdx = tpl.index;
+      }
+
+      /**
+       * Parse string with template
+       * @param {string} str input string
+       * @returns {string} expression define by input string
+       */
+      parse( str ) {
+          let match = this._regExpObj.exec( str );
+          if ( match ) {
+              return match[this._matchIdx];
+          }
+      }
+  }
+
+  StringTemplateParser.defaultTemplate = {
+      // eslint-disable-next-line no-template-curly-in-string
+      pattern: '/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$/m',
+      index: 1
+  };
+
+  /* eslint-env es6 */
+
+  class FewComponent {
+      /**
+       * Constructor for View Model Object
+       * @param {FewComponent} parent parent view model
+       * @param {Object} componentDef component definition
+       * @param {string} scopeExpr expression to fetch scope in parent component
+       */
+      constructor( parent, componentDef, scopeExpr ) {
+          /**
+           * parent view model
+           */
+          this._parent = parent;
+
+          this._children = [];
+
+          if ( parent ) {
+              parent._children.push( this );
+          }
+
+          /**
+           * view object
+           */
+          this._view = null;
+
+          /**
+           * component definition
+           */
+          this._vm = componentDef;
+
+          /**
+           * Dirty flag, we can put it to model, for now put it here
+           */
+          this._isDirty = false;
+
+
+          /**
+           * Default options
+           */
+          this._option = componentDef.option || {};
+
+          if ( !this._option.scopePath ) {
+              this._option.scopePath = 'scope';
+          }
+
+          if( !this._option.actionPaths ) {
+              this._option.actionPaths = [ 'action' ];
+          }
+          this._option.actionPaths.push( '' );
+
+          if ( !this._option.stringTemplate ) {
+              this._option.stringTemplate = {
+                  // eslint-disable-next-line no-template-curly-in-string
+                  pattern: '/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$/m',
+                  index: 1
+              };
+          }
+
+          // Load string template
+          this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
+
+          // Load Scope
+          if ( scopeExpr ) {
+              let parentScope = evalExpression( scopeExpr, this._parent._vm.model );
+              Object.assign( parentScope, this._vm.model );
+              this._vm.model = parentScope;
+          } else if ( !this._vm.model ) {
+              this._vm.model = {};
+          }
+
+          /**
+           * method update view
+           * TODO: can we return promise here
+           */
+          this._updateViewDebounce = lodash.debounce( () => {
+              this._updateView();
+          }, 100 );
+      }
+
+      ///////////////////////////////////////////////////////////////////////////////////////
+      _updateView() {
+          if ( this._view ) {
+              this._view.render( this._vm.model );
+              this._isDirty = false;
+          }
+
+          // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
+          // to child, the child cannot diffrenciate the value has been changed or not.
+          // For now do a hard update for every child node, which is bad practice
+          lodash.forEach( this._children, ( c ) => {
+              c._updateView();
+         } );
+      }
+
+      _requestViewUpdate() {
+          if ( this._parent ) {
+              this._parent._requestViewUpdate();
+          } else {
+              this._updateViewDebounce();
+          }
+      }
+
+      /**
+       * load model
+       */
+      async init() {
+          if ( this._vm.init ) {
+              await this._update( this._vm.init, undefined, false );
+          }
+      }
+
+
+      /**
+       * set view for current view model
+       * @param {Object} view view input
+       */
+      setView( view ) {
+          this._view = view;
+      }
+
+      /**
+       * attach current view to DOM in page
+       * TODO: Move it out of here...
+       * @param {Element} elem DOM Element in page
+       */
+      attachViewToPage( elem ) {
+          /**
+           * - The raw temple is a HTML which all custom element functon is not executed.
+           * - We need to attach the view to actual page so all the custom element render takes priority
+           * - Then we render -> it will have some overhead
+           * - Then the custom directive gets executed to make sure no crash with custom element logic
+           */
+          setComponent( elem, this );
+
+          let childNodes = this._view.domNode.childNodes;
+          let size = childNodes.length;
+          let fragment = document.createDocumentFragment();
+          for( let i = 0; i < size; i++ ) {
+              fragment.appendChild( childNodes[0] );
+          }
+          elem.appendChild( fragment );
+          this._view.domNode = elem;
+          this._view.render( this._vm.model );
+      }
+
+      /**
+       * get root dom node for current component
+       * @returns {Node} dom node
+       */
+      getDomNode() {
+          return this._view.domNode;
+      }
+
+      /////////////////////////////////////////////////////////////////////////////////////////
+
+      /**
+       * Update value and trigger view update
+       * @param {string} path value path on model
+       * @param {string} value value itself
+       */
+      _updateModel( path, value ) {
+          lodash.set( this._vm.model, path, value );
+          this._isDirty = true;
+      }
+
+      _getActionDefinition( key ) {
+          let methodDef = null;
+          lodash.forEach( this._option.actionPaths, ( p ) => {
+              methodDef = lodash.get( this._vm,  p && p.length > 0 ? `${p}.${key}` : key );
+              if ( methodDef ) {
+                  return false;
+              }
+          } );
+
+          return methodDef;
+      }
+
+      _setScope( scope ) {
+          this._vm.model[this._option.scopePath] = scope;
+      }
+
+      _evalActionInput( input, level = 0 ) {
+          // Make the method to be immutable at top level
+          let obj = level > 0 ? input : cloneDeepJsonObject( input );
+
+          for( let key in obj ) {
+              // TODO: we can do it at compile to save performance
+              let value = obj[key];
+              if ( typeof value === 'string' ) {
+                  let template = this._strTplParser.parse( value );
+                  if ( template ) {
+                      obj[key] = evalExpression( template, this._vm.model );
+                  }
+              } else {
+                  this._evalActionInput( obj[key], level + 1 );
+              }
+          }
+          return obj;
+      }
+
+      async _executeAction( actionDef, scope ) {
+          let dep =  actionDef.import ? ( await few.load( actionDef.import ) )[0] : window;
+
+          // backup and apply scope
+          // For now only support on level scope
+          let originArg = this._vm.model[this._option.scopePath];
+          this._setScope( scope );
+
+          let input = this._evalActionInput( actionDef.input );
+          let vals = actionDef.input ? Object.values( input ) : [];
+
+          let func = lodash.get( dep, actionDef.name );
+          let res = actionDef.name ? await func.apply( dep, vals ) : input;
+
+          // restore origin namespace
+          if ( originArg ) {
+              this._setScope( originArg );
+          }
+
+          lodash.forEach( actionDef.output, ( valPath, vmPath ) => {
+              this._updateModel( vmPath, valPath && valPath.length > 0 ? lodash.get( res, valPath ) : res );
+          } );
+
+          // scope as next input
+          // return Object.assign( scope, res );
+          return res !== undefined ? res : scope;
+      }
+
+      /**
+       * check if action exist on current component
+       * @param {string} methodName action name
+       * @returns {boolean} true if action exist in current definition
+       */
+      hasAction( methodName ) {
+          return this._getActionDefinition( methodName );
+      }
+
+      /**
+       * evaluate method in view model
+       * @param {object} actionDef action definition as JSON object
+       * @param {object} scope input from upstream
+       * @param {boolean} updateView if true will update view
+       * @returns {Promise} promise with scope value
+       */
+      async _update( actionDef, scope, updateView ) {
+          let res = null;
+          if ( Array.isArray( actionDef ) ) {
+              res = await actionDef.reduce( async( scope, name ) => {
+                  return this.update( name, await scope, false );
+              }, scope );
+          } else {
+              res = await this._executeAction( actionDef, scope );
+          }
+
+          if( updateView ) {
+              this._requestViewUpdate();
+          }
+
+          return res;
+      }
+
+
+      /**
+       * evaluate method in view model
+       * @param {string} methodName method name in view model
+       * @param {object} scope input from upstream
+       * @param {boolean} updateView if true will update view
+       * @returns {Promise} promise with scope value
+       */
+      async update( methodName, scope, updateView = true ) {
+          let actionDef = this._getActionDefinition( methodName );
+
+          return await this._update( actionDef, scope, updateView );
+      }
+  }
+
+  /* eslint-env es6 */
+
+  let _directives = {};
+
+  /**
+   * Register/define attribute directives in few
+   * @param {string} name directive name
+   * @param {FewDirective} directive attribute directive definition
+   */
+  function defineDirective( name, directive ) {
+      _directives[name] = directive;
+  }
+
+  /**
+   * Get attribute directive definition
+   * @param {string} name directive name
+   * @returns {FewDirective} attribute directive definition
+   */
+  function getDirective( name ) {
+      return _directives[name];
+  }
+
+  /* eslint-env es6 */
+  let FewViewNullUnit = {
+      KEY: 'f-ignore'
+  };
+
+  let _filterElements = {
+
+  };
+
+  /**
+   * Register/define element which will be
+   * @param {string} nodeName Element name all in upper case
+   */
+  function excludeElement( nodeName ) {
+      _filterElements[nodeName] = true;
+  }
+
+  /**
+   * Check if element is excluded by few
+   * @param {string} nodeName element name all in uppercase
+   * @returns {boolean} if true few will ignore the element
+   */
+  function isExcluded( nodeName ) {
+      return _filterElements[nodeName];
+  }
+
+  var nullUnitFactory = {
+      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE &&
+                  ( isExcluded( domNode.nodeName ) ||
+                    domNode.hasAttribute( FewViewNullUnit.KEY ) ),
+      createUnit: () => null
+  };
+
+  /* eslint-env es6 */
+  // Simple http implementation
+
+  /**
+   * simple http get
+   * @param {string} theUrl url as string
+   * @returns {Promise} promise
+   */
+  function httpGet( theUrl ) {
+      return new Promise( ( resolve, reject ) => {
+          let xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = () => {
+              if ( xhr.readyState === 4 && xhr.status !== 404 ) {
+                  resolve( xhr.responseText );
+              }
+          };
+
+          xhr.onerror = () => {
+              reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+          };
+
+          xhr.onloadend = function() {
+              if ( xhr.status === 404 ) {
+                  reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+              }
+          };
+
+          xhr.open( 'GET', theUrl, true ); // true for asynchronous
+          xhr.send( null );
+      } );
+  }
+
+  var http = {
+      get: httpGet
+  };
+
+  /* eslint-env es6 */
+
+  let exports$1;
+
+  /**
+   * Run method in view model
+   * @param {Element} elem DOM Element
+   * @param {string} methodName method name in view model
+   * @param {object}  e event object as context
+   * @returns {Promise} evaluation as promise
+   */
+  function handleEvent( elem, methodName, e ) {
+      /*
+          return false from within a jQuery event handler is effectively the same as calling
+          both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
+
+          e.preventDefault() will prevent the default event from occuring.
+          e.stopPropagation() will prevent the event from bubbling up.
+          return false will do both.
+
+          Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
+          notably, return false does not stop the event from bubbling up.
+
+          Source: John Resig
+      */
+      e.preventDefault();
+      // e.stopPropagation();
+
+      let component = getComponent( elem );
+      return component.update( methodName, {
+          element: elem,
+          event: e
+      } );
+  }
+
+  /**
+   * Request update to parent view model
+   * @param {Element} elem DOM Element  as context
+   * @param {object}  data data as request input
+   * @param {string}  method action name
+   * @returns {Promise} evaluation as promise
+   */
+  function requestUpdate( elem, data, method ) {
+      let viewElem = getViewElement( elem );
+      let parentElement = viewElem.parentElement;
+      let component = getComponent( parentElement );
+      let actionName = method || viewElem.id;
+      if ( component.hasAction( actionName ) ) {
+          // TODO: need to tune performance to reduce over update
+          return component.update( actionName, data );
+      }
+      return requestUpdate( parentElement, data, actionName );
+  }
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Element} shadowRoot Shadow root element for shadow DOM
+   */
+  function importDocStyle( shadowRoot ) {
+      let linkElems = document.head.querySelectorAll( 'link' );
+      linkElems.forEach( ( elem )=>{
+          if ( elem.rel === 'stylesheet' ) {
+              shadowRoot.appendChild( elem.cloneNode() );
+          }
+      } );
+  }
+
+  /**
+   * default load function
+   * @param {Array} moduleNames array of name or rel path for modules as key
+   * @returns {Promise} promise with module objects
+   */
+  let _loadCallback = function( moduleNames ) {
+      return Promise.all( moduleNames.map( ( key ) => {
+          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
+      } ) );
+  };
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Array} deps Dependency as string or array of string
+   * @returns {Promise} promise with dependencies
+   */
+  function load$2( deps ) {
+      return _loadCallback( deps );
+  }
+
+  /**
+   * Set loader function for few
+   * @param {Function} callback loader function as callback
+   */
+  function setLoader( callback ) {
+      _loadCallback = callback;
+  }
+
+  var few$1 = exports$1 = {
+      handleEvent,
+      requestUpdate,
+      getFormInput,
+      getViewElement,
+      importDocStyle,
+      httpGet,
+      load: load$2,
+      setLoader,
+      exclude: excludeElement,
+      directive: defineDirective
+  };
+
+  // set it at global
+  window.few = exports$1;
+
+  // load router
+
+  /* eslint-env es6 */
+
   class FewViewNode {
       /**
        * Create VirtualDomElement
@@ -23070,337 +23382,22 @@ define(['require'], function (require) { 'use strict';
   viewUnitFactory.addFactory( condUnitFactory );
   viewUnitFactory.addFactory( varUnitFactory );
 
-  var fewViewFactory = {
-      createView: ( templateString, parser ) => viewUnitFactory.createUnit( parseView( templateString ), parser )
-  };
-
-  /* eslint-env es6 */
-
   /**
-   * String Template Parser
+   * create view for current view model
+   * @param {Object} view view input
+   * @param {Object} parser String parser
+   * @returns {Promise} promise with view element
    */
-  class StringTemplateParser {
-      constructor( template ) {
-          let tpl = template ? template : this.constructor.defaultTemplate;
+  async function createView( view, parser ) {
+      await few$1.load( view.import ? view.import : [] );
 
-          // regular expression object
-          this._regExpObj = evalExpression( tpl.pattern );
-
-          // match index
-          this._matchIdx = tpl.index;
-      }
-
-      /**
-       * Parse string with template
-       * @param {string} str input string
-       * @returns {string} expression define by input string
-       */
-      parse( str ) {
-          let match = this._regExpObj.exec( str );
-          if ( match ) {
-              return match[this._matchIdx];
-          }
-      }
+      return viewUnitFactory.createUnit( parseView( view.template ), parser );
   }
 
-  StringTemplateParser.defaultTemplate = {
-      // eslint-disable-next-line no-template-curly-in-string
-      pattern: '/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$/m',
-      index: 1
+  var fewViewFactory = {
+      createUnit: ( templateString, parser ) => viewUnitFactory.createUnit( parseView( templateString ), parser ),
+      createView
   };
-
-  /* eslint-env es6 */
-
-  class FewComponent {
-      /**
-       * Constructor for View Model Object
-       * @param {FewComponent} parent parent view model
-       * @param {Object} componentDef component definition
-       * @param {string} scopeExpr expression to fetch scope in parent component
-       */
-      constructor( parent, componentDef, scopeExpr ) {
-          /**
-           * parent view model
-           */
-          this._parent = parent;
-
-          this._children = [];
-
-          if ( parent ) {
-              parent._children.push( this );
-          }
-
-          /**
-           * view object
-           */
-          this._view = null;
-
-          /**
-           * component definition
-           */
-          this._vm = componentDef;
-
-          /**
-           * Dirty flag, we can put it to model, for now put it here
-           */
-          this._isDirty = false;
-
-
-          /**
-           * Default options
-           */
-          this._option = componentDef.option || {};
-
-          if ( !this._option.scopePath ) {
-              this._option.scopePath = 'scope';
-          }
-
-          if( !this._option.actionPaths ) {
-              this._option.actionPaths = [ 'action' ];
-          }
-          this._option.actionPaths.push( '' );
-
-          if ( !this._option.stringTemplate ) {
-              this._option.stringTemplate = {
-                  // eslint-disable-next-line no-template-curly-in-string
-                  pattern: '/^\\s*\\${\\s*([\\S\\s\\r\\n]*)\\s*}\\s*$/m',
-                  index: 1
-              };
-          }
-
-          // Load string template
-          this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
-
-          // Load Scope
-          if ( scopeExpr ) {
-              let parentScope = evalExpression( scopeExpr, this._parent._vm.model );
-              Object.assign( parentScope, this._vm.model );
-              this._vm.model = parentScope;
-          } else if ( !this._vm.model ) {
-              this._vm.model = {};
-          }
-
-          /**
-           * method update view
-           * TODO: can we return promise here
-           */
-          this._updateViewDebounce = lodash.debounce( () => {
-              this._updateView();
-          }, 100 );
-      }
-
-      ///////////////////////////////////////////////////////////////////////////////////////
-      _updateView() {
-          if ( this._view ) {
-              this._view.render( this._vm.model );
-              this._isDirty = false;
-          }
-
-          // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
-          // to child, the child cannot diffrenciate the value has been changed or not.
-          // For now do a hard update for every child node, which is bad practice
-          lodash.forEach( this._children, ( c ) => {
-              c._updateView();
-         } );
-      }
-
-      _requestViewUpdate() {
-          if ( this._parent ) {
-              this._parent._requestViewUpdate();
-          } else {
-              this._updateViewDebounce();
-          }
-      }
-
-      /**
-       * load model
-       */
-      async init() {
-          if ( this._vm.init ) {
-              await this._update( this._vm.init, undefined, false );
-          }
-      }
-
-      /**
-       * create view for current view model
-       * @param {Object} view view input
-       * @returns {Promise} promise with view element
-       */
-      async createView( view ) {
-          await few.load( view.import ? view.import : [] );
-
-          this._view = fewViewFactory.createView( view.template, this._strTplParser );
-
-          return this._view;
-
-          // let elem = this._view.render( this._vm.model );
-          // setComponent( elem, this );
-          // return elem;
-      }
-
-      /**
-       * set view for current view model
-       * @param {Object} view view input
-       */
-      setView( view ) {
-          this._view = view;
-      }
-
-      /**
-       * attach current view to DOM in page
-       * TODO: Move it out of here...
-       * @param {Element} elem DOM Element in page
-       */
-      attachViewToPage( elem ) {
-          /**
-           * - The raw temple is a HTML which all custom element functon is not executed.
-           * - We need to attach the view to actual page so all the custom element render takes priority
-           * - Then we render -> it will have some overhead
-           * - Then the custom directive gets executed to make sure no crash with custom element logic
-           */
-          setComponent( elem, this );
-
-          let childNodes = this._view.domNode.childNodes;
-          let size = childNodes.length;
-          let fragment = document.createDocumentFragment();
-          for( let i = 0; i < size; i++ ) {
-              fragment.appendChild( childNodes[0] );
-          }
-          elem.appendChild( fragment );
-          this._view.domNode = elem;
-          this._view.render( this._vm.model );
-      }
-
-      /**
-       * get root dom node for current component
-       * @returns {Node} dom node
-       */
-      getDomNode() {
-          return this._view.domNode;
-      }
-
-      /////////////////////////////////////////////////////////////////////////////////////////
-
-      /**
-       * Update value and trigger view update
-       * @param {string} path value path on model
-       * @param {string} value value itself
-       */
-      _updateModel( path, value ) {
-          lodash.set( this._vm.model, path, value );
-          this._isDirty = true;
-      }
-
-      _getActionDefinition( key ) {
-          let methodDef = null;
-          lodash.forEach( this._option.actionPaths, ( p ) => {
-              methodDef = lodash.get( this._vm,  p && p.length > 0 ? `${p}.${key}` : key );
-              if ( methodDef ) {
-                  return false;
-              }
-          } );
-
-          return methodDef;
-      }
-
-      _setScope( scope ) {
-          this._vm.model[this._option.scopePath] = scope;
-      }
-
-      _evalActionInput( input, level = 0 ) {
-          // Make the method to be immutable at top level
-          let obj = level > 0 ? input : cloneDeepJsonObject( input );
-
-          for( let key in obj ) {
-              // TODO: we can do it at compile to save performance
-              let value = obj[key];
-              if ( typeof value === 'string' ) {
-                  let template = this._strTplParser.parse( value );
-                  if ( template ) {
-                      obj[key] = evalExpression( template, this._vm.model );
-                  }
-              } else {
-                  this._evalActionInput( obj[key], level + 1 );
-              }
-          }
-          return obj;
-      }
-
-      async _executeAction( actionDef, scope ) {
-          let dep =  actionDef.import ? ( await few.load( actionDef.import ) )[0] : window;
-
-          // backup and apply scope
-          // For now only support on level scope
-          let originArg = this._vm.model[this._option.scopePath];
-          this._setScope( scope );
-
-          let input = this._evalActionInput( actionDef.input );
-          let vals = actionDef.input ? Object.values( input ) : [];
-
-          let func = lodash.get( dep, actionDef.name );
-          let res = actionDef.name ? await func.apply( dep, vals ) : input;
-
-          // restore origin namespace
-          if ( originArg ) {
-              this._setScope( originArg );
-          }
-
-          lodash.forEach( actionDef.output, ( valPath, vmPath ) => {
-              this._updateModel( vmPath, valPath && valPath.length > 0 ? lodash.get( res, valPath ) : res );
-          } );
-
-          // scope as next input
-          // return Object.assign( scope, res );
-          return res !== undefined ? res : scope;
-      }
-
-      /**
-       * check if action exist on current component
-       * @param {string} methodName action name
-       * @returns {boolean} true if action exist in current definition
-       */
-      hasAction( methodName ) {
-          return this._getActionDefinition( methodName );
-      }
-
-      /**
-       * evaluate method in view model
-       * @param {object} actionDef action definition as JSON object
-       * @param {object} scope input from upstream
-       * @param {boolean} updateView if true will update view
-       * @returns {Promise} promise with scope value
-       */
-      async _update( actionDef, scope, updateView ) {
-          let res = null;
-          if ( Array.isArray( actionDef ) ) {
-              res = await actionDef.reduce( async( scope, name ) => {
-                  return this.update( name, await scope, false );
-              }, scope );
-          } else {
-              res = await this._executeAction( actionDef, scope );
-          }
-
-          if( updateView ) {
-              this._requestViewUpdate();
-          }
-
-          return res;
-      }
-
-
-      /**
-       * evaluate method in view model
-       * @param {string} methodName method name in view model
-       * @param {object} scope input from upstream
-       * @param {boolean} updateView if true will update view
-       * @returns {Promise} promise with scope value
-       */
-      async update( methodName, scope, updateView = true ) {
-          let actionDef = this._getActionDefinition( methodName );
-
-          return await this._update( actionDef, scope, updateView );
-      }
-  }
 
   /* eslint-env es6 */
 
@@ -23443,6 +23440,7 @@ define(['require'], function (require) { 'use strict';
           return path;
       }
 
+
       async attributeChangedCallback( name, oldValue, newValue ) {
           // console.log( `${name}: ${oldValue} => ${newValue}` );
 
@@ -23474,16 +23472,12 @@ define(['require'], function (require) { 'use strict';
                   // Load model
                   await this._component.init();
 
-                  // View has too be initialized separately since it is async
-                  // let viewElem = await this._component.createView( componentDef.view );
-                  // this.appendChild( viewElem );
-
                   // TODO: need to refactor
                   if( componentDef.view.import ) {
                       componentDef.view.import = componentDef.view.import.map( path => this._processPath( path ) );
                   }
 
-                  await this._component.createView( componentDef.view );
+                  this._component.setView( await fewViewFactory.createView( componentDef.view, this._component._strTplParser ) );
 
                   if ( this._currentView !== newViewPath ) {
                       return;
@@ -23971,7 +23965,7 @@ define(['require'], function (require) { 'use strict';
   // even though Rollup is bundling all your files together, errors and
   // logs will still point to your original source modules
 
-  return few;
+  return few$1;
 
 });
 //# sourceMappingURL=few.js.map

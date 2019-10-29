@@ -2,6 +2,7 @@
 
 import yaml from 'js-yaml';
 import FewComponent from './few-component';
+import fewViewFactory from './few-view-factory';
 import http from './http';
 import { getComponent, getViewElement, parseView } from './few-utils';
 
@@ -44,6 +45,7 @@ export default class FewView extends HTMLElement {
         return path;
     }
 
+
     async attributeChangedCallback( name, oldValue, newValue ) {
         // console.log( `${name}: ${oldValue} => ${newValue}` );
 
@@ -75,16 +77,12 @@ export default class FewView extends HTMLElement {
                 // Load model
                 await this._component.init();
 
-                // View has too be initialized separately since it is async
-                // let viewElem = await this._component.createView( componentDef.view );
-                // this.appendChild( viewElem );
-
                 // TODO: need to refactor
                 if( componentDef.view.import ) {
                     componentDef.view.import = componentDef.view.import.map( path => this._processPath( path ) );
                 }
 
-                await this._component.createView( componentDef.view );
+                this._component.setView( await fewViewFactory.createView( componentDef.view, this._component._strTplParser ) );
 
                 if ( this._currentView !== newViewPath ) {
                     return;

@@ -6,14 +6,14 @@ import StringTemplateParser from '../src/string-template-parser';
 
 describe( 'Test few-view', () => {
     it( 'Verify few-view create node correct for simple DOM', async() => {
-        expect( fewViewFactory.createView( '<code id="ouch"></code>', new StringTemplateParser() ).toJSON() ).toEqual( {
+        expect( fewViewFactory.createUnit( '<code id="ouch"></code>', new StringTemplateParser() ).toJSON() ).toEqual( {
             type: 'DIV'
         } );
     } );
 
     it( 'Verify few-view create node correct for DOM with expression', async() => {
         // eslint-disable-next-line no-template-curly-in-string
-        expect( fewViewFactory.createView( '<code id="ouch"><div>${test1}</div></code><code id="${test2}"><div></div></code>', new StringTemplateParser() ).toJSON() ).toEqual( {
+        expect( fewViewFactory.createUnit( '<code id="ouch"><div>${test1}</div></code><code id="${test2}"><div></div></code>', new StringTemplateParser() ).toJSON() ).toEqual( {
             type: 'DIV',
             children: [
                 {

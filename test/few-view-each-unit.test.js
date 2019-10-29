@@ -3,6 +3,7 @@
 
 import yaml from 'js-yaml';
 import FewComponent from '../src/few-component';
+import fewViewFactory from '../src/few-view-factory';
 
 describe( 'Test f-each in few-view', () => {
     let docElem;
@@ -42,7 +43,7 @@ describe( 'Test f-each in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.createView( componentDef.view );
+        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
 
         component.attachViewToPage( docElem );
 
@@ -76,7 +77,7 @@ describe( 'Test f-each in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.createView( componentDef.view );
+        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
 
         component.attachViewToPage( docElem );
 

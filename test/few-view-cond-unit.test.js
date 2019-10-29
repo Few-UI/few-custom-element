@@ -3,6 +3,7 @@
 
 import yaml from 'js-yaml';
 import FewComponent from '../src/few-component';
+import fewViewFactory from '../src/few-view-factory';
 import { wait } from './test-utils';
 
 describe( 'Test f-cond in few-view', () => {
@@ -48,7 +49,7 @@ describe( 'Test f-cond in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.createView( componentDef.view );
+        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
 
         component.attachViewToPage( docElem );
 
@@ -98,7 +99,7 @@ describe( 'Test f-cond in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.createView( componentDef.view );
+        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
 
         component.attachViewToPage( docElem );
 
@@ -139,7 +140,7 @@ describe( 'Test f-cond in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.createView( componentDef.view );
+        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
 
         component.attachViewToPage( docElem );
 

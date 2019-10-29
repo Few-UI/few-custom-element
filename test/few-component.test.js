@@ -3,6 +3,7 @@
 
 import yaml from 'js-yaml';
 import FewComponent from '../src/few-component';
+import fewViewFactory from '../src/few-view-factory';
 import { wait } from './test-utils';
 
 describe( 'Test few-component', () => {
@@ -105,7 +106,7 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.createView( componentDef.view );
+        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
 
         component.attachViewToPage( docElem );
 
@@ -145,7 +146,7 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.createView( componentDef.view );
+        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
 
         component.attachViewToPage( docElem );
 

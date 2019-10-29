@@ -1,7 +1,5 @@
 /* eslint-env es6 */
-import few from './few-global';
 import _ from 'lodash';
-import fewViewFactory from './few-view-factory';
 import StringTemplateParser from './string-template-parser';
 
 import {
@@ -120,22 +118,6 @@ export default class FewComponent {
         }
     }
 
-    /**
-     * create view for current view model
-     * @param {Object} view view input
-     * @returns {Promise} promise with view element
-     */
-    async createView( view ) {
-        await few.load( view.import ? view.import : [] );
-
-        this._view = fewViewFactory.createView( view.template, this._strTplParser );
-
-        return this._view;
-
-        // let elem = this._view.render( this._vm.model );
-        // setComponent( elem, this );
-        // return elem;
-    }
 
     /**
      * set view for current view model
