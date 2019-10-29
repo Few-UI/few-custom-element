@@ -107,6 +107,11 @@ export default class FewRoute extends HTMLElement {
         router.unregister( this );
     }
 
+    getViewPath() {
+        this._dummy;
+        // do nothing
+    }
+
     async processURL( url ) {
         let states = await this._routeConfigPromise;
 

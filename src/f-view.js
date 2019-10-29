@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import fewViewFactory from './few-view-factory';
 import http from './http';
-import { getComponent, getViewElement, parseView } from './few-utils';
+import { getComponent, getViewElement, parseView, resolvePath } from './few-utils';
 
 export default class FewView extends HTMLElement {
     static get tag() {
@@ -31,26 +31,15 @@ export default class FewView extends HTMLElement {
 
     getViewPath() {
         if ( /\//.test( this._currentView ) ) {
-            return this._currentView.replace( /\/[^/]+$/, '/' );
+            return this._currentView.replace( /\/[^/]+$/, '' );
         }
     }
-
-    _processPath( path, fromParent ) {
-        if( /^\.\.?\//.test( path ) ) {
-            let parentPath = fromParent ? getViewElement( this ).getViewPath() : this.getViewPath();
-            if( parentPath ) {
-                return parentPath + path;
-            }
-        }
-        return path;
-    }
-
 
     async attributeChangedCallback( name, oldValue, newValue ) {
         // console.log( `${name}: ${oldValue} => ${newValue}` );
 
         if ( name === 'src' && newValue && oldValue !== newValue ) {
-            let newViewPath = this._processPath( newValue, true );
+            let newViewPath = resolvePath( getViewElement( this ) ? getViewElement( this ).getViewPath() : '', newValue );
 
             this._currentView = newViewPath;
 
@@ -79,7 +68,7 @@ export default class FewView extends HTMLElement {
 
                 // TODO: need to refactor
                 if( componentDef.view.import ) {
-                    componentDef.view.import = componentDef.view.import.map( path => this._processPath( path ) );
+                    componentDef.view.import = componentDef.view.import.map( path => resolvePath(  this.getViewPath(), path ) );
                 }
 
                 this._component.setView( await fewViewFactory.createView( componentDef.view, this._component._strTplParser ) );

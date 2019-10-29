@@ -21060,6 +21060,19 @@ define(['require'], function (require) { 'use strict';
       return getScopeElement( element );
   }
 
+  /**
+   * resolve relative path to absolute based on URL
+   * @param {String} baseUrl base URL
+   * @param {String} path, relative path
+   * @returns {String} absolute URL
+   */
+  function resolvePath( baseUrl, path ) {
+      if( /^\.\.?\//.test( path ) && baseUrl ) {
+          return baseUrl + '/' + path;
+      }
+      return path;
+  }
+
   /* eslint-env es6 */
 
   /**
@@ -23426,26 +23439,15 @@ define(['require'], function (require) { 'use strict';
 
       getViewPath() {
           if ( /\//.test( this._currentView ) ) {
-              return this._currentView.replace( /\/[^/]+$/, '/' );
+              return this._currentView.replace( /\/[^/]+$/, '' );
           }
       }
-
-      _processPath( path, fromParent ) {
-          if( /^\.\.?\//.test( path ) ) {
-              let parentPath = fromParent ? getViewElement( this ).getViewPath() : this.getViewPath();
-              if( parentPath ) {
-                  return parentPath + path;
-              }
-          }
-          return path;
-      }
-
 
       async attributeChangedCallback( name, oldValue, newValue ) {
           // console.log( `${name}: ${oldValue} => ${newValue}` );
 
           if ( name === 'src' && newValue && oldValue !== newValue ) {
-              let newViewPath = this._processPath( newValue, true );
+              let newViewPath = resolvePath( getViewElement( this ) ? getViewElement( this ).getViewPath() : '', newValue );
 
               this._currentView = newViewPath;
 
@@ -23474,7 +23476,7 @@ define(['require'], function (require) { 'use strict';
 
                   // TODO: need to refactor
                   if( componentDef.view.import ) {
-                      componentDef.view.import = componentDef.view.import.map( path => this._processPath( path ) );
+                      componentDef.view.import = componentDef.view.import.map( path => resolvePath(  this.getViewPath(), path ) );
                   }
 
                   this._component.setView( await fewViewFactory.createView( componentDef.view, this._component._strTplParser ) );
@@ -23919,6 +23921,11 @@ define(['require'], function (require) { 'use strict';
 
       disconnectedCallback() {
           router.unregister( this );
+      }
+
+      getViewPath() {
+          this._dummy;
+          // do nothing
       }
 
       async processURL( url ) {

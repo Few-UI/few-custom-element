@@ -16,9 +16,10 @@ steal.config( {
         // steal has an issue that by default // will applied as http
         // For now use workaround below to match to https
         '//cdn.jsdelivr.net/*' : 'https://cdn.jsdelivr.net/*.js',
+
         // For stealJSX
-        react: 'https://cdn.jsdelivr.net/npm/react@16.11.0/umd/react.development.js',
         'steal-jsx': 'https://cdn.jsdelivr.net/npm/steal-react-jsx@0.0.4/steal-react-jsx.js',
+
         // lit-element
         'lit-element': 'https://cdn.jsdelivr.net/npm/lit-element@2.2.1/lit-element.js',
         'lit-element/*': 'https://cdn.jsdelivr.net/npm/lit-element@2.2.1/*.js',
@@ -37,11 +38,13 @@ steal.config( {
       }
     },
     map: {
+        // react
+        react: '//cdn.jsdelivr.net/npm/react@16.11.0/umd/react.development',
+
         // lit-element
         'lib/updating-element': 'lit-element/lib/updating-element',
         'lib/decorators': 'lit-element/lib/decorators',
         'lib/css-tag': 'lit-element/lib/css-tag',
-
 
         // lit-html
         'lit-html/lit-html': 'lit-html',

@@ -150,6 +150,20 @@ export function getViewElement( element ) {
 }
 
 /**
+ * resolve relative path to absolute based on URL
+ * @param {String} baseUrl base URL
+ * @param {String} path, relative path
+ * @returns {String} absolute URL
+ */
+export function resolvePath( baseUrl, path ) {
+    if( /^\.\.?\//.test( path ) && baseUrl ) {
+        return baseUrl + '/' + path;
+    }
+    return path;
+}
+
+
+/**
  * Check value type is primitive or not
  * @param {any} val input value
  * @returns {boolean} true if input is number or string
