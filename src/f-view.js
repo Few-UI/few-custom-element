@@ -39,7 +39,7 @@ export default class FewView extends HTMLElement {
         // console.log( `${name}: ${oldValue} => ${newValue}` );
 
         if ( name === 'src' && newValue && oldValue !== newValue ) {
-            let newViewPath = resolvePath( getViewElement( this ) ? getViewElement( this ).getViewPath() : '', newValue );
+            let newViewPath = newValue;
 
             this._currentView = newViewPath;
 
@@ -66,12 +66,8 @@ export default class FewView extends HTMLElement {
                 // Load model
                 await this._component.init();
 
-                // TODO: need to refactor
-                if( componentDef.view.import ) {
-                    componentDef.view.import = componentDef.view.import.map( path => resolvePath(  this.getViewPath(), path ) );
-                }
-
-                this._component.setView( await fewViewFactory.createView( componentDef.view, this._component._strTplParser ) );
+                this._component.setView( await fewViewFactory.createView( componentDef.view,
+                    this._component._strTplParser, this.getViewPath() ) );
 
                 if ( this._currentView !== newViewPath ) {
                     return;

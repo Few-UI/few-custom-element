@@ -23399,10 +23399,22 @@ define(['require'], function (require) { 'use strict';
    * create view for current view model
    * @param {Object} view view input
    * @param {Object} parser String parser
+   * @param {String} baseUrl base url as string
    * @returns {Promise} promise with view element
    */
-  async function createView( view, parser ) {
-      await few$1.load( view.import ? view.import : [] );
+  async function createView( view, parser, baseUrl = '' ) {
+      // TODO: need to refactor
+      if( view.import ) {
+          if ( baseUrl ) {
+              view.import = view.import.map( path => resolvePath( baseUrl, path ) );
+          }
+          await few$1.load( view.import );
+      }
+
+      // TODO: hard code to src="" for now
+      if ( baseUrl ) {
+          view.template = view.template.replace( /src="(\.\.?\/[^"]*)"/g, `src="${baseUrl}/$1"` );
+      }
 
       return viewUnitFactory.createUnit( parseView( view.template ), parser );
   }
@@ -23447,7 +23459,7 @@ define(['require'], function (require) { 'use strict';
           // console.log( `${name}: ${oldValue} => ${newValue}` );
 
           if ( name === 'src' && newValue && oldValue !== newValue ) {
-              let newViewPath = resolvePath( getViewElement( this ) ? getViewElement( this ).getViewPath() : '', newValue );
+              let newViewPath = newValue;
 
               this._currentView = newViewPath;
 
@@ -23474,12 +23486,8 @@ define(['require'], function (require) { 'use strict';
                   // Load model
                   await this._component.init();
 
-                  // TODO: need to refactor
-                  if( componentDef.view.import ) {
-                      componentDef.view.import = componentDef.view.import.map( path => resolvePath(  this.getViewPath(), path ) );
-                  }
-
-                  this._component.setView( await fewViewFactory.createView( componentDef.view, this._component._strTplParser ) );
+                  this._component.setView( await fewViewFactory.createView( componentDef.view,
+                      this._component._strTplParser, this.getViewPath() ) );
 
                   if ( this._currentView !== newViewPath ) {
                       return;
