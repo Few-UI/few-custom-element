@@ -43,7 +43,7 @@ describe( 'Test f-each in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
+        await component.initComponent();
 
         component.attachViewToPage( docElem );
 
@@ -77,7 +77,7 @@ describe( 'Test f-each in few-view', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
+        await component.initComponent();
 
         component.attachViewToPage( docElem );
 

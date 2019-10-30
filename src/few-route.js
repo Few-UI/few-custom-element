@@ -41,15 +41,6 @@ function getPathFromBase( href ) {
 }
 
 /**
- * Get the part after base
- * @param {string} href - fullpath
- * @returns {string} path from base
- */
-function getBaseUrl( href ) {
-  return ( href || loc.href || '' ).replace( /#.+$/, '' );
-}
-
-/**
  * math url with pre-defined pattern
  * @param {string} pattern pattern as string
  * @param {string} urlParamStr input url
@@ -114,11 +105,6 @@ export default class FewRoute extends HTMLElement {
 
     disconnectedCallback() {
         router.unregister( this );
-    }
-
-    getViewPath() {
-        this._dummy;
-        // do nothing
     }
 
     async processURL( url ) {

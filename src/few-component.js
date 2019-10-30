@@ -40,6 +40,25 @@ export default class FewComponent {
             this._vm.model = {};
         }
 
+
+        /**
+         * view object
+         */
+        this._view = null;
+
+        /**
+         * Dirty flag, we can put it to model, for now put it here
+         */
+        this._isDirty = false;
+
+        /**
+         * method update view
+         * TODO: can we return promise here
+         */
+        this._updateViewDebounce = _.debounce( () => {
+            this._updateView();
+        }, 100 );
+
         if ( componentDef ) {
             if ( componentDef.model ) {
                 Object.assign( this._vm.model, componentDef.model );
@@ -47,18 +66,6 @@ export default class FewComponent {
             }
             Object.assign( this._vm, componentDef );
         }
-
-        /**
-         * view object
-         */
-        this._view = null;
-
-
-        /**
-         * Dirty flag, we can put it to model, for now put it here
-         */
-        this._isDirty = false;
-
 
         /**
          * Default options
@@ -76,15 +83,6 @@ export default class FewComponent {
 
         // Load string template
         this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
-
-
-        /**
-         * method update view
-         * TODO: can we return promise here
-         */
-        this._updateViewDebounce = _.debounce( () => {
-            this._updateView();
-        }, 100 );
     }
 
     /**
@@ -99,16 +97,6 @@ export default class FewComponent {
         this._view = await fewViewFactory.createView( this._vm.view,
             this._strTplParser, baseUrl );
     }
-
-
-    /**
-     * set view for current view model
-     * @param {Object} view view input
-     */
-    setView( view ) {
-        this._view = view;
-    }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////
     _updateView() {
