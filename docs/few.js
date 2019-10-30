@@ -23221,13 +23221,13 @@ define(['require'], function (require) { 'use strict';
           /**
            * component definition
            */
-          this._vm = {};
+          this._vm = {
+              model: {}
+          };
+
           if ( scopeExpr ) {
               this._vm.model = evalExpression( scopeExpr, this._parent._vm.model );
-          } else {
-              this._vm.model = {};
           }
-
 
           /**
            * view object
@@ -23337,14 +23337,6 @@ define(['require'], function (require) { 'use strict';
           elem.appendChild( fragment );
           this._view.domNode = elem;
           this._view.render( this._vm.model );
-      }
-
-      /**
-       * get root dom node for current component
-       * @returns {Node} dom node
-       */
-      getDomNode() {
-          return this._view.domNode;
       }
 
       /////////////////////////////////////////////////////////////////////////////////////////
