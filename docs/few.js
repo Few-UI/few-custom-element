@@ -23925,6 +23925,22 @@ define(['require'], function (require) { 'use strict';
           router.unregister( this );
       }
 
+      _createComponent( params, viewPath ) {
+          // matching, process and break
+          // TODO: fake component
+          let componentDef = {
+              model: {
+                  data: params
+              }
+          };
+
+          let component = new FewComponent( componentDef );
+
+          setComponent( this, component );
+
+          this.innerHTML = `<few-view src="${viewPath}" model="data"></few-view>`;
+      }
+
       async processURL( url ) {
           let states = await this._routeConfigPromise;
 
@@ -23934,17 +23950,7 @@ define(['require'], function (require) { 'use strict';
           for( let key in states ) {
               let state = states[key];
               if( !urlParamStr && key === '0' ) {
-                  let componentDef = {
-                      model: {
-                          data: {}
-                      }
-                  };
-
-                  let component = new FewComponent( null, componentDef );
-                  setComponent( this, component );
-
-                  this.innerHTML = `<few-view src="${state.view}" model="data"></few-view>`;
-
+                  this._createComponent( {}, state.view );
                   this._currState = state;
                   break;
               } else if ( this._currState === state ) {
@@ -23956,20 +23962,7 @@ define(['require'], function (require) { 'use strict';
               } else {
                   let params = {};
                   if( matchUrl( state.url, urlParamStr, params ) ) {
-                      // matching, process and break
-                      // TODO: fake component
-                      let componentDef = {
-                          model: {
-                              data: params
-                          }
-                      };
-
-                      let component = new FewComponent( componentDef );
-
-                      setComponent( this, component );
-
-                      this.innerHTML = `<few-view src="${state.view}" model="data"></few-view>`;
-
+                      this._createComponent( params, state.view );
                       this._currState = state;
                       break;
                   }
