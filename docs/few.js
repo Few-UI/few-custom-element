@@ -23913,22 +23913,23 @@ define(['require'], function (require) { 'use strict';
      * @param {object} params param object
      * @returns {boolean} true if url matches
      */
-    function matchUrl( pattern, urlParamStr, params ) {
+    function matchUrl2( pattern, urlParamStr ) {
         // TODO: for now just make it work, blindly say map and return value
         let keys = DEFAULT_PARSER( pattern );
         let values = DEFAULT_PARSER( urlParamStr );
+        let res = {};
 
         for( let n in keys ) {
             let key = keys[n];
             if ( key ) {
                 key = key.replace( /^:/, '' );
                 let value = values[n];
-                set_1( params, key, value );
+                res[key] = value;
             }
         }
-
-        return true;
+        return res;
     }
+
 
     /**
      * load JSON config
@@ -23973,49 +23974,44 @@ define(['require'], function (require) { 'use strict';
             router.unregister( this );
         }
 
-        async _createComponent( params, viewPath ) {
-            this._component = await few.render( `${viewPath}.yml`, this, params );
-            // matching, process and break
-            // TODO: fake component
-            /*
-            let componentDef = {
-                model: {
-                    data: params
-                }
-            };
-
-            let component = new FewComponent( componentDef );
-
-            setComponent( this, component );
-
-            this.innerHTML = `<few-view src="${viewPath}" model="data"></few-view>`;
-            */
-        }
-
         async processURL( url ) {
             let states = await this._routeConfigPromise;
-
-            // let urlStruct = DEFAULT_PARSER( getPathFromBase( url ) );
-            let urlParamStr = getPathFromBase( url );
-
-            for( let key in states ) {
-                let state = states[key];
-                if( !urlParamStr && key === '0' ) {
-                    this._createComponent( {}, state.view );
-                    this._currState = state;
-                    break;
-                } else if ( this._currState === state ) {
-                    let component = getComponent( this );
-                    if ( matchUrl( state.url, urlParamStr, component._vm.model ) ) {
-                        component.updateView();
-                        break;
-                    }
+            if ( states && states.length > 0 ) {
+                // let urlStruct = DEFAULT_PARSER( getPathFromBase( url ) );
+                let urlParamStr = getPathFromBase( url );
+                if( !urlParamStr ) {
+                    this._currState = states[0];
+                    this._component = await few.render( `${this._currState.view}.yml`, this );
                 } else {
+                    let state = null;
                     let params = {};
-                    if( matchUrl( state.url, urlParamStr, params ) ) {
-                        this._createComponent( params, state.view );
-                        this._currState = state;
-                        break;
+
+                    // match state
+                    for( let key in states ) {
+                        let st = states[key];
+                        params = matchUrl2( st.url, urlParamStr );
+                        if( params ) {
+                            state = st;
+                            break;
+                        }
+                    }
+
+                    // process state
+                    if ( state ) {
+                        if ( this._currState === state ) {
+                            let model = this._component._vm.model;
+                            for( let key in params ) {
+                                set_1( model, key, params[key] );
+                            }
+                            this._component.updateView();
+                        } else {
+                            let model = {};
+                            for( let key in params ) {
+                                set_1( model, key, params[key] );
+                            }
+                            this._currState = state;
+                            this._component = await few.render( `${state.view}.yml`, this, model );
+                        }
                     }
                 }
             }
