@@ -23147,7 +23147,7 @@ define(['require'], function (require) { 'use strict';
          * @param {FewComponent} parent parent view model
          * @param {Object} model input model
          */
-        constructor( componentDef, parent, model = {} ) {
+        constructor( componentDef, parent, model ) {
             /**
              * parent view model
              */
@@ -23162,7 +23162,7 @@ define(['require'], function (require) { 'use strict';
              * Barebone vm with model
              */
             this._vm = {
-                model: model
+                model: model || {}
             };
 
             /**
@@ -23499,16 +23499,17 @@ define(['require'], function (require) { 'use strict';
      * custom elemenet there is no callback or event to say 'render done'
      * @param {string} componentPath path for component definition
      * @param {Element} containerElem container element that component attach to
-     * @param {Element} modelPath model path to fetch model from parent ( if parent exist )
-         * @param {string} baseUrl base URL for relative path
+     * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
+     * @param {string} baseUrl base URL for relative path
      * @returns {Promise} promise can be used for next step
      */
-    async function render( componentPath, containerElem, modelPath, baseUrl ) {
+    async function render( componentPath, containerElem, modelRef, baseUrl ) {
         // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
         let parentComponent = getComponent( containerElem );
 
         // load from parent
-        let model =  parentComponent && modelPath  ? parentComponent.getValue( modelPath ) : undefined;
+        // For not no check for non-string behavior
+        let model =  ( typeof modelRef === 'string' || modelRef instanceof String ) && parentComponent && modelRef  ? parentComponent.getValue( modelRef ) : modelRef;
 
         // load component definition
         let componentDef = await loadComponent( componentPath );
@@ -23972,9 +23973,11 @@ define(['require'], function (require) { 'use strict';
             router.unregister( this );
         }
 
-        _createComponent( params, viewPath ) {
+        async _createComponent( params, viewPath ) {
+            this._component = await few.render( `${viewPath}.yml`, this, params );
             // matching, process and break
             // TODO: fake component
+            /*
             let componentDef = {
                 model: {
                     data: params
@@ -23986,6 +23989,7 @@ define(['require'], function (require) { 'use strict';
             setComponent( this, component );
 
             this.innerHTML = `<few-view src="${viewPath}" model="data"></few-view>`;
+            */
         }
 
         async processURL( url ) {
@@ -24002,7 +24006,7 @@ define(['require'], function (require) { 'use strict';
                     break;
                 } else if ( this._currState === state ) {
                     let component = getComponent( this );
-                    if ( matchUrl( state.url, urlParamStr, component._vm.model.data ) ) {
+                    if ( matchUrl( state.url, urlParamStr, component._vm.model ) ) {
                         component.updateView();
                         break;
                     }

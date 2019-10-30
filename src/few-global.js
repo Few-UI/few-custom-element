@@ -87,16 +87,17 @@ export function importDocStyle( shadowRoot ) {
  * custom elemenet there is no callback or event to say 'render done'
  * @param {string} componentPath path for component definition
  * @param {Element} containerElem container element that component attach to
- * @param {Element} modelPath model path to fetch model from parent ( if parent exist )
-     * @param {string} baseUrl base URL for relative path
+ * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
+ * @param {string} baseUrl base URL for relative path
  * @returns {Promise} promise can be used for next step
  */
-export async function render( componentPath, containerElem, modelPath, baseUrl ) {
+export async function render( componentPath, containerElem, modelRef, baseUrl ) {
     // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
     let parentComponent = getComponent( containerElem );
 
     // load from parent
-    let model =  parentComponent && modelPath  ? parentComponent.getValue( modelPath ) : undefined;
+    // For not no check for non-string behavior
+    let model =  ( typeof modelRef === 'string' || modelRef instanceof String ) && parentComponent && modelRef  ? parentComponent.getValue( modelRef ) : modelRef;
 
     // load component definition
     let componentDef = await loadComponent( componentPath );

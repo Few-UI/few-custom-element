@@ -1,4 +1,5 @@
 import http from './http';
+import few from './few-global';
 import router from './few-router';
 import FewComponent from './few-component';
 import { getComponent, setComponent } from './few-utils';
@@ -107,9 +108,11 @@ export default class FewRoute extends HTMLElement {
         router.unregister( this );
     }
 
-    _createComponent( params, viewPath ) {
+    async _createComponent( params, viewPath ) {
+        this._component = await few.render( `${viewPath}.yml`, this, params );
         // matching, process and break
         // TODO: fake component
+        /*
         let componentDef = {
             model: {
                 data: params
@@ -121,6 +124,7 @@ export default class FewRoute extends HTMLElement {
         setComponent( this, component );
 
         this.innerHTML = `<few-view src="${viewPath}" model="data"></few-view>`;
+        */
     }
 
     async processURL( url ) {
@@ -137,7 +141,7 @@ export default class FewRoute extends HTMLElement {
                 break;
             } else if ( this._currState === state ) {
                 let component = getComponent( this );
-                if ( matchUrl( state.url, urlParamStr, component._vm.model.data ) ) {
+                if ( matchUrl( state.url, urlParamStr, component._vm.model ) ) {
                     component.updateView();
                     break;
                 }
