@@ -47,11 +47,9 @@ describe( 'Test f-cond in few-view', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent();
+        let component = new FewComponent( componentDef );
 
-        await component.initComponent( componentDef );
-
-        component.attachViewToPage( docElem );
+        await component.render( componentDef.view, docElem );
 
         expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 
@@ -97,11 +95,9 @@ describe( 'Test f-cond in few-view', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent();
+        let component = new FewComponent( componentDef );
 
-        await component.initComponent( componentDef );
-
-        component.attachViewToPage( docElem );
+        await component.render( componentDef.view, docElem );
 
         await wait( 200 );
         expect( docElem.innerHTML ).toEqual( '<div>5</div>' );
@@ -138,11 +134,9 @@ describe( 'Test f-cond in few-view', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent();
+        let component = new FewComponent( componentDef );
 
-        await component.initComponent( componentDef );
-
-        component.attachViewToPage( docElem );
+        await component.render( componentDef.view, docElem );
 
         expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
 

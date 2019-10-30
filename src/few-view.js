@@ -59,9 +59,7 @@ export default class FewView extends HTMLElement {
                 }
 
                 // Create component and call init definition
-                this._component = new FewComponent( parentComponent,  modelPath );
-
-                this._component.loadComponentDef( componentDef );
+                this._component = new FewComponent( componentDef, parentComponent,  modelPath );
 
                 await this._component.render( componentDef.view, this, this.baseUrl );
             } catch ( e ) {

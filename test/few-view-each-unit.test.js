@@ -41,11 +41,9 @@ describe( 'Test f-each in few-view', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent();
+        let component = new FewComponent( componentDef );
 
-        await component.initComponent( componentDef );
-
-        component.attachViewToPage( docElem );
+        await component.render( componentDef.view, docElem );
 
         expect( docElem.innerHTML ).toEqual( [
             '<!--f-each(item of items)-->',
@@ -75,11 +73,9 @@ describe( 'Test f-each in few-view', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent();
+        let component = new FewComponent( componentDef );
 
-        await component.initComponent( componentDef );
-
-        component.attachViewToPage( docElem );
+        await component.render( componentDef.view, docElem );
 
         expect( docElem.innerHTML ).toEqual( [
             '<!--f-each(item of items)-->',

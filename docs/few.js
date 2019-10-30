@@ -23202,31 +23202,27 @@ define(['require'], function (require) { 'use strict';
   class FewComponent {
       /**
        * Constructor for View Model Object
+       * @param {Object} componentDef component definition
        * @param {FewComponent} parent parent view model
        * @param {string} scopeExpr expression to fetch scope in parent component
        */
-      constructor( parent, scopeExpr ) {
+      constructor( componentDef, parent, scopeExpr ) {
           /**
            * parent view model
            */
           this._parent = parent;
 
+          /**
+           * Reference to children
+           */
           this._children = [];
 
-          if ( parent ) {
-              parent._children.push( this );
-          }
-
           /**
-           * component definition setup
+           * Barebone vm with model
            */
           this._vm = {
               model: {}
           };
-
-          if ( scopeExpr ) {
-              this._vm.model = evalExpression( scopeExpr, this._parent._vm.model );
-          }
 
           /**
            * view object
@@ -23245,23 +23241,28 @@ define(['require'], function (require) { 'use strict';
           this._updateViewDebounce = lodash.debounce( () => {
               this._updateView();
           }, 100 );
+
+          // load from parent
+          if ( parent && scopeExpr ) {
+              this._vm.model = evalExpression( scopeExpr, this._parent._vm.model );
+          }
+
+          // init
+          this._loadComponentDef( componentDef );
+
+          // Add myself to parent
+          if ( parent ) {
+              parent._children.push( this );
+          }
       }
 
       /**
-       * load component definition
+       * load component def
        * @param {Object} componentDef component definition
        */
-      loadComponentDef( componentDef ) {
-          if ( componentDef ) {
-              if ( componentDef.model ) {
-                  Object.assign( this._vm.model, componentDef.model );
-                  delete componentDef.model;
-              }
-              Object.assign( this._vm, componentDef );
-          }
-
+      _loadComponentDef( componentDef ) {
           /**
-           * Default options
+           * Setup options
            */
           this._option = componentDef.option || {};
 
@@ -23274,18 +23275,30 @@ define(['require'], function (require) { 'use strict';
           }
           this._option.actionPaths.push( '' );
 
-          // Load string template
           this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
+
+          /**
+           * Setup model and action
+           */
+          if ( componentDef ) {
+              if ( componentDef.model ) {
+                  Object.assign( this._vm.model, componentDef.model );
+                  delete componentDef.model;
+              }
+              Object.assign( this._vm, componentDef );
+          }
       }
 
       /**
        * Render template to DOM Element, a reactDOM like API
-       * @param {Object} templateDef template definition with import and template string
+       * NOTE: Promise here doesn't mean render done - we can't catch what happen inside
+       * custom elemenet there is no callback or event to say 'render done'
+       * @param {Object} viewDef view definition with import and template string
        * @param {Element} containerElem container element
        * @param {string} baseUrl base URL for relative path
        * @returns {Promise} promise can be used for next step
        */
-      async render( templateDef, containerElem, baseUrl ) {
+      async render( viewDef, containerElem, baseUrl ) {
           // Load init action
           if ( this._vm.init ) {
               await this._update( this._vm.init, undefined, false );
@@ -23293,63 +23306,30 @@ define(['require'], function (require) { 'use strict';
 
           // Load view
           if ( this._vm.view ) {
-              this._view = await fewViewFactory.createView( templateDef, this._strTplParser, baseUrl );
+              this._view = await fewViewFactory.createView( viewDef, this._strTplParser, baseUrl );
           }
 
-          this.attachViewToPage( containerElem );
-
-          // todo: later we can try to copy the component and return that when apply on different templateDef
-          return null;
-      }
-
-      /**
-       * init component based on model
-       * @param {Object} componentDef component definition
-       * @param {string} baseUrl base URL for relative path
-       */ 
-      async initComponent( componentDef, baseUrl ) {
-          // load component definition
-          this.loadComponentDef( componentDef );
-
-          // Load init action
-          if ( this._vm.init ) {
-              await this._update( this._vm.init, undefined, false );
-          }
-
-          // Load view
-          if ( this._vm.view ) {
-              this._view = await fewViewFactory.createView( this._vm.view, this._strTplParser, baseUrl );
-          }
-      }
-
-      /**
-       * attach current view to DOM in page
-       * TODO: Move it out of here...
-       * @param {Element} elem DOM Element in page
-       */
-      attachViewToPage( elem ) {
           // apply slot
           // TODO: consider re-apply and switch view later
-          applySlot( this._view.domNode, elem );
+          applySlot( this._view.domNode, containerElem );
 
-          elem.innerHTML = '';
-          /**
-           * - The raw temple is a HTML which all custom element functon is not executed.
-           * - We need to attach the view to actual page so all the custom element render takes priority
-           * - Then we render -> it will have some overhead
-           * - Then the custom directive gets executed to make sure no crash with custom element logic
-           */
-          setComponent( elem, this );
+          containerElem.innerHTML = '';
 
+          setComponent( containerElem, this );
+
+          // Save a dom
           let childNodes = this._view.domNode.childNodes;
           let size = childNodes.length;
           let fragment = document.createDocumentFragment();
           for( let i = 0; i < size; i++ ) {
               fragment.appendChild( childNodes[0] );
           }
-          elem.appendChild( fragment );
-          this._view.domNode = elem;
+          containerElem.appendChild( fragment );
+          this._view.domNode = containerElem;
           this._view.render( this._vm.model );
+
+          // todo: later we can try to copy the component and return that when apply on different templateDef
+          return null;
       }
 
       ///////////////////////////////////////////////////////////////////////////////////////
@@ -23554,9 +23534,7 @@ define(['require'], function (require) { 'use strict';
                   }
 
                   // Create component and call init definition
-                  this._component = new FewComponent( parentComponent,  modelPath );
-
-                  this._component.loadComponentDef( componentDef );
+                  this._component = new FewComponent( componentDef, parentComponent,  modelPath );
 
                   await this._component.render( componentDef.view, this, this.baseUrl );
               } catch ( e ) {
@@ -23984,9 +23962,7 @@ define(['require'], function (require) { 'use strict';
                           }
                       };
 
-                      let component = new FewComponent();
-
-                      component.loadComponentDef( componentDef );
+                      let component = new FewComponent( componentDef );
 
                       setComponent( this, component );
 
