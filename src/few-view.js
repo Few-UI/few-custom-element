@@ -48,26 +48,7 @@ export default class FewView extends HTMLElement {
                 // this._component.parent.remove(this._component);
                 let modelPath = this.getAttribute( 'model' );
 
-                // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
-                let parentComponent = getComponent( this );
-
-                // load component definition
-                let componentDef = await few.loadComponent( `${newValue}.yml` );
-
-                if ( this._currentView !== newValue ) {
-                    return;
-                }
-
-                // load from parent
-                let model;
-                if ( parentComponent && modelPath ) {
-                    model = parentComponent.getValue( modelPath );
-                }
-
-                // Create component and call init definition
-                this._component = new FewComponent( componentDef, parentComponent,  model );
-
-                await this._component.render( componentDef.view, this, this.baseUrl );
+                await few.render( `${newValue}.yml`, this, modelPath, this.baseUrl );
             } catch ( e ) {
                 if ( this._currentView === newValue ) {
                     this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

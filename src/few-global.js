@@ -4,6 +4,7 @@ import yaml from 'js-yaml';
 import { defineDirective } from './few-view-directive';
 import { excludeElement } from './few-view-null-unit';
 import { getComponent, getFormInput, getViewElement } from './few-utils';
+import FewComponent from './few-component';
 import http from './http';
 
 let exports;
@@ -125,7 +126,36 @@ export function setComponentLoader( callback ) {
     _loadComponentCallback = callback;
 }
 
+/**
+ * Reneder component to specific DOM Element
+ * NOTE: Promise here doesn't mean render done - we can't catch what happen inside
+ * custom elemenet there is no callback or event to say 'render done'
+ * @param {string} componentPath path for component definition
+ * @param {Element} containerElem container element that component attach to
+ * @param {Element} modelPath model path to fetch model from parent ( if parent exist )
+     * @param {string} baseUrl base URL for relative path
+ * @returns {Promise} promise can be used for next step
+ */
+export async function render( componentPath, containerElem, modelPath, baseUrl ) {
+    // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
+    let parentComponent = getComponent( containerElem );
+
+    // load component definition
+    let componentDef = await loadComponent( componentPath );
+
+    // load from parent
+    let model =  parentComponent && modelPath  ? parentComponent.getValue( modelPath ) : undefined;
+
+    // Create component and call init definition
+    let component = new FewComponent( componentDef, parentComponent,  model );
+
+    await component.render( componentDef.view, containerElem, baseUrl );
+
+    return component;
+}
+
 export default exports = {
+    render,
     handleEvent,
     requestUpdate,
     getFormInput,

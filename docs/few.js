@@ -4085,183 +4085,6 @@ define(['require'], function (require) { 'use strict';
       return path;
   }
 
-  /* eslint-env es6 */
-  // Simple http implementation
-
-  /**
-   * simple http get
-   * @param {string} theUrl url as string
-   * @returns {Promise} promise
-   */
-  function httpGet( theUrl ) {
-      return new Promise( ( resolve, reject ) => {
-          let xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = () => {
-              if ( xhr.readyState === 4 && xhr.status !== 404 ) {
-                  resolve( xhr.responseText );
-              }
-          };
-
-          xhr.onerror = () => {
-              reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
-          };
-
-          xhr.onloadend = function() {
-              if ( xhr.status === 404 ) {
-                  reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
-              }
-          };
-
-          xhr.open( 'GET', theUrl, true ); // true for asynchronous
-          xhr.send( null );
-      } );
-  }
-
-  var http = {
-      get: httpGet
-  };
-
-  /* eslint-env es6 */
-
-  let exports$1;
-
-  /**
-   * Run method in view model
-   * @param {Element} elem DOM Element
-   * @param {string} methodName method name in view model
-   * @param {object}  e event object as context
-   * @returns {Promise} evaluation as promise
-   */
-  function handleEvent( elem, methodName, e ) {
-      /*
-          return false from within a jQuery event handler is effectively the same as calling
-          both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
-
-          e.preventDefault() will prevent the default event from occuring.
-          e.stopPropagation() will prevent the event from bubbling up.
-          return false will do both.
-
-          Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
-          notably, return false does not stop the event from bubbling up.
-
-          Source: John Resig
-      */
-      e.preventDefault();
-      // e.stopPropagation();
-
-      let component = getComponent( elem );
-      return component.update( methodName, {
-          element: elem,
-          event: e
-      } );
-  }
-
-  /**
-   * Request update to parent view model
-   * @param {Element} elem DOM Element  as context
-   * @param {object}  data data as request input
-   * @param {string}  method action name
-   * @returns {Promise} evaluation as promise
-   */
-  function requestUpdate( elem, data, method ) {
-      let viewElem = getViewElement( elem );
-      let parentElement = viewElem.parentElement;
-      let component = getComponent( parentElement );
-      let actionName = method || viewElem.id;
-      if ( component.hasAction( actionName ) ) {
-          // TODO: need to tune performance to reduce over update
-          return component.update( actionName, data );
-      }
-      return requestUpdate( parentElement, data, actionName );
-  }
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {Element} shadowRoot Shadow root element for shadow DOM
-   */
-  function importDocStyle( shadowRoot ) {
-      let linkElems = document.head.querySelectorAll( 'link' );
-      linkElems.forEach( ( elem )=>{
-          if ( elem.rel === 'stylesheet' ) {
-              shadowRoot.appendChild( elem.cloneNode() );
-          }
-      } );
-  }
-
-  /**
-   * default loadModule function
-   * @param {Array} moduleNames array of name or rel path for modules as key
-   * @returns {Promise} promise with module objects
-   */
-  let _loadModuleCallback = function( moduleNames ) {
-      return Promise.all( moduleNames.map( ( key ) => {
-          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
-      } ) );
-  };
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {Array} deps Dependency as string or array of string
-   * @returns {Promise} promise with dependencies
-   */
-  function loadModules( deps ) {
-      return _loadModuleCallback( deps );
-  }
-
-  /**
-   * Set loader function for few
-   * @param {Function} callback loader function as callback
-   */
-  function setModuleLoader( callback ) {
-      _loadModuleCallback = callback;
-  }
-
-  /**
-   * default loadComponent function
-   * @param {string} path relative path of component
-   * @returns {Promise} promise with componentDef objects
-   */
-  let _loadComponentCallback = async function( path ) {
-      return jsYaml$1.safeLoad( await http.get( path ) );
-  };
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {string} path relative path of component
-   * @returns {Promise} promise with componentDef objects
-   */
-  function loadComponent( path ) {
-      return _loadComponentCallback( path );
-  }
-
-  /**
-   * Set loader function for few
-   * @param {Function} callback loader function as callback
-   */
-  function setComponentLoader( callback ) {
-      _loadComponentCallback = callback;
-  }
-
-  var few = exports$1 = {
-      handleEvent,
-      requestUpdate,
-      getFormInput,
-      getViewElement,
-      importDocStyle,
-      loadModules,
-      setModuleLoader,
-      loadComponent,
-      setComponentLoader,
-      httpGet: http.get,
-      exclude: excludeElement,
-      directive: defineDirective
-  };
-
-  // set it at global
-  window.few = exports$1;
-
-  // load router
-
   var lodash = createCommonjsModule(function (module, exports) {
   (function() {
 
@@ -23513,6 +23336,212 @@ define(['require'], function (require) { 'use strict';
   }
 
   /* eslint-env es6 */
+  // Simple http implementation
+
+  /**
+   * simple http get
+   * @param {string} theUrl url as string
+   * @returns {Promise} promise
+   */
+  function httpGet( theUrl ) {
+      return new Promise( ( resolve, reject ) => {
+          let xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = () => {
+              if ( xhr.readyState === 4 && xhr.status !== 404 ) {
+                  resolve( xhr.responseText );
+              }
+          };
+
+          xhr.onerror = () => {
+              reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+          };
+
+          xhr.onloadend = function() {
+              if ( xhr.status === 404 ) {
+                  reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+              }
+          };
+
+          xhr.open( 'GET', theUrl, true ); // true for asynchronous
+          xhr.send( null );
+      } );
+  }
+
+  var http = {
+      get: httpGet
+  };
+
+  /* eslint-env es6 */
+
+  let exports$1;
+
+  /**
+   * Run method in view model
+   * @param {Element} elem DOM Element
+   * @param {string} methodName method name in view model
+   * @param {object}  e event object as context
+   * @returns {Promise} evaluation as promise
+   */
+  function handleEvent( elem, methodName, e ) {
+      /*
+          return false from within a jQuery event handler is effectively the same as calling
+          both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
+
+          e.preventDefault() will prevent the default event from occuring.
+          e.stopPropagation() will prevent the event from bubbling up.
+          return false will do both.
+
+          Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
+          notably, return false does not stop the event from bubbling up.
+
+          Source: John Resig
+      */
+      e.preventDefault();
+      // e.stopPropagation();
+
+      let component = getComponent( elem );
+      return component.update( methodName, {
+          element: elem,
+          event: e
+      } );
+  }
+
+  /**
+   * Request update to parent view model
+   * @param {Element} elem DOM Element  as context
+   * @param {object}  data data as request input
+   * @param {string}  method action name
+   * @returns {Promise} evaluation as promise
+   */
+  function requestUpdate( elem, data, method ) {
+      let viewElem = getViewElement( elem );
+      let parentElement = viewElem.parentElement;
+      let component = getComponent( parentElement );
+      let actionName = method || viewElem.id;
+      if ( component.hasAction( actionName ) ) {
+          // TODO: need to tune performance to reduce over update
+          return component.update( actionName, data );
+      }
+      return requestUpdate( parentElement, data, actionName );
+  }
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Element} shadowRoot Shadow root element for shadow DOM
+   */
+  function importDocStyle( shadowRoot ) {
+      let linkElems = document.head.querySelectorAll( 'link' );
+      linkElems.forEach( ( elem )=>{
+          if ( elem.rel === 'stylesheet' ) {
+              shadowRoot.appendChild( elem.cloneNode() );
+          }
+      } );
+  }
+
+  /**
+   * default loadModule function
+   * @param {Array} moduleNames array of name or rel path for modules as key
+   * @returns {Promise} promise with module objects
+   */
+  let _loadModuleCallback = function( moduleNames ) {
+      return Promise.all( moduleNames.map( ( key ) => {
+          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
+      } ) );
+  };
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Array} deps Dependency as string or array of string
+   * @returns {Promise} promise with dependencies
+   */
+  function loadModules( deps ) {
+      return _loadModuleCallback( deps );
+  }
+
+  /**
+   * Set loader function for few
+   * @param {Function} callback loader function as callback
+   */
+  function setModuleLoader( callback ) {
+      _loadModuleCallback = callback;
+  }
+
+  /**
+   * default loadComponent function
+   * @param {string} path relative path of component
+   * @returns {Promise} promise with componentDef objects
+   */
+  let _loadComponentCallback = async function( path ) {
+      return jsYaml$1.safeLoad( await http.get( path ) );
+  };
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {string} path relative path of component
+   * @returns {Promise} promise with componentDef objects
+   */
+  function loadComponent( path ) {
+      return _loadComponentCallback( path );
+  }
+
+  /**
+   * Set loader function for few
+   * @param {Function} callback loader function as callback
+   */
+  function setComponentLoader( callback ) {
+      _loadComponentCallback = callback;
+  }
+
+  /**
+   * Reneder component to specific DOM Element
+   * NOTE: Promise here doesn't mean render done - we can't catch what happen inside
+   * custom elemenet there is no callback or event to say 'render done'
+   * @param {string} componentPath path for component definition
+   * @param {Element} containerElem container element that component attach to
+   * @param {Element} modelPath model path to fetch model from parent ( if parent exist )
+       * @param {string} baseUrl base URL for relative path
+   * @returns {Promise} promise can be used for next step
+   */
+  async function render( componentPath, containerElem, modelPath, baseUrl ) {
+      // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
+      let parentComponent = getComponent( containerElem );
+
+      // load component definition
+      let componentDef = await loadComponent( componentPath );
+
+      // load from parent
+      let model =  parentComponent && modelPath  ? parentComponent.getValue( modelPath ) : undefined;
+
+      // Create component and call init definition
+      let component = new FewComponent( componentDef, parentComponent,  model );
+
+      await component.render( componentDef.view, containerElem, baseUrl );
+
+      return component;
+  }
+
+  var few = exports$1 = {
+      render,
+      handleEvent,
+      requestUpdate,
+      getFormInput,
+      getViewElement,
+      importDocStyle,
+      loadModules,
+      setModuleLoader,
+      loadComponent,
+      setComponentLoader,
+      httpGet: http.get,
+      exclude: excludeElement,
+      directive: defineDirective
+  };
+
+  // set it at global
+  window.few = exports$1;
+
+  // load router
+
+  /* eslint-env es6 */
 
 
   class FewView extends HTMLElement {
@@ -23555,26 +23584,7 @@ define(['require'], function (require) { 'use strict';
                   // this._component.parent.remove(this._component);
                   let modelPath = this.getAttribute( 'model' );
 
-                  // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
-                  let parentComponent = getComponent( this );
-
-                  // load component definition
-                  let componentDef = await few.loadComponent( `${newValue}.yml` );
-
-                  if ( this._currentView !== newValue ) {
-                      return;
-                  }
-
-                  // load from parent
-                  let model;
-                  if ( parentComponent && modelPath ) {
-                      model = parentComponent.getValue( modelPath );
-                  }
-
-                  // Create component and call init definition
-                  this._component = new FewComponent( componentDef, parentComponent,  model );
-
-                  await this._component.render( componentDef.view, this, this.baseUrl );
+                  await few.render( `${newValue}.yml`, this, modelPath, this.baseUrl );
               } catch ( e ) {
                   if ( this._currentView === newValue ) {
                       this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
