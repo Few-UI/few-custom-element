@@ -23203,10 +23203,9 @@ define(['require'], function (require) { 'use strict';
       /**
        * Constructor for View Model Object
        * @param {FewComponent} parent parent view model
-       * @param {Object} componentDef component definition
        * @param {string} scopeExpr expression to fetch scope in parent component
        */
-      constructor( parent, componentDef, scopeExpr ) {
+      constructor( parent, scopeExpr ) {
           /**
            * parent view model
            */
@@ -23246,7 +23245,14 @@ define(['require'], function (require) { 'use strict';
           this._updateViewDebounce = lodash.debounce( () => {
               this._updateView();
           }, 100 );
+      }
 
+      /**
+       * init component based on model
+       * @param {Object} componentDef component definition
+       * @param {string} baseUrl base URL for relative path
+       */ 
+      async initComponent( componentDef, baseUrl ) {
           if ( componentDef ) {
               if ( componentDef.model ) {
                   Object.assign( this._vm.model, componentDef.model );
@@ -23271,19 +23277,13 @@ define(['require'], function (require) { 'use strict';
 
           // Load string template
           this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
-      }
-
-      /**
-       * init component based on model
-       * @param {string} baseUrl base URL for relative path
-       */ 
-      async initComponent( baseUrl ) {
           if ( this._vm.init ) {
               await this._update( this._vm.init, undefined, false );
           }
 
-          this._view = await fewViewFactory.createView( this._vm.view,
-              this._strTplParser, baseUrl );
+          if ( this._vm.view ) {
+              this._view = await fewViewFactory.createView( this._vm.view, this._strTplParser, baseUrl );
+          }
       }
 
       ///////////////////////////////////////////////////////////////////////////////////////
@@ -23301,9 +23301,9 @@ define(['require'], function (require) { 'use strict';
          } );
       }
 
-      _requestViewUpdate() {
+      updateView() {
           if ( this._parent ) {
-              this._parent._requestViewUpdate();
+              this._parent.updateView();
           } else {
               this._updateViewDebounce();
           }
@@ -23441,7 +23441,7 @@ define(['require'], function (require) { 'use strict';
           }
 
           if( updateView ) {
-              this._requestViewUpdate();
+              this.updateView();
           }
 
           return res;
@@ -23517,9 +23517,9 @@ define(['require'], function (require) { 'use strict';
                   }
 
                   // Create component and call init definition
-                  this._component = new FewComponent( parentComponent, componentDef, modelPath );
+                  this._component = new FewComponent( parentComponent,  modelPath );
 
-                  await this._component.initComponent( this.baseUrl );
+                  await this._component.initComponent( componentDef, this.baseUrl );
 
                   if ( this._currentView !== newValue ) {
                       return;
@@ -23938,7 +23938,7 @@ define(['require'], function (require) { 'use strict';
               } else if ( this._currState === state ) {
                   let component = getComponent( this );
                   if ( matchUrl( state.url, urlParamStr, component._vm.model.data ) ) {
-                      component._requestViewUpdate();
+                      component.updateView();
                       break;
                   }
               } else {
@@ -23952,7 +23952,10 @@ define(['require'], function (require) { 'use strict';
                           }
                       };
 
-                      let component = new FewComponent( null, componentDef );
+                      let component = new FewComponent();
+
+                      await component.initComponent( componentDef );
+
                       setComponent( this, component );
 
                       this.innerHTML = `<few-view src="${state.view}" model="data"></few-view>`;

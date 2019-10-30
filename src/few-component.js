@@ -15,10 +15,9 @@ export default class FewComponent {
     /**
      * Constructor for View Model Object
      * @param {FewComponent} parent parent view model
-     * @param {Object} componentDef component definition
      * @param {string} scopeExpr expression to fetch scope in parent component
      */
-    constructor( parent, componentDef, scopeExpr ) {
+    constructor( parent, scopeExpr ) {
         /**
          * parent view model
          */
@@ -58,7 +57,14 @@ export default class FewComponent {
         this._updateViewDebounce = _.debounce( () => {
             this._updateView();
         }, 100 );
+    }
 
+    /**
+     * init component based on model
+     * @param {Object} componentDef component definition
+     * @param {string} baseUrl base URL for relative path
+     */ 
+    async initComponent( componentDef, baseUrl ) {
         if ( componentDef ) {
             if ( componentDef.model ) {
                 Object.assign( this._vm.model, componentDef.model );
@@ -83,19 +89,13 @@ export default class FewComponent {
 
         // Load string template
         this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
-    }
-
-    /**
-     * init component based on model
-     * @param {string} baseUrl base URL for relative path
-     */ 
-    async initComponent( baseUrl ) {
         if ( this._vm.init ) {
             await this._update( this._vm.init, undefined, false );
         }
 
-        this._view = await fewViewFactory.createView( this._vm.view,
-            this._strTplParser, baseUrl );
+        if ( this._vm.view ) {
+            this._view = await fewViewFactory.createView( this._vm.view, this._strTplParser, baseUrl );
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -113,9 +113,9 @@ export default class FewComponent {
        } );
     }
 
-    _requestViewUpdate() {
+    updateView() {
         if ( this._parent ) {
-            this._parent._requestViewUpdate();
+            this._parent.updateView();
         } else {
             this._updateViewDebounce();
         }
@@ -253,7 +253,7 @@ export default class FewComponent {
         }
 
         if( updateView ) {
-            this._requestViewUpdate();
+            this.updateView();
         }
 
         return res;

@@ -132,7 +132,7 @@ export default class FewRoute extends HTMLElement {
             } else if ( this._currState === state ) {
                 let component = getComponent( this );
                 if ( matchUrl( state.url, urlParamStr, component._vm.model.data ) ) {
-                    component._requestViewUpdate();
+                    component.updateView();
                     break;
                 }
             } else {
@@ -146,7 +146,10 @@ export default class FewRoute extends HTMLElement {
                         }
                     };
 
-                    let component = new FewComponent( null, componentDef );
+                    let component = new FewComponent();
+
+                    await component.initComponent( componentDef );
+
                     setComponent( this, component );
 
                     this.innerHTML = `<few-view src="${state.view}" model="data"></few-view>`;

@@ -47,9 +47,9 @@ describe( 'Test f-cond in few-view', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent( null, componentDef );
+        let component = new FewComponent();
 
-        await component.initComponent();
+        await component.initComponent( componentDef );
 
         component.attachViewToPage( docElem );
 
@@ -97,9 +97,9 @@ describe( 'Test f-cond in few-view', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent( null, componentDef );
+        let component = new FewComponent();
 
-        await component.initComponent();
+        await component.initComponent( componentDef );
 
         component.attachViewToPage( docElem );
 
@@ -138,9 +138,9 @@ describe( 'Test f-cond in few-view', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent( null, componentDef );
+        let component = new FewComponent();
 
-        await component.initComponent();
+        await component.initComponent( componentDef );
 
         component.attachViewToPage( docElem );
 

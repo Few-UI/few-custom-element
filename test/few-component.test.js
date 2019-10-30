@@ -42,7 +42,9 @@ describe( 'Test few-component', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent( null, componentDef );
+        let component = new FewComponent();
+
+        await component.initComponent( componentDef );
 
         expect( await component.update( 'action.testAction' ) ).toEqual( 7 );
 
@@ -75,7 +77,9 @@ describe( 'Test few-component', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent( null, componentDef );
+        let component = new FewComponent();
+
+        await component.initComponent( componentDef );
 
         expect( await component.update( 'action.testAction' ) ).toEqual( 8 );
 
@@ -104,9 +108,9 @@ describe( 'Test few-component', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent( null, componentDef );
+        let component = new FewComponent();
 
-        await component.initComponent();
+        await component.initComponent( componentDef );
 
         component.attachViewToPage( docElem );
 
@@ -144,9 +148,9 @@ describe( 'Test few-component', () => {
 
         let componentDef = yaml.safeLoad( componentContent );
 
-        let component = new FewComponent( null, componentDef );
+        let component = new FewComponent();
 
-        await component.initComponent();
+        await component.initComponent( componentDef );
 
         component.attachViewToPage( docElem );
 
