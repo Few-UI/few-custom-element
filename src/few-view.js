@@ -47,6 +47,9 @@ export default class FewView extends HTMLElement {
                 // this._component.model = _.filter( modelPath );
                 // this._component.parent.remove(this._component);
 
+                // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
+                let parentComponent = getComponent( this );
+
                 let modelPath = this.getAttribute( 'model' );
 
                 // load component definition
@@ -57,7 +60,7 @@ export default class FewView extends HTMLElement {
                 }
 
                 // Create component and call init definition
-                this._component = new FewComponent( getComponent( this ), componentDef, modelPath );
+                this._component = new FewComponent( parentComponent, componentDef, modelPath );
 
                 await this._component.init();
 
