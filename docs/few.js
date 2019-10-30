@@ -21383,19 +21383,16 @@ define(['require'], function (require) { 'use strict';
               parent._children.push( this );
           }
 
-          // Load Scope
+          /**
+           * component definition
+           */
           this._vm = {};
           if ( scopeExpr ) {
-              let parentScope = evalExpression( scopeExpr, this._parent._vm.model );
-              // Object.assign( parentScope, this._vm.model );
-              this._vm.model = parentScope;
+              this._vm.model = evalExpression( scopeExpr, this._parent._vm.model );
           } else {
               this._vm.model = {};
           }
 
-          /**
-           * component definition
-           */
           if ( componentDef ) {
               if ( componentDef.model ) {
                   Object.assign( this._vm.model, componentDef.model );
@@ -21443,6 +21440,25 @@ define(['require'], function (require) { 'use strict';
           }, 100 );
       }
 
+      /**
+       * load model
+       */
+      async init() {
+          if ( this._vm.init ) {
+              await this._update( this._vm.init, undefined, false );
+          }
+      }
+
+
+      /**
+       * set view for current view model
+       * @param {Object} view view input
+       */
+      setView( view ) {
+          this._view = view;
+      }
+
+
       ///////////////////////////////////////////////////////////////////////////////////////
       _updateView() {
           if ( this._view ) {
@@ -21467,29 +21483,15 @@ define(['require'], function (require) { 'use strict';
       }
 
       /**
-       * load model
-       */
-      async init() {
-          if ( this._vm.init ) {
-              await this._update( this._vm.init, undefined, false );
-          }
-      }
-
-
-      /**
-       * set view for current view model
-       * @param {Object} view view input
-       */
-      setView( view ) {
-          this._view = view;
-      }
-
-      /**
        * attach current view to DOM in page
        * TODO: Move it out of here...
        * @param {Element} elem DOM Element in page
        */
       attachViewToPage( elem ) {
+          // apply slot
+          // TODO: consider re-apply and switch view later
+          applySlot( this._view.domNode, elem );
+
           elem.innerHTML = '';
           /**
            * - The raw temple is a HTML which all custom element functon is not executed.
@@ -23545,10 +23547,6 @@ define(['require'], function (require) { 'use strict';
                   if ( this._currentView !== newValue ) {
                       return;
                   }
-
-                  // apply slot
-                  // TODO: consider re-apply and switch view later
-                  applySlot( this._component.getDomNode(), this );
 
                   // attach to page
                   this._component.attachViewToPage( this );

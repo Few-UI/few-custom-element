@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 import FewComponent from './few-component';
 import fewViewFactory from './few-view-factory';
 import http from './http';
-import { getComponent, parseView, applySlot } from './few-utils';
+import { getComponent, parseView } from './few-utils';
 
 
 export default class FewView extends HTMLElement {
@@ -73,10 +73,6 @@ export default class FewView extends HTMLElement {
                 if ( this._currentView !== newValue ) {
                     return;
                 }
-
-                // apply slot
-                // TODO: consider re-apply and switch view later
-                applySlot( this._component.getDomNode(), this );
 
                 // attach to page
                 this._component.attachViewToPage( this );
