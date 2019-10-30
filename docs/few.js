@@ -23204,9 +23204,9 @@ define(['require'], function (require) { 'use strict';
        * Constructor for View Model Object
        * @param {Object} componentDef component definition
        * @param {FewComponent} parent parent view model
-       * @param {string} scopeExpr expression to fetch scope in parent component
+       * @param {Object} model input model
        */
-      constructor( componentDef, parent, scopeExpr ) {
+      constructor( componentDef, parent, model = {} ) {
           /**
            * parent view model
            */
@@ -23221,7 +23221,7 @@ define(['require'], function (require) { 'use strict';
            * Barebone vm with model
            */
           this._vm = {
-              model: {}
+              model: model
           };
 
           /**
@@ -23242,10 +23242,6 @@ define(['require'], function (require) { 'use strict';
               this._updateView();
           }, 100 );
 
-          // load from parent
-          if ( parent && scopeExpr ) {
-              this._vm.model = evalExpression( scopeExpr, this._parent._vm.model );
-          }
 
           // init
           this._loadComponentDef( componentDef );
@@ -23533,8 +23529,14 @@ define(['require'], function (require) { 'use strict';
                       return;
                   }
 
+                  // load from parent
+                  let model;
+                  if ( parentComponent && modelPath ) {
+                      model = evalExpression( modelPath, parentComponent._vm.model );
+                  }
+
                   // Create component and call init definition
-                  this._component = new FewComponent( componentDef, parentComponent,  modelPath );
+                  this._component = new FewComponent( componentDef, parentComponent,  model );
 
                   await this._component.render( componentDef.view, this, this.baseUrl );
               } catch ( e ) {

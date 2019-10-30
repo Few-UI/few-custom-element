@@ -2,9 +2,12 @@
 
 import yaml from 'js-yaml';
 import FewComponent from './few-component';
-import fewViewFactory from './few-view-factory';
 import http from './http';
-import { getComponent, parseView } from './few-utils';
+import {
+    evalExpression,
+    getComponent,
+    parseView
+} from './few-utils';
 
 
 export default class FewView extends HTMLElement {
@@ -58,8 +61,14 @@ export default class FewView extends HTMLElement {
                     return;
                 }
 
+                // load from parent
+                let model;
+                if ( parentComponent && modelPath ) {
+                    model = evalExpression( modelPath, parentComponent._vm.model );
+                }
+
                 // Create component and call init definition
-                this._component = new FewComponent( componentDef, parentComponent,  modelPath );
+                this._component = new FewComponent( componentDef, parentComponent,  model );
 
                 await this._component.render( componentDef.view, this, this.baseUrl );
             } catch ( e ) {

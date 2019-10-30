@@ -16,9 +16,9 @@ export default class FewComponent {
      * Constructor for View Model Object
      * @param {Object} componentDef component definition
      * @param {FewComponent} parent parent view model
-     * @param {string} scopeExpr expression to fetch scope in parent component
+     * @param {Object} model input model
      */
-    constructor( componentDef, parent, scopeExpr ) {
+    constructor( componentDef, parent, model = {} ) {
         /**
          * parent view model
          */
@@ -33,7 +33,7 @@ export default class FewComponent {
          * Barebone vm with model
          */
         this._vm = {
-            model: {}
+            model: model
         };
 
         /**
@@ -54,10 +54,6 @@ export default class FewComponent {
             this._updateView();
         }, 100 );
 
-        // load from parent
-        if ( parent && scopeExpr ) {
-            this._vm.model = evalExpression( scopeExpr, this._parent._vm.model );
-        }
 
         // init
         this._loadComponentDef( componentDef );
