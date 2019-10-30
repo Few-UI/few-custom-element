@@ -106,7 +106,7 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
+        await component.initComponent();
 
         component.attachViewToPage( docElem );
 
@@ -146,7 +146,7 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent( null, componentDef );
 
-        await component.setView( await fewViewFactory.createView( componentDef.view, component._strTplParser ) );
+        await component.initComponent();
 
         component.attachViewToPage( docElem );
 

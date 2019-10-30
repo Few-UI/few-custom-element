@@ -16,6 +16,12 @@ export default class FewView extends HTMLElement {
         return [ 'src', 'model' ];
     }
 
+    get baseUrl() {
+        if ( /\//.test( this._currentView ) ) {
+            return this._currentView.replace( /\/[^/]+$/, '' );
+        }
+    }
+
     constructor() {
         super();
 
@@ -29,13 +35,6 @@ export default class FewView extends HTMLElement {
          */
         this._currentView = null;
     }
-
-    getViewPath() {
-        if ( /\//.test( this._currentView ) ) {
-            return this._currentView.replace( /\/[^/]+$/, '' );
-        }
-    }
-
 
     async attributeChangedCallback( name, oldValue, newValue ) {
         if ( name === 'src' && newValue && oldValue !== newValue ) {
@@ -62,16 +61,7 @@ export default class FewView extends HTMLElement {
                 // Create component and call init definition
                 this._component = new FewComponent( parentComponent, componentDef, modelPath );
 
-                await this._component.init();
-
-                if ( this._currentView !== newValue ) {
-                    return;
-                }
-
-                // compile view
-                let unit = await fewViewFactory.createView( componentDef.view,
-                    this._component._strTplParser, this.getViewPath() );
-                this._component.setView( unit );
+                await this._component.initComponent( this.baseUrl );
 
                 if ( this._currentView !== newValue ) {
                     return;

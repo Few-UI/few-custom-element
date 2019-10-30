@@ -1,6 +1,7 @@
 /* eslint-env es6 */
 import _ from 'lodash';
 import few from './few-global';
+import fewViewFactory from './few-view-factory';
 import StringTemplateParser from './string-template-parser';
 
 import {
@@ -87,12 +88,16 @@ export default class FewComponent {
     }
 
     /**
-     * load model
-     */
-    async init() {
+     * init component based on model
+     * @param {string} baseUrl base URL for relative path
+     */ 
+    async initComponent( baseUrl ) {
         if ( this._vm.init ) {
             await this._update( this._vm.init, undefined, false );
         }
+
+        this._view = await fewViewFactory.createView( this._vm.view,
+            this._strTplParser, baseUrl );
     }
 
 
