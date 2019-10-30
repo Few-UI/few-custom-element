@@ -3827,6 +3827,441 @@ define(['require'], function (require) { 'use strict';
 
   var jsYaml$1 = jsYaml;
 
+  /* eslint-env es6 */
+
+  let _directives = {};
+
+  /**
+   * Register/define attribute directives in few
+   * @param {string} name directive name
+   * @param {FewDirective} directive attribute directive definition
+   */
+  function defineDirective( name, directive ) {
+      _directives[name] = directive;
+  }
+
+  /**
+   * Get attribute directive definition
+   * @param {string} name directive name
+   * @returns {FewDirective} attribute directive definition
+   */
+  function getDirective( name ) {
+      return _directives[name];
+  }
+
+  /* eslint-env es6 */
+  let FewViewNullUnit = {
+      KEY: 'f-ignore'
+  };
+
+  let _filterElements = {
+
+  };
+
+  /**
+   * Register/define element which will be
+   * @param {string} nodeName Element name all in upper case
+   */
+  function excludeElement( nodeName ) {
+      _filterElements[nodeName] = true;
+  }
+
+  /**
+   * Check if element is excluded by few
+   * @param {string} nodeName element name all in uppercase
+   * @returns {boolean} if true few will ignore the element
+   */
+  function isExcluded( nodeName ) {
+      return _filterElements[nodeName];
+  }
+
+  var nullUnitFactory = {
+      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE &&
+                  ( isExcluded( domNode.nodeName ) ||
+                    domNode.hasAttribute( FewViewNullUnit.KEY ) ),
+      createUnit: () => null
+  };
+
+  /* eslint-env es6 */
+
+  /**
+   * Parse view string as DOM without interpret it
+   * TODO no for now and needs to be enahanced
+   * @param {string} str view template as string
+   * @returns {Element} DOM Element
+   */
+  function parseView( str ) {
+      let parser = new DOMParser();
+      let fragement = document.createDocumentFragment();
+      fragement.appendChild( parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild );
+      return fragement.firstChild;
+  }
+
+  /**
+   * evaluate string as Javascript expression
+   * @param {string} input string as expression
+   * @param {Object} params parameters as name value pair
+   * @param {boolean} ignoreError if true the error is not thrown
+   * @return {*} evaluation result
+   *
+   * TODO: match name with function parameters
+   * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
+   */
+  let evalExpression = function( input, params, ignoreError ) {
+    const names = params ? Object.keys( params ) : [];
+    const vals = params ? Object.values( params ) : [];
+    try {
+        return new Function( ...names, `return ${input};` )( ...vals );
+    } catch( e ) {
+        if ( !ignoreError ) {
+            throw new Error( `evalExpression('${input}') => ${e.message}` );
+        } else {
+            return undefined;
+        }
+    }
+  };
+
+
+  /**
+   * fastest way to copy a pure JSON object, use on your own risk
+   * https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+   *
+   * @param {Object} obj Current DOM Element
+   * @returns {Object} new cloned object
+   */
+  function cloneDeepJsonObject( obj ) {
+      return obj ? JSON.parse( JSON.stringify( obj ) ) : obj;
+  }
+
+  /**
+   * get form input from Form HTML Element
+   * @param {Element} elem Form element
+   * @returns {Object} from input as name value pair
+   */
+  function getFormInput( elem ) {
+      let res = {};
+      // TODO: not consider custom element for now
+      if( elem.tagName === 'FORM' ) {
+          let nodeList = elem.elements;
+          for ( let i = 0; i < nodeList.length; i++ ) {
+              if ( nodeList[i].nodeName === 'INPUT' && nodeList[i].type === 'text' ) {
+                  // Update text input
+                  nodeList[i].value.toLocaleUpperCase();
+              }
+
+              // only supports naming input
+              if( nodeList[i].name ) {
+                  res[nodeList[i].name] = nodeList[i].value;
+              }
+          }
+      }
+      return res;
+  }
+
+  /**
+   * applySlot to template element. Both inputs will be mutated in this API.
+   * @param {Element} templateElem template element that contains slot definition
+   * @param {Element} srcElem source element that contains actual slot element
+   */
+  function applySlot( templateElem, srcElem ) {
+      // SLOT: get all children and save at slot as template
+      // TODO: we can do it outside and passin unit which will be better
+      let _slot = null;
+      let size = srcElem.childNodes.length;
+      if ( size > 0 ) {
+          _slot = {
+              domFragement: document.createDocumentFragment(),
+              nameSlotMap: {}
+          };
+          for( let i = 0; i < size; i++ ) {
+              let domNode = srcElem.firstChild;
+              if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
+                  _slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
+                  // remove slot attribute to avoid complication
+                  domNode.removeAttribute( 'slot' );
+              }
+              _slot.domFragement.appendChild( domNode );
+          }
+      }
+
+      // SLOT: apply slot to current DOM
+      // TODO: we can do it before atttachViewPage to save performance later
+      let slotElements = templateElem.getElementsByTagName( 'SLOT' );
+      size = slotElements.length;
+      if ( size > 0 ) {
+          let unNamedSlot = null;
+          for( let i = size; i > 0; i-- ) {
+              let slotElem = slotElements[i - 1];  // <-- HTMLCollection is a dynamic list
+              let slotName = slotElem.getAttribute( 'name' );
+              if ( slotName && _slot.nameSlotMap[slotName] ) {
+                  slotElem.parentElement.replaceChild( _slot.nameSlotMap[slotName], slotElem );
+              } else if( !unNamedSlot ) {
+                  // match thi 1st unnamed slot
+                  unNamedSlot = slotElem;
+              }
+          }
+
+          // if we have unname slot, put all the rest into unname slot
+          if ( unNamedSlot ) {
+              unNamedSlot.parentElement.replaceChild( _slot.domFragement, unNamedSlot );
+          }
+      }
+  }
+
+  /**
+   * Check if element has scope defined
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {boolean} true if element has scope defined
+   */
+  function hasScope( element ) {
+      return element && element.classList && element.classList.contains( 'few-scope' );
+  }
+
+  /**
+   * Get closest parent element which has view model context
+   * NOTE: IE may need polyfill below -
+   * https://github.com/jonathantneal/closest
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {Element} Closest parent element which has view model context
+   */
+  function getScopeElement( element ) {
+      return element.closest( '.few-scope' );
+  }
+
+  /**
+   * Attach component object on specific element
+   * @param {Element} element DOM Element
+   * @param {Object} componentObj componentObject
+   */
+  function setComponent( element, componentObj ) {
+      if ( element && componentObj ) {
+          element._vm = componentObj;
+          element.classList.add( 'few-scope' );
+      } else {
+        throw new Error( `setComponent(${element ?  element.id ? `id:${element.id}` : element.tagName  : 'undefined'}) => componentObj is undefined` );
+      }
+  }
+
+  /**
+   * Get view model context from closet parent element which has it
+   *
+   * @param {Element} element DOM Element
+   * @returns {Object} view model object context
+   */
+  function getComponent( element ) {
+      let scopeElem = getScopeElement( element );
+      if( scopeElem ) {
+          return scopeElem._vm;
+      }
+  }
+
+  /**
+   * Get closest few view element
+   *
+   * @param {Element} element Current DOM Element
+   * @returns {Element} Closest parent element which has view model context
+   */
+  function getViewElement( element ) {
+      /*
+      let scopeElem = getScopeElement( element );
+      if ( scopeElem ) {
+          return scopeElem.parentElement;
+      }*/
+      return getScopeElement( element );
+  }
+
+  /**
+   * resolve relative path to absolute based on URL
+   * @param {String} baseUrl base URL
+   * @param {String} path, relative path
+   * @returns {String} absolute URL
+   */
+  function resolvePath( baseUrl, path ) {
+      if( /^\.\.?\//.test( path ) && baseUrl ) {
+          return baseUrl + '/' + path;
+      }
+      return path;
+  }
+
+  /* eslint-env es6 */
+  // Simple http implementation
+
+  /**
+   * simple http get
+   * @param {string} theUrl url as string
+   * @returns {Promise} promise
+   */
+  function httpGet( theUrl ) {
+      return new Promise( ( resolve, reject ) => {
+          let xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = () => {
+              if ( xhr.readyState === 4 && xhr.status !== 404 ) {
+                  resolve( xhr.responseText );
+              }
+          };
+
+          xhr.onerror = () => {
+              reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+          };
+
+          xhr.onloadend = function() {
+              if ( xhr.status === 404 ) {
+                  reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
+              }
+          };
+
+          xhr.open( 'GET', theUrl, true ); // true for asynchronous
+          xhr.send( null );
+      } );
+  }
+
+  var http = {
+      get: httpGet
+  };
+
+  /* eslint-env es6 */
+
+  let exports$1;
+
+  /**
+   * Run method in view model
+   * @param {Element} elem DOM Element
+   * @param {string} methodName method name in view model
+   * @param {object}  e event object as context
+   * @returns {Promise} evaluation as promise
+   */
+  function handleEvent( elem, methodName, e ) {
+      /*
+          return false from within a jQuery event handler is effectively the same as calling
+          both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
+
+          e.preventDefault() will prevent the default event from occuring.
+          e.stopPropagation() will prevent the event from bubbling up.
+          return false will do both.
+
+          Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
+          notably, return false does not stop the event from bubbling up.
+
+          Source: John Resig
+      */
+      e.preventDefault();
+      // e.stopPropagation();
+
+      let component = getComponent( elem );
+      return component.update( methodName, {
+          element: elem,
+          event: e
+      } );
+  }
+
+  /**
+   * Request update to parent view model
+   * @param {Element} elem DOM Element  as context
+   * @param {object}  data data as request input
+   * @param {string}  method action name
+   * @returns {Promise} evaluation as promise
+   */
+  function requestUpdate( elem, data, method ) {
+      let viewElem = getViewElement( elem );
+      let parentElement = viewElem.parentElement;
+      let component = getComponent( parentElement );
+      let actionName = method || viewElem.id;
+      if ( component.hasAction( actionName ) ) {
+          // TODO: need to tune performance to reduce over update
+          return component.update( actionName, data );
+      }
+      return requestUpdate( parentElement, data, actionName );
+  }
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Element} shadowRoot Shadow root element for shadow DOM
+   */
+  function importDocStyle( shadowRoot ) {
+      let linkElems = document.head.querySelectorAll( 'link' );
+      linkElems.forEach( ( elem )=>{
+          if ( elem.rel === 'stylesheet' ) {
+              shadowRoot.appendChild( elem.cloneNode() );
+          }
+      } );
+  }
+
+  /**
+   * default loadModule function
+   * @param {Array} moduleNames array of name or rel path for modules as key
+   * @returns {Promise} promise with module objects
+   */
+  let _loadModuleCallback = function( moduleNames ) {
+      return Promise.all( moduleNames.map( ( key ) => {
+          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
+      } ) );
+  };
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {Array} deps Dependency as string or array of string
+   * @returns {Promise} promise with dependencies
+   */
+  function loadModules( deps ) {
+      return _loadModuleCallback( deps );
+  }
+
+  /**
+   * Set loader function for few
+   * @param {Function} callback loader function as callback
+   */
+  function setModuleLoader( callback ) {
+      _loadModuleCallback = callback;
+  }
+
+  /**
+   * default loadComponent function
+   * @param {string} path relative path of component
+   * @returns {Promise} promise with componentDef objects
+   */
+  let _loadComponentCallback = async function( path ) {
+      return jsYaml$1.safeLoad( await http.get( path ) );
+  };
+
+  /**
+   * Import Global Document Style Sheet to shadow DOM
+   * @param {string} path relative path of component
+   * @returns {Promise} promise with componentDef objects
+   */
+  function loadComponent( path ) {
+      return _loadComponentCallback( path );
+  }
+
+  /**
+   * Set loader function for few
+   * @param {Function} callback loader function as callback
+   */
+  function setComponentLoader( callback ) {
+      _loadComponentCallback = callback;
+  }
+
+  var few = exports$1 = {
+      handleEvent,
+      requestUpdate,
+      getFormInput,
+      getViewElement,
+      importDocStyle,
+      loadModules,
+      setModuleLoader,
+      loadComponent,
+      setComponentLoader,
+      httpGet: http.get,
+      exclude: excludeElement,
+      directive: defineDirective
+  };
+
+  // set it at global
+  window.few = exports$1;
+
+  // load router
+
   var lodash = createCommonjsModule(function (module, exports) {
   (function() {
 
@@ -20922,413 +21357,6 @@ define(['require'], function (require) { 'use strict';
 
   /* eslint-env es6 */
 
-  let _directives = {};
-
-  /**
-   * Register/define attribute directives in few
-   * @param {string} name directive name
-   * @param {FewDirective} directive attribute directive definition
-   */
-  function defineDirective( name, directive ) {
-      _directives[name] = directive;
-  }
-
-  /**
-   * Get attribute directive definition
-   * @param {string} name directive name
-   * @returns {FewDirective} attribute directive definition
-   */
-  function getDirective( name ) {
-      return _directives[name];
-  }
-
-  /* eslint-env es6 */
-  let FewViewNullUnit = {
-      KEY: 'f-ignore'
-  };
-
-  let _filterElements = {
-
-  };
-
-  /**
-   * Register/define element which will be
-   * @param {string} nodeName Element name all in upper case
-   */
-  function excludeElement( nodeName ) {
-      _filterElements[nodeName] = true;
-  }
-
-  /**
-   * Check if element is excluded by few
-   * @param {string} nodeName element name all in uppercase
-   * @returns {boolean} if true few will ignore the element
-   */
-  function isExcluded( nodeName ) {
-      return _filterElements[nodeName];
-  }
-
-  var nullUnitFactory = {
-      when: ( domNode ) => domNode.nodeType === Node.ELEMENT_NODE &&
-                  ( isExcluded( domNode.nodeName ) ||
-                    domNode.hasAttribute( FewViewNullUnit.KEY ) ),
-      createUnit: () => null
-  };
-
-  /* eslint-env es6 */
-
-  /**
-   * Parse view string as DOM without interpret it
-   * TODO no for now and needs to be enahanced
-   * @param {string} str view template as string
-   * @returns {Element} DOM Element
-   */
-  function parseView( str ) {
-      let parser = new DOMParser();
-      let fragement = document.createDocumentFragment();
-      fragement.appendChild( parser.parseFromString( `<div>${str}</div>`, 'text/html' ).body.firstChild );
-      return fragement.firstChild;
-  }
-
-  /**
-   * evaluate string as Javascript expression
-   * @param {string} input string as expression
-   * @param {Object} params parameters as name value pair
-   * @param {boolean} ignoreError if true the error is not thrown
-   * @return {*} evaluation result
-   *
-   * TODO: match name with function parameters
-   * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
-   */
-  let evalExpression = function( input, params, ignoreError ) {
-    const names = params ? Object.keys( params ) : [];
-    const vals = params ? Object.values( params ) : [];
-    try {
-        return new Function( ...names, `return ${input};` )( ...vals );
-    } catch( e ) {
-        if ( !ignoreError ) {
-            throw new Error( `evalExpression('${input}') => ${e.message}` );
-        } else {
-            return undefined;
-        }
-    }
-  };
-
-
-  /**
-   * fastest way to copy a pure JSON object, use on your own risk
-   * https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
-   *
-   * @param {Object} obj Current DOM Element
-   * @returns {Object} new cloned object
-   */
-  function cloneDeepJsonObject( obj ) {
-      return obj ? JSON.parse( JSON.stringify( obj ) ) : obj;
-  }
-
-  /**
-   * get form input from Form HTML Element
-   * @param {Element} elem Form element
-   * @returns {Object} from input as name value pair
-   */
-  function getFormInput( elem ) {
-      let res = {};
-      // TODO: not consider custom element for now
-      if( elem.tagName === 'FORM' ) {
-          let nodeList = elem.elements;
-          for ( let i = 0; i < nodeList.length; i++ ) {
-              if ( nodeList[i].nodeName === 'INPUT' && nodeList[i].type === 'text' ) {
-                  // Update text input
-                  nodeList[i].value.toLocaleUpperCase();
-              }
-
-              // only supports naming input
-              if( nodeList[i].name ) {
-                  res[nodeList[i].name] = nodeList[i].value;
-              }
-          }
-      }
-      return res;
-  }
-
-  /**
-   * applySlot to template element. Both inputs will be mutated in this API.
-   * @param {Element} templateElem template element that contains slot definition
-   * @param {Element} srcElem source element that contains actual slot element
-   */
-  function applySlot( templateElem, srcElem ) {
-      // SLOT: get all children and save at slot as template
-      // TODO: we can do it outside and passin unit which will be better
-      let _slot = null;
-      let size = srcElem.childNodes.length;
-      if ( size > 0 ) {
-          _slot = {
-              domFragement: document.createDocumentFragment(),
-              nameSlotMap: {}
-          };
-          for( let i = 0; i < size; i++ ) {
-              let domNode = srcElem.firstChild;
-              if ( domNode.getAttribute && domNode.getAttribute( 'slot' ) ) {
-                  _slot.nameSlotMap[domNode.getAttribute( 'slot' )] = domNode;
-                  // remove slot attribute to avoid complication
-                  domNode.removeAttribute( 'slot' );
-              }
-              _slot.domFragement.appendChild( domNode );
-          }
-      }
-
-      // SLOT: apply slot to current DOM
-      // TODO: we can do it before atttachViewPage to save performance later
-      let slotElements = templateElem.getElementsByTagName( 'SLOT' );
-      size = slotElements.length;
-      if ( size > 0 ) {
-          let unNamedSlot = null;
-          for( let i = size; i > 0; i-- ) {
-              let slotElem = slotElements[i - 1];  // <-- HTMLCollection is a dynamic list
-              let slotName = slotElem.getAttribute( 'name' );
-              if ( slotName && _slot.nameSlotMap[slotName] ) {
-                  slotElem.parentElement.replaceChild( _slot.nameSlotMap[slotName], slotElem );
-              } else if( !unNamedSlot ) {
-                  // match thi 1st unnamed slot
-                  unNamedSlot = slotElem;
-              }
-          }
-
-          // if we have unname slot, put all the rest into unname slot
-          if ( unNamedSlot ) {
-              unNamedSlot.parentElement.replaceChild( _slot.domFragement, unNamedSlot );
-          }
-      }
-  }
-
-  /**
-   * Check if element has scope defined
-   *
-   * @param {Element} element Current DOM Element
-   * @returns {boolean} true if element has scope defined
-   */
-  function hasScope( element ) {
-      return element && element.classList && element.classList.contains( 'few-scope' );
-  }
-
-  /**
-   * Get closest parent element which has view model context
-   * NOTE: IE may need polyfill below -
-   * https://github.com/jonathantneal/closest
-   *
-   * @param {Element} element Current DOM Element
-   * @returns {Element} Closest parent element which has view model context
-   */
-  function getScopeElement( element ) {
-      return element.closest( '.few-scope' );
-  }
-
-  /**
-   * Attach component object on specific element
-   * @param {Element} element DOM Element
-   * @param {Object} componentObj componentObject
-   */
-  function setComponent( element, componentObj ) {
-      if ( element && componentObj ) {
-          element._vm = componentObj;
-          element.classList.add( 'few-scope' );
-      } else {
-        throw new Error( `setComponent(${element ?  element.id ? `id:${element.id}` : element.tagName  : 'undefined'}) => componentObj is undefined` );
-      }
-  }
-
-  /**
-   * Get view model context from closet parent element which has it
-   *
-   * @param {Element} element DOM Element
-   * @returns {Object} view model object context
-   */
-  function getComponent( element ) {
-      let scopeElem = getScopeElement( element );
-      if( scopeElem ) {
-          return scopeElem._vm;
-      }
-  }
-
-  /**
-   * Get closest few view element
-   *
-   * @param {Element} element Current DOM Element
-   * @returns {Element} Closest parent element which has view model context
-   */
-  function getViewElement( element ) {
-      /*
-      let scopeElem = getScopeElement( element );
-      if ( scopeElem ) {
-          return scopeElem.parentElement;
-      }*/
-      return getScopeElement( element );
-  }
-
-  /**
-   * resolve relative path to absolute based on URL
-   * @param {String} baseUrl base URL
-   * @param {String} path, relative path
-   * @returns {String} absolute URL
-   */
-  function resolvePath( baseUrl, path ) {
-      if( /^\.\.?\//.test( path ) && baseUrl ) {
-          return baseUrl + '/' + path;
-      }
-      return path;
-  }
-
-  /* eslint-env es6 */
-  // Simple http implementation
-
-  /**
-   * simple http get
-   * @param {string} theUrl url as string
-   * @returns {Promise} promise
-   */
-  function httpGet( theUrl ) {
-      return new Promise( ( resolve, reject ) => {
-          let xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = () => {
-              if ( xhr.readyState === 4 && xhr.status !== 404 ) {
-                  resolve( xhr.responseText );
-              }
-          };
-
-          xhr.onerror = () => {
-              reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
-          };
-
-          xhr.onloadend = function() {
-              if ( xhr.status === 404 ) {
-                  reject( `httpGet(${theUrl}) => ${xhr.status}: ${xhr.statusText}` );
-              }
-          };
-
-          xhr.open( 'GET', theUrl, true ); // true for asynchronous
-          xhr.send( null );
-      } );
-  }
-
-  var http = {
-      get: httpGet
-  };
-
-  /* eslint-env es6 */
-
-  let exports$1;
-
-  /**
-   * Run method in view model
-   * @param {Element} elem DOM Element
-   * @param {string} methodName method name in view model
-   * @param {object}  e event object as context
-   * @returns {Promise} evaluation as promise
-   */
-  function handleEvent( elem, methodName, e ) {
-      /*
-          return false from within a jQuery event handler is effectively the same as calling
-          both e.preventDefault and e.stopPropagation on the passed jQuery.Event object.
-
-          e.preventDefault() will prevent the default event from occuring.
-          e.stopPropagation() will prevent the event from bubbling up.
-          return false will do both.
-
-          Note that this behaviour differs from normal (non-jQuery) event handlers, in which,
-          notably, return false does not stop the event from bubbling up.
-
-          Source: John Resig
-      */
-      e.preventDefault();
-      // e.stopPropagation();
-
-      let component = getComponent( elem );
-      return component.update( methodName, {
-          element: elem,
-          event: e
-      } );
-  }
-
-  /**
-   * Request update to parent view model
-   * @param {Element} elem DOM Element  as context
-   * @param {object}  data data as request input
-   * @param {string}  method action name
-   * @returns {Promise} evaluation as promise
-   */
-  function requestUpdate( elem, data, method ) {
-      let viewElem = getViewElement( elem );
-      let parentElement = viewElem.parentElement;
-      let component = getComponent( parentElement );
-      let actionName = method || viewElem.id;
-      if ( component.hasAction( actionName ) ) {
-          // TODO: need to tune performance to reduce over update
-          return component.update( actionName, data );
-      }
-      return requestUpdate( parentElement, data, actionName );
-  }
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {Element} shadowRoot Shadow root element for shadow DOM
-   */
-  function importDocStyle( shadowRoot ) {
-      let linkElems = document.head.querySelectorAll( 'link' );
-      linkElems.forEach( ( elem )=>{
-          if ( elem.rel === 'stylesheet' ) {
-              shadowRoot.appendChild( elem.cloneNode() );
-          }
-      } );
-  }
-
-  /**
-   * default load function
-   * @param {Array} moduleNames array of name or rel path for modules as key
-   * @returns {Promise} promise with module objects
-   */
-  let _loadCallback = function( moduleNames ) {
-      return Promise.all( moduleNames.map( ( key ) => {
-          return new Promise(function (resolve, reject) { require([ key ], function (m) { resolve(_interopNamespace(m)); }, reject) });
-      } ) );
-  };
-
-  /**
-   * Import Global Document Style Sheet to shadow DOM
-   * @param {Array} deps Dependency as string or array of string
-   * @returns {Promise} promise with dependencies
-   */
-  function load$2( deps ) {
-      return _loadCallback( deps );
-  }
-
-  /**
-   * Set loader function for few
-   * @param {Function} callback loader function as callback
-   */
-  function setLoader( callback ) {
-      _loadCallback = callback;
-  }
-
-  var few = exports$1 = {
-      handleEvent,
-      requestUpdate,
-      getFormInput,
-      getViewElement,
-      importDocStyle,
-      httpGet,
-      load: load$2,
-      setLoader,
-      exclude: excludeElement,
-      directive: defineDirective
-  };
-
-  // set it at global
-  window.few = exports$1;
-
-  // load router
-
-  /* eslint-env es6 */
-
   class FewViewNode {
       /**
        * Create VirtualDomElement
@@ -23146,7 +23174,7 @@ define(['require'], function (require) { 'use strict';
           if ( baseUrl ) {
               view.import = view.import.map( path => resolvePath( baseUrl, path ) );
           }
-          await few.load( view.import );
+          await few.loadModules( view.import );
       }
 
       // TODO: hard code to src="" for now
@@ -23390,7 +23418,7 @@ define(['require'], function (require) { 'use strict';
               if ( typeof value === 'string' ) {
                   let template = this._strTplParser.parse( value );
                   if ( template ) {
-                      obj[key] = evalExpression( template, this._vm.model );
+                      obj[key] = this.getValue( template );
                   }
               } else {
                   this._evalActionInput( obj[key], level + 1 );
@@ -23400,7 +23428,7 @@ define(['require'], function (require) { 'use strict';
       }
 
       async _executeAction( actionDef, scope ) {
-          let dep =  actionDef.import ? ( await few.load( [ actionDef.import ] ) )[0] : window;
+          let dep =  actionDef.import ? ( await few.loadModules( [ actionDef.import ] ) )[0] : window;
 
           // backup and apply scope
           // For now only support on level scope
@@ -23428,15 +23456,6 @@ define(['require'], function (require) { 'use strict';
       }
 
       /**
-       * check if action exist on current component
-       * @param {string} methodName action name
-       * @returns {boolean} true if action exist in current definition
-       */
-      hasAction( methodName ) {
-          return this._getActionDefinition( methodName );
-      }
-
-      /**
        * evaluate method in view model
        * @param {object} actionDef action definition as JSON object
        * @param {object} scope input from upstream
@@ -23460,6 +23479,14 @@ define(['require'], function (require) { 'use strict';
           return res;
       }
 
+      /**
+       * check if action exist on current component
+       * @param {string} methodName action name
+       * @returns {boolean} true if action exist in current definition
+       */
+      hasAction( methodName ) {
+          return this._getActionDefinition( methodName );
+      }
 
       /**
        * evaluate method in view model
@@ -23472,6 +23499,16 @@ define(['require'], function (require) { 'use strict';
           let actionDef = this._getActionDefinition( methodName );
 
           return await this._update( actionDef, scope, updateView );
+      }
+
+      /**
+       * get value from component by traverse expression
+       * NOTE: it will return reference, be sure u do the right copy if needed
+       * @param {string} expr to traverse to specific data
+       * @returns {Object} traverse result
+       */
+      getValue( expr ) {
+          return evalExpression( expr, this._vm.model );
       }
   }
 
@@ -23516,14 +23553,13 @@ define(['require'], function (require) { 'use strict';
                   // also need to destroy its ref in parent
                   // this._component.model = _.filter( modelPath );
                   // this._component.parent.remove(this._component);
+                  let modelPath = this.getAttribute( 'model' );
 
                   // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
                   let parentComponent = getComponent( this );
 
-                  let modelPath = this.getAttribute( 'model' );
-
                   // load component definition
-                  let componentDef = jsYaml$1.safeLoad( await http.get( `${newValue}.yml` ) );
+                  let componentDef = await few.loadComponent( `${newValue}.yml` );
 
                   if ( this._currentView !== newValue ) {
                       return;
@@ -23532,7 +23568,7 @@ define(['require'], function (require) { 'use strict';
                   // load from parent
                   let model;
                   if ( parentComponent && modelPath ) {
-                      model = evalExpression( modelPath, parentComponent._vm.model );
+                      model = parentComponent.getValue( modelPath );
                   }
 
                   // Create component and call init definition

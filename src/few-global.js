@@ -1,9 +1,10 @@
 /* eslint-env es6 */
 
+import yaml from 'js-yaml';
 import { defineDirective } from './few-view-directive';
 import { excludeElement } from './few-view-null-unit';
 import { getComponent, getFormInput, getViewElement } from './few-utils';
-import { httpGet } from './http';
+import http from './http';
 
 let exports;
 
@@ -71,11 +72,11 @@ export function importDocStyle( shadowRoot ) {
 }
 
 /**
- * default load function
+ * default loadModule function
  * @param {Array} moduleNames array of name or rel path for modules as key
  * @returns {Promise} promise with module objects
  */
-let _loadCallback = function( moduleNames ) {
+let _loadModuleCallback = function( moduleNames ) {
     return Promise.all( moduleNames.map( ( key ) => {
         return import( key );
     } ) );
@@ -86,16 +87,42 @@ let _loadCallback = function( moduleNames ) {
  * @param {Array} deps Dependency as string or array of string
  * @returns {Promise} promise with dependencies
  */
-export function load( deps ) {
-    return _loadCallback( deps );
+export function loadModules( deps ) {
+    return _loadModuleCallback( deps );
 }
 
 /**
  * Set loader function for few
  * @param {Function} callback loader function as callback
  */
-export function setLoader( callback ) {
-    _loadCallback = callback;
+export function setModuleLoader( callback ) {
+    _loadModuleCallback = callback;
+}
+
+/**
+ * default loadComponent function
+ * @param {string} path relative path of component
+ * @returns {Promise} promise with componentDef objects
+ */
+let _loadComponentCallback = async function( path ) {
+    return yaml.safeLoad( await http.get( path ) );
+};
+
+/**
+ * Import Global Document Style Sheet to shadow DOM
+ * @param {string} path relative path of component
+ * @returns {Promise} promise with componentDef objects
+ */
+export function loadComponent( path ) {
+    return _loadComponentCallback( path );
+}
+
+/**
+ * Set loader function for few
+ * @param {Function} callback loader function as callback
+ */
+export function setComponentLoader( callback ) {
+    _loadComponentCallback = callback;
 }
 
 export default exports = {
@@ -104,9 +131,11 @@ export default exports = {
     getFormInput,
     getViewElement,
     importDocStyle,
-    httpGet,
-    load,
-    setLoader,
+    loadModules,
+    setModuleLoader,
+    loadComponent,
+    setComponentLoader,
+    httpGet: http.get,
     exclude: excludeElement,
     directive: defineDirective
 };

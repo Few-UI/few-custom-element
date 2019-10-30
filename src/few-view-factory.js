@@ -31,7 +31,7 @@ async function createView( view, parser, baseUrl = '' ) {
         if ( baseUrl ) {
             view.import = view.import.map( path => resolvePath( baseUrl, path ) );
         }
-        await few.load( view.import );
+        await few.loadModules( view.import );
     }
 
     // TODO: hard code to src="" for now

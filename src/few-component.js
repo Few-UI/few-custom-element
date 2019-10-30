@@ -202,7 +202,7 @@ export default class FewComponent {
             if ( typeof value === 'string' ) {
                 let template = this._strTplParser.parse( value );
                 if ( template ) {
-                    obj[key] = evalExpression( template, this._vm.model );
+                    obj[key] = this.getValue( template );
                 }
             } else {
                 this._evalActionInput( obj[key], level + 1 );
@@ -212,7 +212,7 @@ export default class FewComponent {
     }
 
     async _executeAction( actionDef, scope ) {
-        let dep =  actionDef.import ? ( await few.load( [ actionDef.import ] ) )[0] : window;
+        let dep =  actionDef.import ? ( await few.loadModules( [ actionDef.import ] ) )[0] : window;
 
         // backup and apply scope
         // For now only support on level scope
@@ -240,15 +240,6 @@ export default class FewComponent {
     }
 
     /**
-     * check if action exist on current component
-     * @param {string} methodName action name
-     * @returns {boolean} true if action exist in current definition
-     */
-    hasAction( methodName ) {
-        return this._getActionDefinition( methodName );
-    }
-
-    /**
      * evaluate method in view model
      * @param {object} actionDef action definition as JSON object
      * @param {object} scope input from upstream
@@ -272,6 +263,14 @@ export default class FewComponent {
         return res;
     }
 
+    /**
+     * check if action exist on current component
+     * @param {string} methodName action name
+     * @returns {boolean} true if action exist in current definition
+     */
+    hasAction( methodName ) {
+        return this._getActionDefinition( methodName );
+    }
 
     /**
      * evaluate method in view model
@@ -284,5 +283,15 @@ export default class FewComponent {
         let actionDef = this._getActionDefinition( methodName );
 
         return await this._update( actionDef, scope, updateView );
+    }
+
+    /**
+     * get value from component by traverse expression
+     * NOTE: it will return reference, be sure u do the right copy if needed
+     * @param {string} expr to traverse to specific data
+     * @returns {Object} traverse result
+     */
+    getValue( expr ) {
+        return evalExpression( expr, this._vm.model );
     }
 }

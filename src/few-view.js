@@ -1,8 +1,6 @@
 /* eslint-env es6 */
-
-import yaml from 'js-yaml';
+import few from './few-global';
 import FewComponent from './few-component';
-import http from './http';
 import {
     evalExpression,
     getComponent,
@@ -48,14 +46,13 @@ export default class FewView extends HTMLElement {
                 // also need to destroy its ref in parent
                 // this._component.model = _.filter( modelPath );
                 // this._component.parent.remove(this._component);
+                let modelPath = this.getAttribute( 'model' );
 
                 // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
                 let parentComponent = getComponent( this );
 
-                let modelPath = this.getAttribute( 'model' );
-
                 // load component definition
-                let componentDef = yaml.safeLoad( await http.get( `${newValue}.yml` ) );
+                let componentDef = await few.loadComponent( `${newValue}.yml` );
 
                 if ( this._currentView !== newValue ) {
                     return;
@@ -64,7 +61,7 @@ export default class FewView extends HTMLElement {
                 // load from parent
                 let model;
                 if ( parentComponent && modelPath ) {
-                    model = evalExpression( modelPath, parentComponent._vm.model );
+                    model = parentComponent.getValue( modelPath );
                 }
 
                 // Create component and call init definition
