@@ -1,5 +1,8 @@
 /* eslint-env es6 */
 
+import http from './http';
+import FewComponent from './few-component';
+
 import { defineDirective } from './few-view-directive';
 import { excludeElement } from './few-view-null-unit';
 import {
@@ -11,8 +14,6 @@ import {
     loadComponent,
     setComponentLoader
 } from './few-utils';
-import FewComponent from './few-component';
-import http from './http';
 
 let exports;
 
