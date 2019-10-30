@@ -95,11 +95,11 @@ export async function render( componentPath, containerElem, modelPath, baseUrl )
     // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
     let parentComponent = getComponent( containerElem );
 
-    // load component definition
-    let componentDef = await loadComponent( componentPath );
-
     // load from parent
     let model =  parentComponent && modelPath  ? parentComponent.getValue( modelPath ) : undefined;
+
+    // load component definition
+    let componentDef = await loadComponent( componentPath );
 
     // Create component and call init definition
     let component = new FewComponent( componentDef, parentComponent,  model );
