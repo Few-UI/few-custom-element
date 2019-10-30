@@ -1,9 +1,12 @@
 /* eslint-env es6 */
 
-import few from './few-global';
-import { parseView, resolvePath } from './few-utils';
-import viewUnitFactory from './few-view-unit';
+import {
+    loadModules,
+    parseView,
+    resolvePath
+} from './few-utils';
 
+import viewUnitFactory from './few-view-unit';
 import varUnitFactory from './few-view-var-unit';
 import textUnitFactory from './few-view-text-unit';
 import condUnitFactory from './few-view-cond-unit';
@@ -31,7 +34,7 @@ async function createView( view, parser, baseUrl = '' ) {
         if ( baseUrl ) {
             view.import = view.import.map( path => resolvePath( baseUrl, path ) );
         }
-        await few.loadModules( view.import );
+        await loadModules( view.import );
     }
 
     // TODO: hard code to src="" for now

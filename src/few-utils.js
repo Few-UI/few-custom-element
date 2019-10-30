@@ -1,4 +1,6 @@
 /* eslint-env es6 */
+import yaml from 'js-yaml';
+import http from './http';
 
 /**
  * Parse view string as DOM without interpret it
@@ -210,6 +212,60 @@ export function resolvePath( baseUrl, path ) {
         return baseUrl + '/' + path;
     }
     return path;
+}
+
+/**
+ * default loadModule function
+ * @param {Array} moduleNames array of name or rel path for modules as key
+ * @returns {Promise} promise with module objects
+ */
+let _loadModuleCallback = function( moduleNames ) {
+    return Promise.all( moduleNames.map( ( key ) => {
+        return import( key );
+    } ) );
+};
+
+/**
+ * Import Global Document Style Sheet to shadow DOM
+ * @param {Array} deps Dependency as string or array of string
+ * @returns {Promise} promise with dependencies
+ */
+export function loadModules( deps ) {
+    return _loadModuleCallback( deps );
+}
+
+/**
+ * Set loader function for few
+ * @param {Function} callback loader function as callback
+ */
+export function setModuleLoader( callback ) {
+    _loadModuleCallback = callback;
+}
+
+/**
+ * default loadComponent function
+ * @param {string} path relative path of component
+ * @returns {Promise} promise with componentDef objects
+ */
+let _loadComponentCallback = async function( path ) {
+    return yaml.safeLoad( await http.get( path ) );
+};
+
+/**
+ * Import Global Document Style Sheet to shadow DOM
+ * @param {string} path relative path of component
+ * @returns {Promise} promise with componentDef objects
+ */
+export function loadComponent( path ) {
+    return _loadComponentCallback( path );
+}
+
+/**
+ * Set loader function for few
+ * @param {Function} callback loader function as callback
+ */
+export function setComponentLoader( callback ) {
+    _loadComponentCallback = callback;
 }
 
 

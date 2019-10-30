@@ -1,6 +1,5 @@
 /* eslint-env es6 */
 import _ from 'lodash';
-import few from './few-global';
 import fewViewFactory from './few-view-factory';
 import StringTemplateParser from './string-template-parser';
 
@@ -8,7 +7,8 @@ import {
     applySlot,
     setComponent,
     evalExpression,
-    cloneDeepJsonObject
+    cloneDeepJsonObject,
+    loadModules
 } from './few-utils';
 
 export default class FewComponent {
@@ -212,7 +212,7 @@ export default class FewComponent {
     }
 
     async _executeAction( actionDef, scope ) {
-        let dep =  actionDef.import ? ( await few.loadModules( [ actionDef.import ] ) )[0] : window;
+        let dep =  actionDef.import ? ( await loadModules( [ actionDef.import ] ) )[0] : window;
 
         // backup and apply scope
         // For now only support on level scope
