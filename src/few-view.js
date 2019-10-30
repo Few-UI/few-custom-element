@@ -61,14 +61,9 @@ export default class FewView extends HTMLElement {
                 // Create component and call init definition
                 this._component = new FewComponent( parentComponent,  modelPath );
 
-                await this._component.initComponent( componentDef, this.baseUrl );
+                this._component.loadComponentDef( componentDef );
 
-                if ( this._currentView !== newValue ) {
-                    return;
-                }
-
-                // attach to page
-                this._component.attachViewToPage( this );
+                await this._component.render( componentDef.view, this, this.baseUrl );
             } catch ( e ) {
                 if ( this._currentView === newValue ) {
                     this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

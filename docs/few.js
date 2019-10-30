@@ -23218,7 +23218,7 @@ define(['require'], function (require) { 'use strict';
           }
 
           /**
-           * component definition
+           * component definition setup
            */
           this._vm = {
               model: {}
@@ -23248,11 +23248,10 @@ define(['require'], function (require) { 'use strict';
       }
 
       /**
-       * init component based on model
+       * load component definition
        * @param {Object} componentDef component definition
-       * @param {string} baseUrl base URL for relative path
-       */ 
-      async initComponent( componentDef, baseUrl ) {
+       */
+      loadComponentDef( componentDef ) {
           if ( componentDef ) {
               if ( componentDef.model ) {
                   Object.assign( this._vm.model, componentDef.model );
@@ -23277,35 +23276,49 @@ define(['require'], function (require) { 'use strict';
 
           // Load string template
           this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
+      }
+
+      /**
+       * Render template to DOM Element, a reactDOM like API
+       * @param {Object} templateDef template definition with import and template string
+       * @param {Element} containerElem container element
+       * @param {string} baseUrl base URL for relative path
+       * @returns {Promise} promise can be used for next step
+       */
+      async render( templateDef, containerElem, baseUrl ) {
+          // Load init action
           if ( this._vm.init ) {
               await this._update( this._vm.init, undefined, false );
           }
 
+          // Load view
+          if ( this._vm.view ) {
+              this._view = await fewViewFactory.createView( templateDef, this._strTplParser, baseUrl );
+          }
+
+          this.attachViewToPage( containerElem );
+
+          // todo: later we can try to copy the component and return that when apply on different templateDef
+          return null;
+      }
+
+      /**
+       * init component based on model
+       * @param {Object} componentDef component definition
+       * @param {string} baseUrl base URL for relative path
+       */ 
+      async initComponent( componentDef, baseUrl ) {
+          // load component definition
+          this.loadComponentDef( componentDef );
+
+          // Load init action
+          if ( this._vm.init ) {
+              await this._update( this._vm.init, undefined, false );
+          }
+
+          // Load view
           if ( this._vm.view ) {
               this._view = await fewViewFactory.createView( this._vm.view, this._strTplParser, baseUrl );
-          }
-      }
-
-      ///////////////////////////////////////////////////////////////////////////////////////
-      _updateView() {
-          if ( this._view ) {
-              this._view.render( this._vm.model );
-              this._isDirty = false;
-          }
-
-          // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
-          // to child, the child cannot diffrenciate the value has been changed or not.
-          // For now do a hard update for every child node, which is bad practice
-          lodash.forEach( this._children, ( c ) => {
-              c._updateView();
-         } );
-      }
-
-      updateView() {
-          if ( this._parent ) {
-              this._parent.updateView();
-          } else {
-              this._updateViewDebounce();
           }
       }
 
@@ -23339,6 +23352,30 @@ define(['require'], function (require) { 'use strict';
           this._view.render( this._vm.model );
       }
 
+      ///////////////////////////////////////////////////////////////////////////////////////
+      _updateView() {
+          if ( this._view ) {
+              this._view.render( this._vm.model );
+              this._isDirty = false;
+          }
+
+          // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
+          // to child, the child cannot diffrenciate the value has been changed or not.
+          // For now do a hard update for every child node, which is bad practice
+          lodash.forEach( this._children, ( c ) => {
+              c._updateView();
+         } );
+      }
+
+      // _updateViewDebounce = _.debounce(_updateView);
+
+      updateView() {
+          if ( this._parent ) {
+              this._parent.updateView();
+          } else {
+              this._updateViewDebounce();
+          }
+      }
       /////////////////////////////////////////////////////////////////////////////////////////
 
       /**
@@ -23519,14 +23556,9 @@ define(['require'], function (require) { 'use strict';
                   // Create component and call init definition
                   this._component = new FewComponent( parentComponent,  modelPath );
 
-                  await this._component.initComponent( componentDef, this.baseUrl );
+                  this._component.loadComponentDef( componentDef );
 
-                  if ( this._currentView !== newValue ) {
-                      return;
-                  }
-
-                  // attach to page
-                  this._component.attachViewToPage( this );
+                  await this._component.render( componentDef.view, this, this.baseUrl );
               } catch ( e ) {
                   if ( this._currentView === newValue ) {
                       this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
@@ -23954,7 +23986,7 @@ define(['require'], function (require) { 'use strict';
 
                       let component = new FewComponent();
 
-                      await component.initComponent( componentDef );
+                      component.loadComponentDef( componentDef );
 
                       setComponent( this, component );
 

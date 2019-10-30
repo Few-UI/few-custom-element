@@ -148,7 +148,7 @@ export default class FewRoute extends HTMLElement {
 
                     let component = new FewComponent();
 
-                    await component.initComponent( componentDef );
+                    component.loadComponentDef( componentDef );
 
                     setComponent( this, component );
 

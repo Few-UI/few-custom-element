@@ -30,7 +30,7 @@ export default class FewComponent {
         }
 
         /**
-         * component definition
+         * component definition setup
          */
         this._vm = {
             model: {}
@@ -60,11 +60,10 @@ export default class FewComponent {
     }
 
     /**
-     * init component based on model
+     * load component definition
      * @param {Object} componentDef component definition
-     * @param {string} baseUrl base URL for relative path
-     */ 
-    async initComponent( componentDef, baseUrl ) {
+     */
+    loadComponentDef( componentDef ) {
         if ( componentDef ) {
             if ( componentDef.model ) {
                 Object.assign( this._vm.model, componentDef.model );
@@ -89,35 +88,49 @@ export default class FewComponent {
 
         // Load string template
         this._strTplParser = new StringTemplateParser( this._option.stringTemplate );
+    }
+
+    /**
+     * Render template to DOM Element, a reactDOM like API
+     * @param {Object} templateDef template definition with import and template string
+     * @param {Element} containerElem container element
+     * @param {string} baseUrl base URL for relative path
+     * @returns {Promise} promise can be used for next step
+     */
+    async render( templateDef, containerElem, baseUrl ) {
+        // Load init action
         if ( this._vm.init ) {
             await this._update( this._vm.init, undefined, false );
         }
 
+        // Load view
+        if ( this._vm.view ) {
+            this._view = await fewViewFactory.createView( templateDef, this._strTplParser, baseUrl );
+        }
+
+        this.attachViewToPage( containerElem );
+
+        // todo: later we can try to copy the component and return that when apply on different templateDef
+        return null;
+    }
+
+    /**
+     * init component based on model
+     * @param {Object} componentDef component definition
+     * @param {string} baseUrl base URL for relative path
+     */ 
+    async initComponent( componentDef, baseUrl ) {
+        // load component definition
+        this.loadComponentDef( componentDef );
+
+        // Load init action
+        if ( this._vm.init ) {
+            await this._update( this._vm.init, undefined, false );
+        }
+
+        // Load view
         if ( this._vm.view ) {
             this._view = await fewViewFactory.createView( this._vm.view, this._strTplParser, baseUrl );
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-    _updateView() {
-        if ( this._view ) {
-            this._view.render( this._vm.model );
-            this._isDirty = false;
-        }
-
-        // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
-        // to child, the child cannot diffrenciate the value has been changed or not.
-        // For now do a hard update for every child node, which is bad practice
-        _.forEach( this._children, ( c ) => {
-            c._updateView();
-       } );
-    }
-
-    updateView() {
-        if ( this._parent ) {
-            this._parent.updateView();
-        } else {
-            this._updateViewDebounce();
         }
     }
 
@@ -151,6 +164,30 @@ export default class FewComponent {
         this._view.render( this._vm.model );
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    _updateView() {
+        if ( this._view ) {
+            this._view.render( this._vm.model );
+            this._isDirty = false;
+        }
+
+        // TODO: If parent and child share the same scope, and the scope is updated in parent, when msg is destributed
+        // to child, the child cannot diffrenciate the value has been changed or not.
+        // For now do a hard update for every child node, which is bad practice
+        _.forEach( this._children, ( c ) => {
+            c._updateView();
+       } );
+    }
+
+    // _updateViewDebounce = _.debounce(_updateView);
+
+    updateView() {
+        if ( this._parent ) {
+            this._parent.updateView();
+        } else {
+            this._updateViewDebounce();
+        }
+    }
     /////////////////////////////////////////////////////////////////////////////////////////
 
     /**

@@ -3,7 +3,6 @@
 
 import yaml from 'js-yaml';
 import FewComponent from '../src/few-component';
-import fewViewFactory from '../src/few-view-factory';
 import { wait } from './test-utils';
 
 describe( 'Test few-component', () => {
@@ -44,7 +43,7 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent();
 
-        await component.initComponent( componentDef );
+        component.loadComponentDef( componentDef );
 
         expect( await component.update( 'action.testAction' ) ).toEqual( 7 );
 
@@ -79,7 +78,7 @@ describe( 'Test few-component', () => {
 
         let component = new FewComponent();
 
-        await component.initComponent( componentDef );
+        component.loadComponentDef( componentDef );
 
         expect( await component.update( 'action.testAction' ) ).toEqual( 8 );
 
