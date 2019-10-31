@@ -24,6 +24,10 @@ export default class FewRouter {
         this._routeConfigPromise = loadJSON( `${configPath}.json` );
     }
 
+    setConfig( config ) {
+        this._routeConfigPromise = Promise.resolve( config );
+    }
+
     async processURL( url ) {
         let states = await this._routeConfigPromise;
         if ( states && states.length > 0 ) {
