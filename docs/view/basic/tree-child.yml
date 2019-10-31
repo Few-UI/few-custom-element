@@ -2,7 +2,7 @@
 view:
   template:
     <h3>Child Form</h3>
-    <form onsubmit="${action.totalUpdate}">
+    <form @submit="action.totalUpdate">
       <label for="name">Name:</label>
       <input id="name" type="text" name="user_name">
       <!-- onKeyPress="if (event.which == 13) return false;" -->

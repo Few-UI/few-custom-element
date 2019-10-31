@@ -3,10 +3,10 @@ view:
   template:
     <div>
       <h2>Binding</h2>
-      <sample-button onclick="${updateSimpleText}">${simpleText}</sample-button>
+      <sample-button @click="updateSimpleText">${simpleText}</sample-button>
       <code>${simpleText}</code>
       <h3>Isolate Scope</h3>
-      <sample-button f-ignore onclick="${action.updateSimpleText}">${simpleText}</sample-button>
+      <sample-button f-ignore @click="action.updateSimpleText">${simpleText}</sample-button>
     </div>
 
   import:

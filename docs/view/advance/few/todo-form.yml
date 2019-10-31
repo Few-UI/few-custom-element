@@ -1,7 +1,7 @@
 # view
 view:
   template:
-    <form onsubmit="${submitInfo}">
+    <form @submit="submitInfo">
       <label for="item">Todo:</label>
       <input id="item" type="text" name="item_desc" />
       <label for="status">Status:</label>

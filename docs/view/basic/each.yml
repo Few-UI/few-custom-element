@@ -2,7 +2,7 @@
 view:
   template:
     <h2>Each</h2>
-    <form onsubmit="${action.addTodo}">
+    <form @submit="action.addTodo">
       <label for="item">Type and Enter:</label>
       <input id="item" type="text" name="item_desc" />
     </form>

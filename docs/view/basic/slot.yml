@@ -2,7 +2,7 @@
 view:
   template:
     <h2>Slot</h2>
-    <button onclick="${updateSlotText}">Update</button>
+    <button @click="updateSlotText">Update</button>
     <few-view src="./slot-frame">
         <code slot="slot1">${slotText1}</code>
         <code slot="slot2">${slotText2}</code>

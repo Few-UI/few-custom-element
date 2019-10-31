@@ -19,15 +19,15 @@ class FewViewVarUnit extends FewViewUnit {
             // TODO: if it is directive
             if( getDirective( name ) ) {
                 this.setDirective( name, value );
-            } else if( expr ) {
-                // if name is event like onclick
-                // TODO: make it as expression later
-                if ( /^on.+/.test( name ) ) {
-                    domNode.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
-                } else {
-                    this.setInput( name, expr );
-                    domNode.setAttribute( name, '' );
-                }
+            } else if ( /^@.+/.test( name ) ) {
+                let evtName = name.replace( /^@/, '' );
+                domNode.addEventListener( evtName, ( e ) => {
+                    // eslint-disable-next-line no-undef
+                    few.handleEvent( domNode, value, e );
+                } );
+            }else if( expr ) {
+                this.setInput( name, expr );
+                domNode.setAttribute( name, '' );
             } else {
                 this.setValue( name, value );
             }

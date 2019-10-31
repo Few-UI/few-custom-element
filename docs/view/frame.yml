@@ -6,7 +6,7 @@ view:
         <div class="column column-20" f-cond="showPrimary">
           <slot name="primary"></slot>
         </div>
-        <div class="few-sample-app-vertical-splitter" onclick="${switchPrimary}"></div>
+        <div class="few-sample-app-vertical-splitter" @click="switchPrimary"></div>
         <div class="column few-sample-app-content">
           <slot name="secondary"></slot>
         </div>

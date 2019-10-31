@@ -22881,15 +22881,15 @@ define(['require'], function (require) { 'use strict';
                 // TODO: if it is directive
                 if( getDirective( name ) ) {
                     this.setDirective( name, value );
-                } else if( expr ) {
-                    // if name is event like onclick
-                    // TODO: make it as expression later
-                    if ( /^on.+/.test( name ) ) {
-                        domNode.setAttribute( name, `few.handleEvent(this, '${expr}', event)` );
-                    } else {
-                        this.setInput( name, expr );
-                        domNode.setAttribute( name, '' );
-                    }
+                } else if ( /^@.+/.test( name ) ) {
+                    let evtName = name.replace( /^@/, '' );
+                    domNode.addEventListener( evtName, ( e ) => {
+                        // eslint-disable-next-line no-undef
+                        few.handleEvent( domNode, value, e );
+                    } );
+                }else if( expr ) {
+                    this.setInput( name, expr );
+                    domNode.setAttribute( name, '' );
                 } else {
                     this.setValue( name, value );
                 }
@@ -23740,7 +23740,7 @@ define(['require'], function (require) { 'use strict';
         return component;
     }
 
-    var few = exports$1 = {
+    var few$1 = exports$1 = {
         render,
         handleEvent,
         requestUpdate,
@@ -23798,7 +23798,7 @@ define(['require'], function (require) { 'use strict';
                     // this._component.parent.remove(this._component);
                     let modelPath = this.getAttribute( 'model' );
 
-                    await few.render( `${newValue}.yml`, this, modelPath );
+                    await few$1.render( `${newValue}.yml`, this, modelPath );
                 } catch ( e ) {
                     if ( this._currentView === newValue ) {
                         this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
@@ -24016,7 +24016,7 @@ define(['require'], function (require) { 'use strict';
                 let urlParamStr = getPathFromBase( url );
                 if( !urlParamStr ) {
                     this._currState = states[0];
-                    this._component = await few.render( `${this._currState.view}.yml`, this._elem );
+                    this._component = await few$1.render( `${this._currState.view}.yml`, this._elem );
                 } else {
                     let state = null;
                     let params = {};
@@ -24041,7 +24041,7 @@ define(['require'], function (require) { 'use strict';
                                 set_1( model, key, params[key] );
                             }
                             this._currState = state;
-                            this._component = await few.render( `${state.view}.yml`, this._elem, model );
+                            this._component = await few$1.render( `${state.view}.yml`, this._elem, model );
                         }
                     }
                 }
@@ -24090,7 +24090,7 @@ define(['require'], function (require) { 'use strict';
     // even though Rollup is bundling all your files together, errors and
     // logs will still point to your original source modules
 
-    return few;
+    return few$1;
 
 });
 //# sourceMappingURL=few.js.map

@@ -3,7 +3,7 @@ view:
   template:
     <div>
       <h2>Directive</h2>
-      <sample-button  onclick="${updateSimpleText}" red-line extend-tooltip="simpleText">${simpleText}</sample-button>
+      <sample-button @click="updateSimpleText" red-line extend-tooltip="simpleText">${simpleText}</sample-button>
       <div extend-tooltip="simpleText">Test Tooltip</div>
     </div>
 
