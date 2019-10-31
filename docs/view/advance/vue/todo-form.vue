@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="addTodo">
+    <form @submit.prevent="$emit('add-todo', { item_desc, item_status })">
       <label for="desc">Todo:</label>
       <input id="desc" type="text" name="item_desc" v-model="item_desc" />
       <label for="status">Status:</label>
@@ -13,24 +13,13 @@
 </template>
 
 <script>
-var i = 0;
 module.exports = {
-    props: ['items'],
     data: function() {
         return {
             id: '',
             item_desc: '',
             item_status: 'Pending'
         };
-    } ,
-    methods: {
-        addTodo: function( event ) {
-            this.items.push( {
-                id: i++,
-                item_desc: this.item_desc,
-                item_status: this.item_status
-            });
-        }
     }
 }
 </script>
