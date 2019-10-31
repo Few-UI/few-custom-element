@@ -20995,6 +20995,15 @@ define(['require'], function (require) { 'use strict';
       }
     };
 
+    /**
+     * load JSON config
+     * @param {string} configPath path for JSON configuration
+     * @returns {Promise} promise with configuratino JSON object
+     */
+    async function loadJSON( configPath ) {
+        return JSON.parse( await http.get( configPath ) );
+    }
+
 
     /**
      * fastest way to copy a pure JSON object, use on your own risk
@@ -23598,117 +23607,6 @@ define(['require'], function (require) { 'use strict';
     }
     customElements.define( FewView.tag, FewView );
 
-    /* eslint-env es6 */
-    // https://github.com/riot/route/blob/master/src/index.js
-
-    let _started = false;
-
-    let win = typeof window !== 'undefined' && window;
-    const HASHCHANGE = 'hashchange';
-
-    let _routingUnits = [];
-
-    /**
-     * Set the window listeners to trigger the routes
-     * @param {boolean} autoExec - see route.start
-     */
-    function _start() {
-        // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onpopstate
-        // Not support history for now
-        /*
-        win.addEventListener( 'popState', () => {
-            console.log( 'win.popState!' );
-        } );
-        */
-
-        // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onhashchange
-        win.addEventListener( 'hashchange', _hashChangeHandler );
-    }
-
-    /**
-     * internal handler for hashchange event
-     * @param {Event} e hash change event
-     */
-    function _hashChangeHandler( e ) {
-        _processURL( e.newURL );
-    }
-
-
-    /**
-     * internal method to process URL
-     * @param {string} url current URL transit to
-     */
-    function _processURL( url ) {
-        for( let unit in _routingUnits ) {
-            _routingUnits[unit].processURL( url );
-        }
-    }
-
-    /**
-     * register router element
-     * @param {Element} routerElem route element
-     */
-    function register( routerElem ) {
-        _routingUnits.push( routerElem );
-
-        // init current element
-        routerElem.processURL( document.URL );
-    }
-
-    /**
-     * unregister router element
-     * @param {Element} routerElem router element
-     */
-    function unregister( routerElem ) {
-        // do nothing
-        _routingUnits = _routingUnits.filter( elem => elem !== routerElem );
-    }
-
-    /**
-     * Start client router service
-     */
-    function start() {
-        if ( !_started ) {
-            if ( win ) {
-                if ( document.readyState === 'interactive' || document.readyState === 'complete' ) {
-                    _start( /*autoExec*/ );
-                } else {
-                    document.onreadystatechange = function() {
-                        if ( document.readyState === 'interactive' ) {
-                            // the timeout is needed to solve
-                            // a weird safari bug https://github.com/riot/route/issues/33
-                            setTimeout( function() { _start( /*autoExec*/ ); }, 1 );
-                        }
-                    };
-                }
-            }
-
-            _started = true;
-        }
-    }
-
-    /**
-     * Stop client router service
-     */
-    function stop() {
-        if ( _started ) {
-            if ( win ) {
-                // win.removeEventListener( POPSTATE, _processURL );
-                win.removeEventListener( HASHCHANGE, _hashChangeHandler );
-        }
-        _started = false;
-      }
-    }
-
-    start();
-
-    var router = {
-        start,
-        stop,
-        register,
-        unregister
-    };
-
     var defineProperty = (function() {
       try {
         var func = _getNative(Object, 'defineProperty');
@@ -23871,10 +23769,17 @@ define(['require'], function (require) { 'use strict';
 
     var set_1 = set$1;
 
+    /* eslint-env es6 */
+    // https://github.com/riot/route/blob/master/src/index.js
+
+    let _started = false;
     const RE_ORIGIN = /^.+?\/\/+[^/]+/;
-    const win$1 = typeof window !== 'undefined' && window;
-    const hist = win$1 && history;
-    const loc = win$1 && ( hist.location || win$1.location ); // see html5-history-api
+    const win = typeof window !== 'undefined' && window;
+    const hist = win && history;
+    const loc = win && ( hist.location || win.location ); // see html5-history-api
+    const HASHCHANGE = 'hashchange';
+
+    let _routingUnits = [];
 
     /**
      * Default parser. You can replace it via router.parser method.
@@ -23893,6 +23798,108 @@ define(['require'], function (require) { 'use strict';
     function getPathFromRoot( href ) {
       return ( href || loc.href ).replace( RE_ORIGIN, '' );
     }
+
+
+    /**
+     * Set the window listeners to trigger the routes
+     * @param {boolean} autoExec - see route.start
+     */
+    function addWindowListener() {
+        // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onpopstate
+        // Not support history for now
+        /*
+        win.addEventListener( 'popState', () => {
+            console.log( 'win.popState!' );
+        } );
+        */
+
+        // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onhashchange
+        win.addEventListener( 'hashchange', _hashChangeHandler );
+    }
+
+    /**
+     * internal handler for hashchange event
+     * @param {Event} e hash change event
+     */
+    function _hashChangeHandler( e ) {
+        _processURL( e.newURL );
+    }
+
+
+    /**
+     * internal method to process URL
+     * @param {string} url current URL transit to
+     */
+    function _processURL( url ) {
+        for( let unit in _routingUnits ) {
+            _routingUnits[unit].processURL( url );
+        }
+    }
+
+    /**
+     * Start client router service
+     */
+    function start() {
+        if ( !_started ) {
+            if ( win ) {
+                if ( document.readyState === 'interactive' || document.readyState === 'complete' ) {
+                    addWindowListener( /*autoExec*/ );
+                } else {
+                    document.onreadystatechange = function() {
+                        if ( document.readyState === 'interactive' ) {
+                            // the timeout is needed to solve
+                            // a weird safari bug https://github.com/riot/route/issues/33
+                            setTimeout( function() { addWindowListener( /*autoExec*/ ); }, 1 );
+                        }
+                    };
+                }
+            }
+
+            _started = true;
+        }
+    }
+
+    /**
+     * Stop client router service
+     */
+    function stop() {
+        if ( _started ) {
+            if ( win ) {
+                // win.removeEventListener( POPSTATE, _processURL );
+                win.removeEventListener( HASHCHANGE, _hashChangeHandler );
+        }
+        _started = false;
+      }
+    }
+
+    /**
+     * register router element
+     * @param {Element} routerElem route element
+     */
+    function register( routerElem ) {
+        if ( _routingUnits.length === 0 ) {
+            start();
+        }
+
+        _routingUnits.push( routerElem );
+
+        // init current element
+        routerElem.processURL( document.URL );
+    }
+
+    /**
+     * unregister router element
+     * @param {Element} routerElem router element
+     */
+    function unregister( routerElem ) {
+        // do nothing
+        _routingUnits = _routingUnits.filter( elem => elem !== routerElem );
+
+        if ( _routingUnits.length === 0 ) {
+            stop();
+        }
+    }
+
 
     /**
      * Get the part after base
@@ -23913,7 +23920,7 @@ define(['require'], function (require) { 'use strict';
      * @param {object} params param object
      * @returns {boolean} true if url matches
      */
-    function matchUrl2( pattern, urlParamStr ) {
+    function matchUrl( pattern, urlParamStr ) {
         // TODO: for now just make it work, blindly say map and return value
         let keys = DEFAULT_PARSER( pattern );
         let values = DEFAULT_PARSER( urlParamStr );
@@ -23931,47 +23938,30 @@ define(['require'], function (require) { 'use strict';
     }
 
 
-    /**
-     * load JSON config
-     * @param {string} configPath path for JSON configuration
-     * @returns {Promise} promise with configuratino JSON object
-     */
-    async function loadConfig( configPath ) {
-        return JSON.parse( await http.get( configPath ) );
-    }
+    var routeSvc = {
+        register,
+        unregister
+    };
 
-    class FewRoute extends HTMLElement {
-        static get tag() {
-            return 'few-route';
-        }
-
-        static get observedAttributes() {
-            return [ 'src' ];
-        }
-
-        constructor() {
-            super();
-
-            this._routeConfigPromise = null;
+    class FewRouter {
+        constructor( containerElem ) {
+            this._elem = containerElem;
 
             this._currState = null;
+
+            this._routeConfigPromise = null;
         }
 
-        async attributeChangedCallback( name, oldValue, newValue ) {
-            // console.log( `${name}: ${oldValue} => ${newValue}` );
-
-            if ( name === 'src' && newValue && oldValue !== newValue ) {
-                // load router config
-                this._routeConfigPromise = loadConfig( `${newValue}.json` );
-            }
+        enable() {
+            routeSvc.register( this );
         }
 
-        connectedCallback() {
-            router.register( this );
+        disable() {
+            routeSvc.unregister( this );
         }
 
-        disconnectedCallback() {
-            router.unregister( this );
+        loadConfig( configPath ) {
+            this._routeConfigPromise = loadJSON( `${configPath}.json` );
         }
 
         async processURL( url ) {
@@ -23981,7 +23971,7 @@ define(['require'], function (require) { 'use strict';
                 let urlParamStr = getPathFromBase( url );
                 if( !urlParamStr ) {
                     this._currState = states[0];
-                    this._component = await few.render( `${this._currState.view}.yml`, this );
+                    this._component = await few.render( `${this._currState.view}.yml`, this._elem );
                 } else {
                     let state = null;
                     let params = {};
@@ -23989,7 +23979,7 @@ define(['require'], function (require) { 'use strict';
                     // match state
                     for( let key in states ) {
                         let st = states[key];
-                        params = matchUrl2( st.url, urlParamStr );
+                        params = matchUrl( st.url, urlParamStr );
                         if( params ) {
                             state = st;
                             break;
@@ -24010,11 +24000,46 @@ define(['require'], function (require) { 'use strict';
                                 set_1( model, key, params[key] );
                             }
                             this._currState = state;
-                            this._component = await few.render( `${state.view}.yml`, this, model );
+                            this._component = await few.render( `${state.view}.yml`, this._elem, model );
                         }
                     }
                 }
             }
+        }
+    }
+
+    /* eslint-env es6 */
+
+    class FewRoute extends HTMLElement {
+        static get tag() {
+            return 'few-route';
+        }
+
+        static get observedAttributes() {
+            return [ 'src' ];
+        }
+
+        constructor() {
+            super();
+
+            this._router = new FewRouter( this );
+        }
+
+        async attributeChangedCallback( name, oldValue, newValue ) {
+            // console.log( `${name}: ${oldValue} => ${newValue}` );
+
+            if ( name === 'src' && newValue && oldValue !== newValue ) {
+                // load router config
+                this._router.loadConfig( newValue );
+            }
+        }
+
+        connectedCallback() {
+            this._router.enable();
+        }
+
+        disconnectedCallback() {
+            this._router.disable();
         }
     }
     customElements.define( FewRoute.tag, FewRoute );

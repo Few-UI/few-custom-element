@@ -1,112 +1,69 @@
-/* eslint-env es6 */
-// https://github.com/riot/route/blob/master/src/index.js
+import set from 'lodash/set';
+import few from './few-global';
+import { loadJSON } from './few-utils';
+import routeSvc, { matchUrl, getPathFromBase } from './few-route-service';
 
-let _started = false;
+export default class FewRouter {
+    constructor( containerElem ) {
+        this._elem = containerElem;
 
-let win = typeof window !== 'undefined' && window;
+        this._currState = null;
 
-const POPSTATE = 'popState';
-const HASHCHANGE = 'hashchange';
-
-let _routingUnits = [];
-
-/**
- * Set the window listeners to trigger the routes
- * @param {boolean} autoExec - see route.start
- */
-function _start() {
-    // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onpopstate
-    // Not support history for now
-    /*
-    win.addEventListener( 'popState', () => {
-        console.log( 'win.popState!' );
-    } );
-    */
-
-    // https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onhashchange
-    win.addEventListener( 'hashchange', _hashChangeHandler );
-}
-
-/**
- * internal handler for hashchange event
- * @param {Event} e hash change event
- */
-function _hashChangeHandler( e ) {
-    _processURL( e.newURL );
-}
-
-
-/**
- * internal method to process URL
- * @param {string} url current URL transit to
- */
-function _processURL( url ) {
-    for( let unit in _routingUnits ) {
-        _routingUnits[unit].processURL( url );
+        this._routeConfigPromise = null;
     }
-}
 
-/**
- * register router element
- * @param {Element} routerElem route element
- */
-export function register( routerElem ) {
-    _routingUnits.push( routerElem );
+    enable() {
+        routeSvc.register( this );
+    }
 
-    // init current element
-    routerElem.processURL( document.URL );
-}
+    disable() {
+        routeSvc.unregister( this );
+    }
 
-/**
- * unregister router element
- * @param {Element} routerElem router element
- */
-export function unregister( routerElem ) {
-    // do nothing
-    _routingUnits = _routingUnits.filter( elem => elem !== routerElem );
-}
+    loadConfig( configPath ) {
+        this._routeConfigPromise = loadJSON( `${configPath}.json` );
+    }
 
-/**
- * Start client router service
- */
-export function start() {
-    if ( !_started ) {
-        if ( win ) {
-            if ( document.readyState === 'interactive' || document.readyState === 'complete' ) {
-                _start( /*autoExec*/ );
+    async processURL( url ) {
+        let states = await this._routeConfigPromise;
+        if ( states && states.length > 0 ) {
+            // let urlStruct = DEFAULT_PARSER( getPathFromBase( url ) );
+            let urlParamStr = getPathFromBase( url );
+            if( !urlParamStr ) {
+                this._currState = states[0];
+                this._component = await few.render( `${this._currState.view}.yml`, this._elem );
             } else {
-                document.onreadystatechange = function() {
-                    if ( document.readyState === 'interactive' ) {
-                        // the timeout is needed to solve
-                        // a weird safari bug https://github.com/riot/route/issues/33
-                        setTimeout( function() { _start( /*autoExec*/ ); }, 1 );
+                let state = null;
+                let params = {};
+
+                // match state
+                for( let key in states ) {
+                    let st = states[key];
+                    params = matchUrl( st.url, urlParamStr );
+                    if( params ) {
+                        state = st;
+                        break;
                     }
-                };
+                }
+
+                // process state
+                if ( state ) {
+                    if ( this._currState === state ) {
+                        let model = this._component._vm.model;
+                        for( let key in params ) {
+                            set( model, key, params[key] );
+                        }
+                        this._component.updateView();
+                    } else {
+                        let model = {};
+                        for( let key in params ) {
+                            set( model, key, params[key] );
+                        }
+                        this._currState = state;
+                        this._component = await few.render( `${state.view}.yml`, this._elem, model );
+                    }
+                }
             }
         }
-
-        _started = true;
     }
 }
-
-/**
- * Stop client router service
- */
-export function stop() {
-    if ( _started ) {
-        if ( win ) {
-            // win.removeEventListener( POPSTATE, _processURL );
-            win.removeEventListener( HASHCHANGE, _hashChangeHandler );
-    }
-    _started = false;
-  }
-}
-
-start();
-
-export default {
-    start,
-    stop,
-    register,
-    unregister
-};

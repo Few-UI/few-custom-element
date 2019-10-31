@@ -50,6 +50,15 @@ export let evalExpression = function( input, params, ignoreError ) {
   }
 };
 
+/**
+ * load JSON config
+ * @param {string} configPath path for JSON configuration
+ * @returns {Promise} promise with configuratino JSON object
+ */
+export async function loadJSON( configPath ) {
+    return JSON.parse( await http.get( configPath ) );
+}
+
 
 /**
  * fastest way to copy a pure JSON object, use on your own risk
