@@ -298,6 +298,10 @@ export default class FewComponent {
     async update( methodName, scope, updateView = true ) {
         let actionDef = this._getActionDefinition( methodName );
 
+        if( !actionDef ) {
+            throw Error( `FewComponent.update => action "${methodName}" not found!` );
+        }
+
         return await this._update( actionDef, scope, updateView );
     }
 

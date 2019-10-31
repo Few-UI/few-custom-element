@@ -115,6 +115,27 @@ describe( 'Test few-component', () => {
         expect( docElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
+    it( 'Verify few-component will print correct error when action not found', async() => {
+        let componentContent = [
+            'view:',
+            '  template:',
+            // eslint-disable-next-line no-template-curly-in-string
+            '    <div>${testVal}</div>'
+        ].join( '\n' );
+
+        let componentDef = yaml.safeLoad( componentContent );
+
+        let component = new FewComponent( componentDef );
+
+        await component.render( componentDef.view, docElem );
+
+        try {
+            await component.update( 'action.testAction' );
+        } catch( e ) {
+            expect( e.message ).toEqual( 'FewComponent.update => action "action.testAction" not found!' );
+        }
+    } );
+
     it( 'Verify few-component can execute action with different options', async() => {
         let pattern = '/^\\s*{{\\s*([\\S\\s\\r\\n]*)\\s*}}\\s*$/m';
         let componentContent = [
@@ -158,3 +179,5 @@ describe( 'Test few-component', () => {
         ].join( '' ) );
     } );
 } );
+
+

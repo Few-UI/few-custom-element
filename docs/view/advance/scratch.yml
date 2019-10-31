@@ -1,7 +1,6 @@
 # view
 view:
   template:
-    <todo-lit></todo-lit>
+    <button @click="test">Action1</button>
+    <button @click="test">Action2</button>
 
-  import:
-    - view/advance/lit/todo-lit
