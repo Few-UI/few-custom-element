@@ -88,7 +88,7 @@ class TodoFormLitElement extends LitElement {
     // because lit-element provides syntactic sugur for event binding
     submitInfo( e ) {
         e.preventDefault();
-        let event = new CustomEvent( 'event-add-todo', {
+        let event = new CustomEvent( 'add-todo', {
             detail: {
                 item_desc: this.item_desc,
                 item_status: this.item_status

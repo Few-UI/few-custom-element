@@ -44,7 +44,7 @@ class TodoLitElement extends LitElement {
         this.dummy;
         return html `
           <h2>Lit Todo</h2>
-          <lit-todo-form @event-add-todo="${this.addTodo}">
+          <lit-todo-form @add-todo="${this.addTodo}">
             <button>Test</button>
           </lit-todo-form>
           <lit-todo-table .items=${this.items}></lit-todo-table>
