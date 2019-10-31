@@ -4,7 +4,7 @@ import viewUnitFactory, { FewViewUnit } from './few-view-unit';
 
 class FewViewCondUnit extends FewViewUnit {
     static get KEY() {
-        return 'f-cond';
+        return 'f-when';
     }
 
     /**
@@ -43,7 +43,7 @@ class FewViewCondUnit extends FewViewUnit {
                     parentNode.replaceChild( newNode, domNode );
                 }
             } else {
-                newNode = document.createComment( `f-cond ${vExpr} = ${vIfRes}` );
+                newNode = document.createComment( `f-when ${vExpr} = ${vIfRes}` );
                 parentNode.replaceChild( newNode, domNode );
             }
         } else if ( vIfRes ) {

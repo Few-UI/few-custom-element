@@ -6,7 +6,7 @@ import FewComponent from '../src/few-component';
 import fewViewFactory from '../src/few-view-factory';
 import { wait } from './test-utils';
 
-describe( 'Test f-cond in few-view', () => {
+describe( 'Test f-when in few-view', () => {
     let docElem;
 
     beforeEach( () =>{
@@ -28,11 +28,11 @@ describe( 'Test f-cond in few-view', () => {
         document.body.removeChild( docElem );
     } );
 
-    it( 'Verify f-cond works corretly for simple element', async() => {
+    it( 'Verify f-when works corretly for simple element', async() => {
         let componentContent = [
             'view:',
             '  template:',
-            '    <div f-cond="testBoolean">Hello</div>',
+            '    <div f-when="testBoolean">Hello</div>',
             'model:',
             '  testBoolean: false',
             'action:',
@@ -51,7 +51,7 @@ describe( 'Test f-cond in few-view', () => {
 
         await component.render( componentDef.view, docElem );
 
-        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-when testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
@@ -61,15 +61,15 @@ describe( 'Test f-cond in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-when testBoolean = false-->' );
     } );
 
-    it( 'Verify f-cond works corretly for element with expression', async() => {
+    it( 'Verify f-when works corretly for element with expression', async() => {
         let componentContent = [
             'view:',
             '  template:',
             // eslint-disable-next-line no-template-curly-in-string
-            '    <div f-cond="testBoolean">${testVal}</div>',
+            '    <div f-when="testBoolean">${testVal}</div>',
             'model:',
             '  testBoolean: true',
             '  testVal: 5',
@@ -105,7 +105,7 @@ describe( 'Test f-cond in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-when testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
@@ -113,12 +113,12 @@ describe( 'Test f-cond in few-view', () => {
         expect( docElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
-    it( 'Verify f-cond works corretly for nested element', async() => {
+    it( 'Verify f-when works corretly for nested element', async() => {
         let componentContent = [
             'view:',
             '  template:',
             // eslint-disable-next-line no-template-curly-in-string
-            '    <div f-cond="testBoolean"><code style="color:blue">${testMsg}</code></div>',
+            '    <div f-when="testBoolean"><code style="color:blue">${testMsg}</code></div>',
             'model:',
             '  testBoolean: false',
             '  testMsg: hello',
@@ -138,7 +138,7 @@ describe( 'Test f-cond in few-view', () => {
 
         await component.render( componentDef.view, docElem );
 
-        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-when testBoolean = false-->' );
 
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( true );
@@ -148,6 +148,6 @@ describe( 'Test f-cond in few-view', () => {
         // toggle
         expect( await component.update( 'testAction' ) ).toEqual( false );
         await wait( 200 );
-        expect( docElem.innerHTML ).toEqual( '<!--f-cond testBoolean = false-->' );
+        expect( docElem.innerHTML ).toEqual( '<!--f-when testBoolean = false-->' );
     } );
 } );

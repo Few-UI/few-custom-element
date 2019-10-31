@@ -13,15 +13,15 @@
     - patch( oldNode, vNode )
     In this approach the f(m) and global compare will be unnecessary overhead
   - Approach 2:
-    - Build f with semantic structure ( f-each, f-cond, normal, custom? )
+    - Build f with semantic structure ( f-each, f-when, normal, custom? )
       - renderer = f-each( expr, template );
         - vNode = renderer(m);
         - patch( oldNode, vNode )
-      - renderer = f-cond( cond, template );
+      - renderer = f-when( cond, template );
         - vNode = renderer(m);
         - patch( oldNode, vNode )
       - custom decorator(for example highlight) can modify the dom too on top of template. No way to predict what will be modified, run patch will be safe option
-      - renderer = f-cond( true, template );
+      - renderer = f-when( true, template );
         - vNode = vNormal(m);
         - patch( oldNode, vNode )
 

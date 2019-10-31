@@ -23000,7 +23000,7 @@ define(['require'], function (require) { 'use strict';
 
     class FewViewCondUnit extends FewViewUnit {
         static get KEY() {
-            return 'f-cond';
+            return 'f-when';
         }
 
         /**
@@ -23039,7 +23039,7 @@ define(['require'], function (require) { 'use strict';
                         parentNode.replaceChild( newNode, domNode );
                     }
                 } else {
-                    newNode = document.createComment( `f-cond ${vExpr} = ${vIfRes}` );
+                    newNode = document.createComment( `f-when ${vExpr} = ${vIfRes}` );
                     parentNode.replaceChild( newNode, domNode );
                 }
             } else if ( vIfRes ) {

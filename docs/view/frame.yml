@@ -3,7 +3,7 @@ view:
   template:
     <div class="container few-sample-app-frame">
       <div class="row few-sample-app-main-row">
-        <div class="column column-20" f-cond="showPrimary">
+        <div class="column column-20" f-when="showPrimary">
           <slot name="primary"></slot>
         </div>
         <div class="few-sample-app-vertical-splitter" @click="switchPrimary"></div>
