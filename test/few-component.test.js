@@ -115,6 +115,46 @@ describe( 'Test few-component', () => {
         expect( docElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
+    it( 'Verify action with condition', async() => {
+        let componentContent = [
+            'view:',
+            '  template:',
+            // eslint-disable-next-line no-template-curly-in-string
+            '    <div>${testVal}</div>',
+            'model:',
+            '  testVal: 5',
+            'action:',
+            '  testAction:',
+            '    name: $few_test.setValue',
+            // eslint-disable-next-line no-template-curly-in-string
+            '    when: ${scope.enable}',
+            '    input:',
+            '      val: 7',
+            '    output:',
+            '      testVal: ""'
+        ].join( '\n' );
+
+        let componentDef = yaml.safeLoad( componentContent );
+
+        let component = new FewComponent( componentDef );
+
+        await component.render( componentDef.view, docElem );
+
+        await component.update( 'testAction', { enable: false } );
+
+        expect( component._vm.model.testVal ).toEqual( 5 );
+
+        await wait( 100 );
+        expect( docElem.innerHTML ).toEqual( '<div>5</div>' );
+
+        expect( await component.update( 'testAction', { enable: true } ) ).toEqual( 7 );
+
+        expect( component._vm.model.testVal ).toEqual( 7 );
+
+        await wait( 100 );
+        expect( docElem.innerHTML ).toEqual( '<div>7</div>' );
+    } );
+
     it( 'Verify few-component will print correct error when action not found', async() => {
         let componentContent = [
             'view:',

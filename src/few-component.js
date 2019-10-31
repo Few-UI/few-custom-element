@@ -226,7 +226,17 @@ export default class FewComponent {
         return obj;
     }
 
+    _evalCond( value ) {
+        let template = this._strTplParser.parse( value );
+        if ( template ) {
+            return this.getValue( template );
+        }
+        return value;
+    }
+
     async _executeAction( actionDef, scope ) {
+        let res;
+
         let dep =  actionDef.import ? ( await loadModules( [ actionDef.import ] ) )[0] : window;
 
         // backup and apply scope
@@ -234,20 +244,23 @@ export default class FewComponent {
         let originArg = this._vm.model[this._option.scopePath];
         this._setScope( scope );
 
-        let input = this._evalActionInput( actionDef.input );
-        let vals = actionDef.input ? Object.values( input ) : [];
+        // evaluate condition firstly
+        if( !actionDef.when || this._evalCond( actionDef.when ) ) {
+            let input = this._evalActionInput( actionDef.input );
+            let vals = actionDef.input ? Object.values( input ) : [];
 
-        let func = _.get( dep, actionDef.name );
-        let res = actionDef.name ? await func.apply( dep, vals ) : input;
+            let func = _.get( dep, actionDef.name );
+            res = actionDef.name ? await func.apply( dep, vals ) : input;
+
+            _.forEach( actionDef.output, ( valPath, vmPath ) => {
+                this._updateModel( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
+            } );
+        }
 
         // restore origin namespace
         if ( originArg ) {
             this._setScope( originArg );
         }
-
-        _.forEach( actionDef.output, ( valPath, vmPath ) => {
-            this._updateModel( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
-        } );
 
         // scope as next input
         // return Object.assign( scope, res );
