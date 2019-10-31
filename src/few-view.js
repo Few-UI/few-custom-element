@@ -1,9 +1,6 @@
 /* eslint-env es6 */
 import few from './few-global';
-import FewComponent from './few-component';
 import {
-    evalExpression,
-    getComponent,
     parseView
 } from './few-utils';
 
