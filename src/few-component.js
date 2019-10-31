@@ -1,14 +1,15 @@
 /* eslint-env es6 */
+import set from 'lodash/set';
 import _ from 'lodash';
 import fewViewFactory from './few-view-factory';
 import StringTemplateParser from './string-template-parser';
 
 import {
     applySlot,
-    setComponent,
-    evalExpression,
     cloneDeepJsonObject,
-    loadModules
+    evalExpression,
+    loadModules,
+    setComponent
 } from './few-utils';
 
 export default class FewComponent {
@@ -53,7 +54,6 @@ export default class FewComponent {
         this._updateViewDebounce = _.debounce( () => {
             this._updateView();
         }, 100 );
-
 
         // init
         this._loadComponentDef( componentDef );
@@ -172,8 +172,19 @@ export default class FewComponent {
      * @param {string} value value itself
      */
     _updateModel( path, value ) {
-        _.set( this._vm.model, path, value );
+        set( this._vm.model, path, value );
         this._isDirty = true;
+    }
+
+    /**
+     * update model in component
+     * @param {Object} params parameters as name value pair, for deep update make sure to put full path like 'a.b.c'
+     */
+    updateModel( params ) {
+        for( let key in params ) {
+            this._updateModel( key, params[key] );
+        }
+        this._component.updateView();
     }
 
     _getActionDefinition( key ) {
@@ -240,6 +251,15 @@ export default class FewComponent {
     }
 
     /**
+     * check if action exist on current component
+     * @param {string} methodName action name
+     * @returns {boolean} true if action exist in current definition
+     */
+    hasAction( methodName ) {
+        return this._getActionDefinition( methodName );
+    }
+
+    /**
      * evaluate method in view model
      * @param {object} actionDef action definition as JSON object
      * @param {object} scope input from upstream
@@ -263,14 +283,6 @@ export default class FewComponent {
         return res;
     }
 
-    /**
-     * check if action exist on current component
-     * @param {string} methodName action name
-     * @returns {boolean} true if action exist in current definition
-     */
-    hasAction( methodName ) {
-        return this._getActionDefinition( methodName );
-    }
 
     /**
      * evaluate method in view model
