@@ -211,6 +211,39 @@ export function getViewElement( element ) {
 }
 
 /**
+ * get path from URL by removing '/[^/]+$'
+ * @param {string} url URL
+ * @returns {Object} { base, name, ext }
+ */
+export function parseUrl( url ) {
+    let res = {};
+    let str = url;
+
+    // base url
+    let match = url.match( /^.*\// );
+    if ( match ) {
+        res.base = match[0];
+        str = url.replace( /^.*\//, '' );
+    } else {
+        res.base = '';
+        str = url;
+    }
+
+    // ext
+    match = str.match( /\.([^. ]+)$/ );
+
+    if ( match ) {
+        res.ext = match[1];
+        res.name = str.replace( /\.([^. ]+)$/, '' );
+    } else {
+        res.ext = '';
+        res.name = str;
+    }
+
+    return res;
+}
+
+/**
  * resolve relative path to absolute based on URL
  * @param {String} baseUrl base URL
  * @param {String} path, relative path

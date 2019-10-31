@@ -22451,6 +22451,39 @@ define(['require'], function (require) { 'use strict';
     }
 
     /**
+     * get path from URL by removing '/[^/]+$'
+     * @param {string} url URL
+     * @returns {Object} { base, name, ext }
+     */
+    function parseUrl( url ) {
+        let res = {};
+        let str = url;
+
+        // base url
+        let match = url.match( /^.*\// );
+        if ( match ) {
+            res.base = match[0];
+            str = url.replace( /^.*\//, '' );
+        } else {
+            res.base = '';
+            str = url;
+        }
+
+        // ext
+        match = str.match( /\.([^. ]+)$/ );
+
+        if ( match ) {
+            res.ext = match[1];
+            res.name = str.replace( /\.([^. ]+)$/, '' );
+        } else {
+            res.ext = '';
+            res.name = str;
+        }
+
+        return res;
+    }
+
+    /**
      * resolve relative path to absolute based on URL
      * @param {String} baseUrl base URL
      * @param {String} path, relative path
@@ -23263,7 +23296,7 @@ define(['require'], function (require) { 'use strict';
 
         // TODO: hard code to src="" for now
         if ( baseUrl ) {
-            view.template = view.template.replace( /src="(\.\.?\/[^"]*)"/g, `src="${baseUrl}/$1"` );
+            view.template = view.template.replace( /src="(\.\.?\/[^"]*)"/g, `src="${baseUrl}$1"` );
         }
 
         return viewUnitFactory.createUnit( parseView( view.template ), parser );
@@ -23402,10 +23435,10 @@ define(['require'], function (require) { 'use strict';
          * custom elemenet there is no callback or event to say 'render done'
          * @param {Object} viewDef view definition with import and template string
          * @param {Element} containerElem container element
-         * @param {string} baseUrl base URL for relative path
+         * @param {Object} urlData url infomation { base, name }
          * @returns {Promise} promise can be used for next step
          */
-        async render( viewDef, containerElem, baseUrl ) {
+        async render( viewDef, containerElem, urlData = {} ) {
             // Load init action
             if ( this._vm.init ) {
                 await this._update( this._vm.init, undefined, false );
@@ -23413,7 +23446,7 @@ define(['require'], function (require) { 'use strict';
 
             // Load view
             if ( this._vm.view ) {
-                this._view = await fewViewFactory.createView( viewDef, this._strTplParser, baseUrl );
+                this._view = await fewViewFactory.createView( viewDef, this._strTplParser, urlData.base );
             }
 
             // apply slot
@@ -23421,6 +23454,10 @@ define(['require'], function (require) { 'use strict';
             applySlot( this._view.domNode, containerElem );
 
             containerElem.innerHTML = '';
+
+            if( !containerElem.getAttribute( 'id' ) && urlData.name ) {
+                containerElem.setAttribute( 'id', urlData.name );
+            }
 
             setComponent( containerElem, this );
 
@@ -23483,7 +23520,7 @@ define(['require'], function (require) { 'use strict';
             for( let key in params ) {
                 this._updateModel( key, params[key] );
             }
-            this._component.updateView();
+            this.updateView();
         }
 
         _getActionDefinition( key ) {
@@ -23682,10 +23719,9 @@ define(['require'], function (require) { 'use strict';
      * @param {string} componentPath path for component definition
      * @param {Element} containerElem container element that component attach to
      * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
-     * @param {string} baseUrl base URL for relative path
      * @returns {Promise} promise can be used for next step
      */
-    async function render( componentPath, containerElem, modelRef, baseUrl ) {
+    async function render( componentPath, containerElem, modelRef ) {
         // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
         let parentComponent = getComponent( containerElem );
 
@@ -23699,7 +23735,7 @@ define(['require'], function (require) { 'use strict';
         // Create component and call init definition
         let component = new FewComponent( componentDef, parentComponent,  model );
 
-        await component.render( componentDef.view, containerElem, baseUrl );
+        await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 
         return component;
     }
@@ -23737,12 +23773,6 @@ define(['require'], function (require) { 'use strict';
             return [ 'src', 'model' ];
         }
 
-        get baseUrl() {
-            if ( /\//.test( this._currentView ) ) {
-                return this._currentView.replace( /\/[^/]+$/, '' );
-            }
-        }
-
         constructor() {
             super();
 
@@ -23768,7 +23798,7 @@ define(['require'], function (require) { 'use strict';
                     // this._component.parent.remove(this._component);
                     let modelPath = this.getAttribute( 'model' );
 
-                    await few.render( `${newValue}.yml`, this, modelPath, this.baseUrl );
+                    await few.render( `${newValue}.yml`, this, modelPath );
                 } catch ( e ) {
                     if ( this._currentView === newValue ) {
                         this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

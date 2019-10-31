@@ -14,12 +14,6 @@ export default class FewView extends HTMLElement {
         return [ 'src', 'model' ];
     }
 
-    get baseUrl() {
-        if ( /\//.test( this._currentView ) ) {
-            return this._currentView.replace( /\/[^/]+$/, '' );
-        }
-    }
-
     constructor() {
         super();
 
@@ -45,7 +39,7 @@ export default class FewView extends HTMLElement {
                 // this._component.parent.remove(this._component);
                 let modelPath = this.getAttribute( 'model' );
 
-                await few.render( `${newValue}.yml`, this, modelPath, this.baseUrl );
+                await few.render( `${newValue}.yml`, this, modelPath );
             } catch ( e ) {
                 if ( this._currentView === newValue ) {
                     this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

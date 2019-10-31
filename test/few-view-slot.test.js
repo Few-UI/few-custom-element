@@ -60,7 +60,7 @@ describe( 'Test slot feature in few-view element', () => {
         await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
-            '<few-view src="testView" class="few-scope">',
+            '<few-view src="testView" id="testView" class="few-scope">',
               '<ul>',
                 '<li><div>slot1</div></li>',
                 '<li>5</li>',
@@ -153,8 +153,8 @@ describe( 'Test slot feature in few-view element', () => {
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
-            '<few-view src="mainView" class="few-scope">',
-              '<few-view src="slotTemplate" class="few-scope">',
+            '<few-view src="mainView" id="mainView" class="few-scope">',
+              '<few-view src="slotTemplate" id="slotTemplate" class="few-scope">',
                 '<ul>',
                   '<li>',
                     '<code>6</code>',
@@ -176,8 +176,8 @@ describe( 'Test slot feature in few-view element', () => {
         await wait( 200 );
 
         expect( elem.outerHTML ).toEqual( [
-            '<few-view src="mainView" class="few-scope">',
-              '<few-view src="slotTemplate" class="few-scope">',
+            '<few-view src="mainView" id="mainView" class="few-scope">',
+              '<few-view src="slotTemplate" id="slotTemplate" class="few-scope">',
                 '<ul>',
                   '<li>',
                     '<code>7</code>',
@@ -252,16 +252,16 @@ describe( 'Test slot feature in few-view element', () => {
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
-            '<few-view src="slotTemplate" class="few-scope">',
+            '<few-view src="slotTemplate" id="slotTemplate" class="few-scope">',
               '<ul>',
                 '<li>',
-                  '<few-view src="firstView" class="few-scope">',
+                  '<few-view src="firstView" id="firstView" class="few-scope">',
                     '<div>5</div>',
                   '</few-view>',
                 '</li>',
                 '<li>5</li>',
                 '<li>',
-                  '<few-view src="secondView" class="few-scope">',
+                  '<few-view src="secondView" id="secondView" class="few-scope">',
                     '<code style="color:red">7</code>',
                   '</few-view>',
                 '</li>',

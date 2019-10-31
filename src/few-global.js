@@ -6,6 +6,7 @@ import FewComponent from './few-component';
 import { defineDirective } from './few-view-directive';
 import { excludeElement } from './few-view-null-unit';
 import {
+    parseUrl,
     getComponent,
     getFormInput,
     getViewElement,
@@ -88,10 +89,9 @@ export function importDocStyle( shadowRoot ) {
  * @param {string} componentPath path for component definition
  * @param {Element} containerElem container element that component attach to
  * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
- * @param {string} baseUrl base URL for relative path
  * @returns {Promise} promise can be used for next step
  */
-export async function render( componentPath, containerElem, modelRef, baseUrl ) {
+export async function render( componentPath, containerElem, modelRef ) {
     // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
     let parentComponent = getComponent( containerElem );
 
@@ -105,7 +105,7 @@ export async function render( componentPath, containerElem, modelRef, baseUrl ) 
     // Create component and call init definition
     let component = new FewComponent( componentDef, parentComponent,  model );
 
-    await component.render( componentDef.view, containerElem, baseUrl );
+    await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 
     return component;
 }

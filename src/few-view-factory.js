@@ -39,7 +39,7 @@ async function createView( view, parser, baseUrl = '' ) {
 
     // TODO: hard code to src="" for now
     if ( baseUrl ) {
-        view.template = view.template.replace( /src="(\.\.?\/[^"]*)"/g, `src="${baseUrl}/$1"` );
+        view.template = view.template.replace( /src="(\.\.?\/[^"]*)"/g, `src="${baseUrl}$1"` );
     }
 
     return viewUnitFactory.createUnit( parseView( view.template ), parser );

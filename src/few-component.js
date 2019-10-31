@@ -103,10 +103,10 @@ export default class FewComponent {
      * custom elemenet there is no callback or event to say 'render done'
      * @param {Object} viewDef view definition with import and template string
      * @param {Element} containerElem container element
-     * @param {string} baseUrl base URL for relative path
+     * @param {Object} urlData url infomation { base, name }
      * @returns {Promise} promise can be used for next step
      */
-    async render( viewDef, containerElem, baseUrl ) {
+    async render( viewDef, containerElem, urlData = {} ) {
         // Load init action
         if ( this._vm.init ) {
             await this._update( this._vm.init, undefined, false );
@@ -114,7 +114,7 @@ export default class FewComponent {
 
         // Load view
         if ( this._vm.view ) {
-            this._view = await fewViewFactory.createView( viewDef, this._strTplParser, baseUrl );
+            this._view = await fewViewFactory.createView( viewDef, this._strTplParser, urlData.base );
         }
 
         // apply slot
@@ -122,6 +122,10 @@ export default class FewComponent {
         applySlot( this._view.domNode, containerElem );
 
         containerElem.innerHTML = '';
+
+        if( !containerElem.getAttribute( 'id' ) && urlData.name ) {
+            containerElem.setAttribute( 'id', urlData.name );
+        }
 
         setComponent( containerElem, this );
 
@@ -184,7 +188,7 @@ export default class FewComponent {
         for( let key in params ) {
             this._updateModel( key, params[key] );
         }
-        this._component.updateView();
+        this.updateView();
     }
 
     _getActionDefinition( key ) {
