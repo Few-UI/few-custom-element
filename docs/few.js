@@ -23590,14 +23590,20 @@ define(['require'], function (require) { 'use strict';
                 let input = this._evalActionInput( actionDef.input );
                 let vals = actionDef.input ? Object.values( input ) : [];
 
-                // Vue's approach is overwrite this by func.apply(this), which will will limite your
-                // JS practice. But it is fine since JS is its DSL for method.
-                // Here we use the appraoch that 'last parameter will be the component' - so that 
-                // User are free to use any JS practice
-                // vals.push( this );
+                let func;
 
-                let func = lodash.get( dep, actionDef.name ) || lodash.get( window, actionDef.name );
-                res = actionDef.name ? await func.apply( dep, vals ) : input;
+                if ( actionDef.def ) {
+                    func = lodash.get( dep, actionDef.name );
+
+                    if ( !func ) {
+                        func = lodash.get( window, actionDef.name );
+                        dep = window;
+                    }
+                }
+
+                // Vue's approach is overwrite 'this' by func.apply(data), which will will limite your
+                // JS practice. But it is fine since JS is part of its DSL.
+                res = func ? await func.apply( dep, vals ) : input;
 
                 lodash.forEach( actionDef.output, ( valPath, vmPath ) => {
                     this._updateModel( vmPath, valPath && valPath.length > 0 ? lodash.get( res, valPath ) : res );

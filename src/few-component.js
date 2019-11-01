@@ -256,14 +256,20 @@ export default class FewComponent {
             let input = this._evalActionInput( actionDef.input );
             let vals = actionDef.input ? Object.values( input ) : [];
 
-            // Vue's approach is overwrite this by func.apply(this), which will will limite your
-            // JS practice. But it is fine since JS is its DSL for method.
-            // Here we use the appraoch that 'last parameter will be the component' - so that 
-            // User are free to use any JS practice
-            // vals.push( this );
+            let func;
 
-            let func = _.get( dep, actionDef.name ) || _.get( window, actionDef.name );
-            res = actionDef.name ? await func.apply( dep, vals ) : input;
+            if ( actionDef.def ) {
+                func = _.get( dep, actionDef.name );
+
+                if ( !func ) {
+                    func = _.get( window, actionDef.name );
+                    dep = window;
+                }
+            }
+
+            // Vue's approach is overwrite 'this' by func.apply(data), which will will limite your
+            // JS practice. But it is fine since JS is part of its DSL.
+            res = func ? await func.apply( dep, vals ) : input;
 
             _.forEach( actionDef.output, ( valPath, vmPath ) => {
                 this._updateModel( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
