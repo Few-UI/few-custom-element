@@ -17,13 +17,14 @@ model:
 
 # action
 action:
+  # dummy setValue which just for passing data
   setValue:
     import: lib/sample-utils
     name: setValue
     input:
       value:
-        element: ${scope.element}
-        user_name: ${few.getFormInput(scope.element).user_name}
+        element: ${scope.target}
+        user_name: ${few.getFormInput(scope.target).user_name}
 
   updateInput:
     import: lib/sample-utils

@@ -15,7 +15,7 @@ action:
   todo-form:
     addTodo:
       input:
-        updatedItems: ${todo.items.concat([few.getFormInput(scope.element)])}
+        updatedItems: ${todo.items.concat([few.getFormInput(scope.target)])}
       output:
         todo.items: updatedItems
 

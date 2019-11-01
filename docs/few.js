@@ -23581,6 +23581,12 @@ define(['require'], function (require) { 'use strict';
                 let input = this._evalActionInput( actionDef.input );
                 let vals = actionDef.input ? Object.values( input ) : [];
 
+                // Vue's approach is overwrite this by func.apply(this), which will will limite your
+                // JS practice. But it is fine since JS is its DSL for method.
+                // Here we use the appraoch that 'last parameter will be the component' - so that 
+                // User are free to use any JS practice
+                // vals.push( this );
+
                 let func = lodash.get( dep, actionDef.name );
                 res = actionDef.name ? await func.apply( dep, vals ) : input;
 
@@ -23692,10 +23698,7 @@ define(['require'], function (require) { 'use strict';
         let component = getComponent( elem );
         if ( component.hasAction( methodName ) ) {
             // TODO: need to tune performance to reduce over update
-            return component.update( methodName, {
-                element: elem,
-                event: e
-            } );
+            return component.update( methodName, e );
         }
 
         // One more level, but that will be all. Parent should only know its direct children
@@ -23704,10 +23707,7 @@ define(['require'], function (require) { 'use strict';
         let parentMethodName = `${viewElem.id}.${methodName}`;
         if ( component && component.hasAction( parentMethodName ) ) {
             // TODO: need to tune performance to reduce over update
-            return component.update( parentMethodName, {
-                element: elem,
-                event: e
-            } );
+            return component.update( parentMethodName, e );
         }
     }
 

@@ -17,6 +17,5 @@ view:
 #  submitInfo:
 #    name: few.requestUpdate
 #    input:
-#      element: ${scope.element}
-#      item: ${few.getFormInput(scope.element)}
+#      item: ${few.getFormInput(scope.target)}
 

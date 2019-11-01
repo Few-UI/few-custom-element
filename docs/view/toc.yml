@@ -12,7 +12,7 @@ view:
 action:
   updateSelection:
     input:
-      selectedItem: ${ scope.element.textContent }
+      selectedItem: ${ scope.target.textContent }
     output:
       selection: selectedItem
 
