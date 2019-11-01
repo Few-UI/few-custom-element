@@ -35,9 +35,9 @@ action:
       testMsg: ''
 
   submitInfo:
-    name: few.requestUpdate
+    name: requestUpdate
     input:
-      element: ${scope.element}
+      name: submitData
       data: ${scope.user_name}
 
   totalUpdate:

@@ -48,6 +48,11 @@ export default class FewComponent {
         this._isDirty = false;
 
         /**
+         * id
+         */
+        this._id = '';
+
+        /**
          * method update view
          * TODO: can we return promise here
          */
@@ -123,8 +128,10 @@ export default class FewComponent {
 
         containerElem.innerHTML = '';
 
-        if( !containerElem.getAttribute( 'id' ) && urlData.name ) {
+        this._id = containerElem.getAttribute( 'id' );
+        if( !this._id && urlData.name ) {
             containerElem.setAttribute( 'id', urlData.name );
+            this._id = urlData.name;
         }
 
         setComponent( containerElem, this );
@@ -237,7 +244,7 @@ export default class FewComponent {
     async _executeAction( actionDef, scope ) {
         let res;
 
-        let dep =  actionDef.import ? ( await loadModules( [ actionDef.import ] ) )[0] : window;
+        let dep =  actionDef.import ? ( await loadModules( [ actionDef.import ] ) )[0] : this;
 
         // backup and apply scope
         // For now only support on level scope
@@ -255,7 +262,7 @@ export default class FewComponent {
             // User are free to use any JS practice
             // vals.push( this );
 
-            let func = _.get( dep, actionDef.name );
+            let func = _.get( dep, actionDef.name ) || _.get( window, actionDef.name );
             res = actionDef.name ? await func.apply( dep, vals ) : input;
 
             _.forEach( actionDef.output, ( valPath, vmPath ) => {
@@ -332,5 +339,18 @@ export default class FewComponent {
      */
     getValue( expr ) {
         return evalExpression( expr, this._vm.model );
+    }
+
+    /**
+     * Equivalent function as few.handleEvent, request update at parent component
+     * @param {string} name method name as key
+     * @param {Object} input input to the method
+     * @returns {Object} result for update
+     */
+    requestUpdate( name, input ) {
+        let methodName = `${this._id}.${name}`;
+        if ( this._parent && this._parent.hasAction( methodName ) ) {
+            return this._parent.update( methodName, input );
+        }
     }
 }

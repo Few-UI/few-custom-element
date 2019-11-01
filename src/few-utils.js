@@ -31,16 +31,18 @@ export function parseViewToDiv( str ) {
  * @param {string} input string as expression
  * @param {Object} params parameters as name value pair
  * @param {boolean} ignoreError if true the error is not thrown
+ * @param {boolean} applyObject object will apply to the expr as this
  * @return {*} evaluation result
  *
  * TODO: match name with function parameters
  * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
  */
-export let evalExpression = function( input, params, ignoreError ) {
+export let evalExpression = function( input, params, ignoreError, applyObject ) {
   const names = params ? Object.keys( params ) : [];
   const vals = params ? Object.values( params ) : [];
   try {
-      return new Function( ...names, `return ${input};` )( ...vals );
+      let func = new Function( ...names, `return ${input};` );
+      return func.apply( applyObject, vals );
   } catch( e ) {
       if ( !ignoreError ) {
           throw new Error( `evalExpression('${input}') => ${e.message}` );

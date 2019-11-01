@@ -22271,16 +22271,18 @@ define(['require'], function (require) { 'use strict';
      * @param {string} input string as expression
      * @param {Object} params parameters as name value pair
      * @param {boolean} ignoreError if true the error is not thrown
+     * @param {boolean} applyObject object will apply to the expr as this
      * @return {*} evaluation result
      *
      * TODO: match name with function parameters
      * https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically
      */
-    let evalExpression = function( input, params, ignoreError ) {
+    let evalExpression = function( input, params, ignoreError, applyObject ) {
       const names = params ? Object.keys( params ) : [];
       const vals = params ? Object.values( params ) : [];
       try {
-          return new Function( ...names, `return ${input};` )( ...vals );
+          let func = new Function( ...names, `return ${input};` );
+          return func.apply( applyObject, vals );
       } catch( e ) {
           if ( !ignoreError ) {
               throw new Error( `evalExpression('${input}') => ${e.message}` );
@@ -23380,6 +23382,11 @@ define(['require'], function (require) { 'use strict';
             this._isDirty = false;
 
             /**
+             * id
+             */
+            this._id = '';
+
+            /**
              * method update view
              * TODO: can we return promise here
              */
@@ -23455,8 +23462,10 @@ define(['require'], function (require) { 'use strict';
 
             containerElem.innerHTML = '';
 
-            if( !containerElem.getAttribute( 'id' ) && urlData.name ) {
+            this._id = containerElem.getAttribute( 'id' );
+            if( !this._id && urlData.name ) {
                 containerElem.setAttribute( 'id', urlData.name );
+                this._id = urlData.name;
             }
 
             setComponent( containerElem, this );
@@ -23569,7 +23578,7 @@ define(['require'], function (require) { 'use strict';
         async _executeAction( actionDef, scope ) {
             let res;
 
-            let dep =  actionDef.import ? ( await loadModules( [ actionDef.import ] ) )[0] : window;
+            let dep =  actionDef.import ? ( await loadModules( [ actionDef.import ] ) )[0] : this;
 
             // backup and apply scope
             // For now only support on level scope
@@ -23587,7 +23596,7 @@ define(['require'], function (require) { 'use strict';
                 // User are free to use any JS practice
                 // vals.push( this );
 
-                let func = lodash.get( dep, actionDef.name );
+                let func = lodash.get( dep, actionDef.name ) || lodash.get( window, actionDef.name );
                 res = actionDef.name ? await func.apply( dep, vals ) : input;
 
                 lodash.forEach( actionDef.output, ( valPath, vmPath ) => {
@@ -23665,6 +23674,19 @@ define(['require'], function (require) { 'use strict';
         getValue( expr ) {
             return evalExpression( expr, this._vm.model );
         }
+
+        /**
+         * Equivalent function as few.handleEvent, request update at parent component
+         * @param {string} name method name as key
+         * @param {Object} input input to the method
+         * @returns {Object} result for update
+         */
+        requestUpdate( name, input ) {
+            let methodName = `${this._id}.${name}`;
+            if ( this._parent && this._parent.hasAction( methodName ) ) {
+                return this._parent.update( methodName, input );
+            }
+        }
     }
 
     /* eslint-env es6 */
@@ -23702,32 +23724,7 @@ define(['require'], function (require) { 'use strict';
         }
 
         // One more level, but that will be all. Parent should only know its direct children
-        let viewElem = getViewElement( elem );
-        component = component._parent;
-        let parentMethodName = `${viewElem.id}.${methodName}`;
-        if ( component && component.hasAction( parentMethodName ) ) {
-            // TODO: need to tune performance to reduce over update
-            return component.update( parentMethodName, e );
-        }
-    }
-
-    /**
-     * Request update to parent view model
-     * @param {Element} elem DOM Element  as context
-     * @param {object}  data data as request input
-     * @param {string}  method action name
-     * @returns {Promise} evaluation as promise
-     */
-    function requestUpdate( elem, data, method ) {
-        let viewElem = getViewElement( elem );
-        let parentElement = viewElem.parentElement;
-        let component = getComponent( parentElement );
-        let actionName = method || viewElem.id;
-        if ( component.hasAction( actionName ) ) {
-            // TODO: need to tune performance to reduce over update
-            return component.update( actionName, data );
-        }
-        return requestUpdate( parentElement, data, actionName );
+        return component.requestUpdate( methodName, e );
     }
 
     /**
@@ -23742,7 +23739,6 @@ define(['require'], function (require) { 'use strict';
             }
         } );
     }
-
 
     /**
      * Reneder component to specific DOM Element
@@ -23775,7 +23771,6 @@ define(['require'], function (require) { 'use strict';
     var few$1 = exports$1 = {
         render,
         handleEvent,
-        requestUpdate,
         getFormInput,
         getViewElement,
         importDocStyle,

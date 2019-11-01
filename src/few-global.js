@@ -49,32 +49,7 @@ export function handleEvent( elem, methodName, e ) {
     }
 
     // One more level, but that will be all. Parent should only know its direct children
-    let viewElem = getViewElement( elem );
-    component = component._parent;
-    let parentMethodName = `${viewElem.id}.${methodName}`;
-    if ( component && component.hasAction( parentMethodName ) ) {
-        // TODO: need to tune performance to reduce over update
-        return component.update( parentMethodName, e );
-    }
-}
-
-/**
- * Request update to parent view model
- * @param {Element} elem DOM Element  as context
- * @param {object}  data data as request input
- * @param {string}  method action name
- * @returns {Promise} evaluation as promise
- */
-export function requestUpdate( elem, data, method ) {
-    let viewElem = getViewElement( elem );
-    let parentElement = viewElem.parentElement;
-    let component = getComponent( parentElement );
-    let actionName = method || viewElem.id;
-    if ( component.hasAction( actionName ) ) {
-        // TODO: need to tune performance to reduce over update
-        return component.update( actionName, data );
-    }
-    return requestUpdate( parentElement, data, actionName );
+    return component.requestUpdate( methodName, e );
 }
 
 /**
@@ -89,7 +64,6 @@ export function importDocStyle( shadowRoot ) {
         }
     } );
 }
-
 
 /**
  * Reneder component to specific DOM Element
@@ -122,7 +96,6 @@ export async function render( componentPath, containerElem, modelRef ) {
 export default exports = {
     render,
     handleEvent,
-    requestUpdate,
     getFormInput,
     getViewElement,
     importDocStyle,
