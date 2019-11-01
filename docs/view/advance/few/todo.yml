@@ -13,7 +13,7 @@ model:
 # update
 action:
   todo-form:
-    submitInfo:
+    addTodo:
       input:
         updatedItems: ${todo.items.concat([few.getFormInput(scope.element)])}
       output:
