@@ -4,6 +4,7 @@
   - Message can be processed by current model, by actionDef defined under the `actionName`.
   - Message can be processed by direct parent model, by actionDef defined under `childId.actionName`.
 - Model => View is simple reactive update without user knowing it
+- No talking between different component, no global event bus
 # How ELM define a component
 - Type definition
   - Model -> Model type only
