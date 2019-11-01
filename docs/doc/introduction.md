@@ -23,7 +23,7 @@ This repo is majorly for practice purpose and try to achieve:
 - [x] Ignore function while use it with other framework
 - [x] Model Initialization
 - [x] Client side router ( With limitation for now)
-- [ ] Clear State Management
+- [ ] Simple State Management
 - [ ] Virtual DOM
 - [ ] Reactive Update
 - [ ] Generic virtualization
