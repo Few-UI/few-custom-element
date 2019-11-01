@@ -43,10 +43,25 @@ export function handleEvent( elem, methodName, e ) {
     // e.stopPropagation();
 
     let component = getComponent( elem );
-    return component.update( methodName, {
-        element: elem,
-        event: e
-    } );
+    if ( component.hasAction( methodName ) ) {
+        // TODO: need to tune performance to reduce over update
+        return component.update( methodName, {
+            element: elem,
+            event: e
+        } );
+    }
+
+    // One more level, but that will be all. Parent should only know its direct children
+    let viewElem = getViewElement( elem );
+    component = component._parent;
+    let parentMethodName = `${viewElem.id}.${methodName}`;
+    if ( component && component.hasAction( parentMethodName ) ) {
+        // TODO: need to tune performance to reduce over update
+        return component.update( parentMethodName, {
+            element: elem,
+            event: e
+        } );
+    }
 }
 
 /**

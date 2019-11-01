@@ -13,11 +13,10 @@ view:
       <button type="submit">Add</button>
     </form>
 
-# update
-action:
-  submitInfo:
-    name: few.requestUpdate
-    input:
-      element: ${scope.element}
-      item: ${few.getFormInput(scope.element)}
+# action:
+#  submitInfo:
+#    name: few.requestUpdate
+#    input:
+#      element: ${scope.element}
+#      item: ${few.getFormInput(scope.element)}
 

@@ -13,8 +13,9 @@ model:
 # update
 action:
   todo-form:
-    input:
-      updatedItems: ${todo.items.concat([scope])}
-    output:
-      todo.items: updatedItems
+    submitInfo:
+      input:
+        updatedItems: ${todo.items.concat([few.getFormInput(scope.element)])}
+      output:
+        todo.items: updatedItems
 
