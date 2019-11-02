@@ -3,7 +3,7 @@ view:
   template:
     <div>
       <h2>View in View</h2>
-      <few-view id="sub-form" src="./tree-child" valuefromparent="${testValue}"></few-view>
+      <few-view id="sub-form" src="./tree-child" pval="${testValue}"></few-view>
       <h3>Update from Form</h3>
       <code>${'Name in Form:' + testMsg}</code>
     </div>
