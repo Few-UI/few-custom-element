@@ -9,8 +9,33 @@ import {
     cloneDeepJsonObject,
     evalExpression,
     loadModules,
-    setComponent
+    setComponent,
+    isPrimitive
 } from './few-utils';
+
+/**
+ * merge model object
+ * @param {Object} tar target object
+ * @param {Object} src source object
+ * @returns {Object} target object
+ */
+function mergeModel( tar, src ) {
+    if ( tar === undefined ) {
+        return src;
+    }
+
+    if( isPrimitive( tar ) || isPrimitive( src ) || Array.isArray( src ) ) {
+        return src;
+    }
+
+    for ( let key in src ) {
+        tar[key] = mergeModel( tar[key], src[key] );
+        if ( tar[key] === undefined ) {
+            delete tar[key];
+        }
+    }
+    return tar;
+}
 
 export default class FewComponent {
     /**
@@ -195,6 +220,15 @@ export default class FewComponent {
         for( let key in params ) {
             this._updateModel( key, params[key] );
         }
+        this.updateView();
+    }
+
+    /**
+     * update model in component
+     * @param {Object} obj update object which will replace model
+     */
+    updateModel2( obj ) {
+        mergeModel( this._vm.model, obj );
         this.updateView();
     }
 
