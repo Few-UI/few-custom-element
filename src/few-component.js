@@ -258,7 +258,7 @@ export default class FewComponent {
 
             let func;
 
-            if ( actionDef.def ) {
+            if ( actionDef.name ) {
                 func = _.get( dep, actionDef.name );
 
                 if ( !func ) {

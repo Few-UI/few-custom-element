@@ -23592,7 +23592,7 @@ define(['require'], function (require) { 'use strict';
 
                 let func;
 
-                if ( actionDef.def ) {
+                if ( actionDef.name ) {
                     func = lodash.get( dep, actionDef.name );
 
                     if ( !func ) {
