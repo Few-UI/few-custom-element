@@ -23638,8 +23638,8 @@ define(['require'], function (require) { 'use strict';
          */
         async _update( actionDef, scope, updateView ) {
             let res = null;
-            if ( Array.isArray( actionDef ) ) {
-                res = await actionDef.reduce( async( scope, name ) => {
+            if ( actionDef.then ) {
+                res = await actionDef.then.reduce( async( scope, name ) => {
                     return this.update( name, await scope, false );
                 }, scope );
             } else {

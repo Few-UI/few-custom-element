@@ -89,8 +89,9 @@ describe( 'Test f-when in few-view', () => {
             '    output:',
             '      testVal: ""',
             '  testAction:',
-            '    - updateVal',
-            '    - toggle'
+            '    then:',
+            '      - updateVal',
+            '      - toggle'
         ].join( '\n' );
 
         let componentDef = yaml.safeLoad( componentContent );

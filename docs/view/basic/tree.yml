@@ -34,8 +34,9 @@ action:
 
   sub-form:
     submitData:
-      - updateParentModel
-      - updateDialogContext
+      then:
+        - updateParentModel
+        - updateDialogContext
 
 #option
 option:

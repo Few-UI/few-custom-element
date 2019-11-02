@@ -68,8 +68,9 @@ describe( 'Test few-component', () => {
             '    output:',
             '      testVal: ""',
             '  testAction:',
-            '    - action.testAction1',
-            '    - action.testAction2'
+            '    then:',
+            '      - action.testAction1',
+            '      - action.testAction2'
         ].join( '\n' );
 
         let componentDef = yaml.safeLoad( componentContent );

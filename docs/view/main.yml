@@ -25,7 +25,8 @@ view:
 
 # init
 init:
-  - loadContent
+  then:
+    - loadContent
 
 # action
 action:
@@ -48,9 +49,10 @@ action:
       tocModel.selection: 'val'
 
   loadContent:
-    - getContent
-    - parseJson
-    - initSelection
+    then:
+      - getContent
+      - parseJson
+      - initSelection
 
 # option
 option:

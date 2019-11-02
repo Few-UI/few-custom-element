@@ -26,14 +26,6 @@ action:
         element: ${scope.target}
         user_name: ${few.getFormInput(scope.target).user_name}
 
-  updateInput:
-    import: lib/sample-utils
-    name: testProcAsync
-    input:
-      user_name: ${scope.user_name}
-    output:
-      testMsg: ''
-
   submitInfo:
     name: requestUpdate
     input:
@@ -41,9 +33,9 @@ action:
       data: ${scope.user_name}
 
   totalUpdate:
-    - setValue
-    - submitInfo
-    # - updateInput
+    then:
+      - setValue
+      - submitInfo
 
 #option
 option:

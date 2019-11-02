@@ -131,9 +131,10 @@ describe( 'Test slot feature in few-view element', () => {
             '    output:',
             '      testVal2: val',
             '  updateData:',
-            '    - updateTestVal',
-            '    - updateTestVal1',
-            '    - updateTestVal2'
+            '    then:',
+            '      - updateTestVal',
+            '      - updateTestVal1',
+            '      - updateTestVal2'
         ].join( '\n' );
 
         spyOn( http, 'get' ).and.callFake( ( url ) => {
