@@ -146,8 +146,12 @@ export default class FewComponent {
             fragment.appendChild( childNodes[0] );
         }
         containerElem.appendChild( fragment );
+
+        // await Promise.resolve();
+
         this._view.domNode = containerElem;
         this._view.render( this._vm.model );
+        // await Promise.resolve( () => this._view.render( this._vm.model ) );
 
         // todo: later we can try to copy the component and return that when apply on different templateDef
         return null;

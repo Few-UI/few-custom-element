@@ -16,6 +16,7 @@ import {
     setComponentLoader,
     setComponent
 } from './few-utils';
+import StringTemplateParser from './string-template-parser';
 
 let exports;
 
@@ -93,6 +94,25 @@ export async function render( componentPath, containerElem, modelRef ) {
     let componentDef = await loadComponent( componentPath );
 
     component.loadComponentDef( componentDef );
+
+    // TODO refactor later
+    let params = {};
+    let strParser = new StringTemplateParser(  componentDef.option && componentDef.option.stringTemplate );
+    let attributes = containerElem.attributes;
+    for( let i = attributes.length; i > 0; i-- ) {
+        let name = attributes[i - 1].name;
+        let value = attributes[i - 1].value;
+
+        if ( /^f-/.test( name ) ) {
+            let template = strParser.parse( value );
+            if ( template ) {
+                params[name.substr( 2 )] = parentComponent.getValue( template );
+            }
+            containerElem.removeAttribute( name );
+        }
+    }
+
+    component.updateModel( params );
 
     await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 

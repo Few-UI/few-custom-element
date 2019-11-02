@@ -4,6 +4,7 @@
 import yaml from 'js-yaml';
 import FewComponent from '../src/few-component';
 import fewViewFactory from '../src/few-view-factory';
+import { wait } from './test-utils';
 
 describe( 'Test f-each in few-view', () => {
     let docElem;

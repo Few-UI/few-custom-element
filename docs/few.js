@@ -22897,7 +22897,7 @@ define(['require'], function (require) { 'use strict';
                     } );
                 }else if( expr ) {
                     this.setInput( name, expr );
-                    if ( !/^\./.test( name ) ) {
+                    if ( !/^f-/.test( name ) ) {
                         domNode.setAttribute( name, '' );
                     }
                 } else {
@@ -22935,10 +22935,10 @@ define(['require'], function (require) { 'use strict';
                     // If domNode.few_scope, call getComponent then update component
                     // otherwise set attribute
                     let component = getComponentFromCurrentElement( domNode );
-                    if ( component && /^\./.test( key ) ) {
+                    if ( component && /^f-/.test( key ) ) {
                         // TODO: need to exclude OOTB attribute on few-view and few-route
                         let params = {};
-                        params[key.substr( 1 )] = res;
+                        params[key.substr( 2 )] = res;
                         component.updateModel( params );
                     } else {
                         // If res is object, set it to attribute is useless
@@ -23504,8 +23504,12 @@ define(['require'], function (require) { 'use strict';
                 fragment.appendChild( childNodes[0] );
             }
             containerElem.appendChild( fragment );
+
+            // await Promise.resolve();
+
             this._view.domNode = containerElem;
             this._view.render( this._vm.model );
+            // await Promise.resolve( () => this._view.render( this._vm.model ) );
 
             // todo: later we can try to copy the component and return that when apply on different templateDef
             return null;
@@ -23805,6 +23809,25 @@ define(['require'], function (require) { 'use strict';
 
         component.loadComponentDef( componentDef );
 
+        // TODO refactor later
+        let params = {};
+        let strParser = new StringTemplateParser(  componentDef.option && componentDef.option.stringTemplate );
+        let attributes = containerElem.attributes;
+        for( let i = attributes.length; i > 0; i-- ) {
+            let name = attributes[i - 1].name;
+            let value = attributes[i - 1].value;
+
+            if ( /^f-/.test( name ) ) {
+                let template = strParser.parse( value );
+                if ( template ) {
+                    params[name.substr( 2 )] = parentComponent.getValue( template );
+                }
+                containerElem.removeAttribute( name );
+            }
+        }
+
+        component.updateModel( params );
+
         await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 
         return component;
@@ -23865,6 +23888,7 @@ define(['require'], function (require) { 'use strict';
                     // also need to destroy its ref in parent
                     // this._component.model = _.filter( modelPath );
                     // this._component.parent.remove(this._component);
+
 
                     await few$1.render( `${newValue}.yml`, this );
                 } catch ( e ) {

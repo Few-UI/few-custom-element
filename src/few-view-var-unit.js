@@ -30,7 +30,7 @@ class FewViewVarUnit extends FewViewUnit {
                 } );
             }else if( expr ) {
                 this.setInput( name, expr );
-                if ( !/^\./.test( name ) ) {
+                if ( !/^f-/.test( name ) ) {
                     domNode.setAttribute( name, '' );
                 }
             } else {
@@ -68,10 +68,10 @@ class FewViewVarUnit extends FewViewUnit {
                 // If domNode.few_scope, call getComponent then update component
                 // otherwise set attribute
                 let component = getComponentFromCurrentElement( domNode );
-                if ( component && /^\./.test( key ) ) {
+                if ( component && /^f-/.test( key ) ) {
                     // TODO: need to exclude OOTB attribute on few-view and few-route
                     let params = {};
-                    params[key.substr( 1 )] = res;
+                    params[key.substr( 2 )] = res;
                     component.updateModel( params );
                 } else {
                     // If res is object, set it to attribute is useless

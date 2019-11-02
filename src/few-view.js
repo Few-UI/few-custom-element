@@ -38,6 +38,7 @@ export default class FewView extends HTMLElement {
                 // this._component.model = _.filter( modelPath );
                 // this._component.parent.remove(this._component);
 
+
                 await few.render( `${newValue}.yml`, this );
             } catch ( e ) {
                 if ( this._currentView === newValue ) {
