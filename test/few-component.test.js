@@ -116,6 +116,95 @@ describe( 'Test few-component', () => {
         expect( docElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
+    it( 'Test then action', async() => {
+        let componentContent = [
+            'view:',
+            '  template:',
+            // eslint-disable-next-line no-template-curly-in-string
+            '    <div>${testVal}</div>',
+            'model:',
+            '  testVal: 5',
+            'action:',
+            '  subAction1:',
+            '    name: "$few_test.setValue"',
+            '    input:',
+            '      val: 7',
+            '  subAction2:',
+            '    name: "$few_test.setValue"',
+            '    input:',
+            // eslint-disable-next-line no-template-curly-in-string
+            '      val: ${scope + 1}',
+            '    output:',
+            '      testVal: ""',
+            '  testAction:',
+            '    then:',
+            '      - subAction1',
+            '      - subAction2'
+        ].join( '\n' );
+
+        let componentDef = yaml.safeLoad( componentContent );
+
+        let component = new FewComponent( componentDef );
+
+        await component.render( componentDef.view, docElem );
+
+        expect( await component.update( 'action.testAction' ) ).toEqual( 8 );
+
+        expect( component._vm.model.testVal ).toEqual( 8 );
+
+        await wait( 100 );
+        expect( docElem.innerHTML ).toEqual( '<div>8</div>' );
+    } );
+
+    it( 'Test then action with condition', async() => {
+        let componentContent = [
+            'view:',
+            '  template:',
+            // eslint-disable-next-line no-template-curly-in-string
+            '    <div>${testVal}</div>',
+            'model:',
+            '  testVal: 5',
+            'action:',
+            '  subAction1:',
+            '    name: "$few_test.setValue"',
+            '    input:',
+            '      val: 7',
+            '  subAction2:',
+            '    name: "$few_test.setValue"',
+            '    input:',
+            // eslint-disable-next-line no-template-curly-in-string
+            '      val: ${scope + 1}',
+            '    output:',
+            '      testVal: ""',
+            '  testAction:',
+            // eslint-disable-next-line no-template-curly-in-string
+            '    when: ${scope}',
+            '    then:',
+            '      - subAction1',
+            '      - subAction2'
+        ].join( '\n' );
+
+        let componentDef = yaml.safeLoad( componentContent );
+
+        let component = new FewComponent( componentDef );
+
+        await component.render( componentDef.view, docElem );
+
+        expect( await component.update( 'action.testAction', false ) );
+
+        expect( component._vm.model.testVal ).toEqual( 5 );
+
+        await wait( 100 );
+        expect( docElem.innerHTML ).toEqual( '<div>5</div>' );
+
+        expect( await component.update( 'action.testAction', true ) ).toEqual( 8 );
+
+        expect( component._vm.model.testVal ).toEqual( 8 );
+
+        await wait( 100 );
+        expect( docElem.innerHTML ).toEqual( '<div>8</div>' );
+    } );
+
     it( 'Verify action with condition', async() => {
         let componentContent = [
             'view:',

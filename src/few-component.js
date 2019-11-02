@@ -246,44 +246,35 @@ export default class FewComponent {
 
         let dep =  actionDef.import ? ( await loadModules( [ actionDef.import ] ) )[0] : this;
 
-        // backup and apply scope
-        // For now only support on level scope
-        let originArg = this._vm.model[this._option.scopePath];
-        this._setScope( scope );
 
         // evaluate condition firstly
-        if( !actionDef.when || this._evalCond( actionDef.when ) ) {
-            let input = this._evalActionInput( actionDef.input );
-            let vals = actionDef.input ? Object.values( input ) : [];
+        let input = this._evalActionInput( actionDef.input );
+        let vals = actionDef.input ? Object.values( input ) : [];
 
-            let func;
+        let func;
 
-            if ( actionDef.name ) {
-                func = _.get( dep, actionDef.name );
+        if ( actionDef.name ) {
+            func = _.get( dep, actionDef.name );
 
-                if ( !func ) {
-                    func = _.get( window, actionDef.name );
-                    dep = window;
-                }
+            if ( !func ) {
+                func = _.get( window, actionDef.name );
+                dep = window;
             }
-
-            // Vue's approach is overwrite 'this' by func.apply(data), which will will limite your
-            // JS practice. But it is fine since JS is part of its DSL.
-            res = func ? await func.apply( dep, vals ) : input;
-
-            _.forEach( actionDef.output, ( valPath, vmPath ) => {
-                this._updateModel( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
-            } );
         }
 
-        // restore origin namespace
-        if ( originArg ) {
-            this._setScope( originArg );
-        }
+        // Vue's approach is overwrite 'this' by func.apply(data), which will will limite your
+        // JS practice. But it is fine since JS is part of its DSL.
+        res = func ? await func.apply( dep, vals ) : input;
+
+        _.forEach( actionDef.output, ( valPath, vmPath ) => {
+            this._updateModel( vmPath, valPath && valPath.length > 0 ? _.get( res, valPath ) : res );
+        } );
+
 
         // scope as next input
         // return Object.assign( scope, res );
-        return res !== undefined ? res : scope;
+        // return res !== undefined ? res : scope;
+        return res;
     }
 
     /**
@@ -303,20 +294,34 @@ export default class FewComponent {
      * @returns {Promise} promise with scope value
      */
     async _update( actionDef, scope, updateView ) {
-        let res = null;
-        if ( actionDef.then ) {
-            res = await actionDef.then.reduce( async( scope, name ) => {
-                return this.update( name, await scope, false );
-            }, scope );
-        } else {
-            res = await this._executeAction( actionDef, scope );
+        let res;
+
+        // backup and apply scope
+        // For now only support on level scope
+        // TODO: this may have risk at async case
+        let originArg = this._vm.model[this._option.scopePath];
+        this._setScope( scope );
+
+        if( !actionDef.when || this._evalCond( actionDef.when ) ) {
+            if ( actionDef.then ) {
+                res = await actionDef.then.reduce( async( scope, name ) => {
+                    return this.update( name, await scope, false );
+                }, scope );
+            } else {
+                res = await this._executeAction( actionDef, scope );
+            }
+
+            if( updateView ) {
+                this.updateView();
+            }
         }
 
-        if( updateView ) {
-            this.updateView();
+        // restore origin namespace
+        if ( originArg ) {
+            this._setScope( originArg );
         }
 
-        return res;
+        return res === undefined ? scope : res;
     }
 
 
