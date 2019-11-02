@@ -22897,7 +22897,9 @@ define(['require'], function (require) { 'use strict';
                     } );
                 }else if( expr ) {
                     this.setInput( name, expr );
-                    domNode.setAttribute( name, '' );
+                    if ( !/^\./.test( name ) ) {
+                        domNode.setAttribute( name, '' );
+                    }
                 } else {
                     this.setValue( name, value );
                 }
@@ -22933,10 +22935,10 @@ define(['require'], function (require) { 'use strict';
                     // If domNode.few_scope, call getComponent then update component
                     // otherwise set attribute
                     let component = getComponentFromCurrentElement( domNode );
-                    if ( component ) {
+                    if ( component && /^\./.test( key ) ) {
                         // TODO: need to exclude OOTB attribute on few-view and few-route
                         let params = {};
-                        params[key] = res;
+                        params[key.substr( 1 )] = res;
                         component.updateModel( params );
                     } else {
                         // If res is object, set it to attribute is useless
@@ -23781,7 +23783,7 @@ define(['require'], function (require) { 'use strict';
      * custom elemenet there is no callback or event to say 'render done'
      * @param {string} componentPath path for component definition
      * @param {Element} containerElem container element that component attach to
-     * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
+     * @param {Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
      * @returns {Promise} promise can be used for next step
      */
     async function render( componentPath, containerElem, modelRef ) {
@@ -23837,7 +23839,7 @@ define(['require'], function (require) { 'use strict';
         }
 
         static get observedAttributes() {
-            return [ 'src', 'model' ];
+            return [ 'src' ];
         }
 
         constructor() {
@@ -23863,9 +23865,8 @@ define(['require'], function (require) { 'use strict';
                     // also need to destroy its ref in parent
                     // this._component.model = _.filter( modelPath );
                     // this._component.parent.remove(this._component);
-                    let modelPath = this.getAttribute( 'model' );
 
-                    await few$1.render( `${newValue}.yml`, this, modelPath );
+                    await few$1.render( `${newValue}.yml`, this );
                 } catch ( e ) {
                     if ( this._currentView === newValue ) {
                         this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

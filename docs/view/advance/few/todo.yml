@@ -3,7 +3,7 @@ view:
   template:
     <h2>Few Todo</h2>
     <few-view src="./todo-form"></few-view>
-    <few-view src="./todo-table" items="${items}"></few-view>
+    <few-view src="./todo-table" .items="${items}"></few-view>
 
 # model
 model:

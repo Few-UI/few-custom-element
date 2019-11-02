@@ -72,7 +72,7 @@ export function importDocStyle( shadowRoot ) {
  * custom elemenet there is no callback or event to say 'render done'
  * @param {string} componentPath path for component definition
  * @param {Element} containerElem container element that component attach to
- * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
+ * @param {Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
  * @returns {Promise} promise can be used for next step
  */
 export async function render( componentPath, containerElem, modelRef ) {
