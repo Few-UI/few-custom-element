@@ -61,7 +61,9 @@ export default class FewComponent {
         }, 100 );
 
         // init
-        this._loadComponentDef( componentDef );
+        if ( componentDef ) {
+            this.loadComponentDef( componentDef );
+        }
 
         // Add myself to parent
         if ( parent ) {
@@ -73,7 +75,7 @@ export default class FewComponent {
      * load component def
      * @param {Object} componentDef component definition
      */
-    _loadComponentDef( componentDef ) {
+    loadComponentDef( componentDef ) {
         /**
          * Setup options
          */

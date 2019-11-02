@@ -1,7 +1,10 @@
 /* eslint-env es6 */
-import { evalExpression } from './few-utils';
 import { getDirective } from './few-view-directive';
 import viewUnitFactory, { FewViewUnit } from './few-view-unit';
+import {
+    evalExpression,
+    getComponentFromCurrentElement
+} from './few-utils';
 
 class FewViewVarUnit extends FewViewUnit {
     /**
@@ -59,7 +62,23 @@ class FewViewVarUnit extends FewViewUnit {
             // TODO: should be string or primitive value. But still need error handling
             if ( last !== res ) {
                 this.setValue( key, res );
-                domNode.setAttribute( key, res );
+
+                // If domNode.few_scope, call getComponent then update component
+                // otherwise set attribute
+                let component = getComponentFromCurrentElement( domNode );
+                if ( component ) {
+                    // TODO: need to exclude OOTB attribute on few-view and few-route
+                    let params = {};
+                    params[key] = res;
+                    component.updateModel( params );
+                } else {
+                    // If res is object, set it to attribute is useless
+                    // But doing 'setProp if object' will make the behavior
+                    // unpredictable. Always set both may be a waste too.
+                    // For now blindly set attribute at least get consistent
+                    // behavior
+                    domNode.setAttribute( key, res );
+                }
             }
         }
 

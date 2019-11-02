@@ -22425,7 +22425,7 @@ define(['require'], function (require) { 'use strict';
     }
 
     /**
-     * Get view model context from closet parent element which has it
+     * Get component from closet parent element which has it
      *
      * @param {Element} element DOM Element
      * @returns {Object} view model object context
@@ -22438,17 +22438,23 @@ define(['require'], function (require) { 'use strict';
     }
 
     /**
+     * Get component from current element if exist
+     *
+     * @param {Element} element DOM Element
+     * @returns {Object} view model object context
+     */
+    function getComponentFromCurrentElement( element ) {
+        // TODO: can be enhanced by some flag for 'progressing component'
+        return element._vm;
+    }
+
+    /**
      * Get closest few view element
      *
      * @param {Element} element Current DOM Element
      * @returns {Element} Closest parent element which has view model context
      */
     function getViewElement( element ) {
-        /*
-        let scopeElem = getScopeElement( element );
-        if ( scopeElem ) {
-            return scopeElem.parentElement;
-        }*/
         return getScopeElement( element );
     }
 
@@ -22923,7 +22929,23 @@ define(['require'], function (require) { 'use strict';
                 // TODO: should be string or primitive value. But still need error handling
                 if ( last !== res ) {
                     this.setValue( key, res );
-                    domNode.setAttribute( key, res );
+
+                    // If domNode.few_scope, call getComponent then update component
+                    // otherwise set attribute
+                    let component = getComponentFromCurrentElement( domNode );
+                    if ( component ) {
+                        // TODO: need to exclude OOTB attribute on few-view and few-route
+                        let params = {};
+                        params[key] = res;
+                        component.updateModel( params );
+                    } else {
+                        // If res is object, set it to attribute is useless
+                        // But doing 'setProp if object' will make the behavior
+                        // unpredictable. Always set both may be a waste too.
+                        // For now blindly set attribute at least get consistent
+                        // behavior
+                        domNode.setAttribute( key, res );
+                    }
                 }
             }
 
@@ -23395,7 +23417,9 @@ define(['require'], function (require) { 'use strict';
             }, 100 );
 
             // init
-            this._loadComponentDef( componentDef );
+            if ( componentDef ) {
+                this.loadComponentDef( componentDef );
+            }
 
             // Add myself to parent
             if ( parent ) {
@@ -23407,7 +23431,7 @@ define(['require'], function (require) { 'use strict';
          * load component def
          * @param {Object} componentDef component definition
          */
-        _loadComponentDef( componentDef ) {
+        loadComponentDef( componentDef ) {
             /**
              * Setup options
              */
@@ -23768,11 +23792,16 @@ define(['require'], function (require) { 'use strict';
         // For not no check for non-string behavior
         let model =  ( typeof modelRef === 'string' || modelRef instanceof String ) && parentComponent && modelRef  ? parentComponent.getValue( modelRef ) : modelRef;
 
+        // Create component and call init definition
+        let component = new FewComponent( undefined, parentComponent,  model );
+
+        // setComponent( containerElem, component );
+        containerElem._vm = component;
+
         // load component definition
         let componentDef = await loadComponent( componentPath );
 
-        // Create component and call init definition
-        let component = new FewComponent( componentDef, parentComponent,  model );
+        component.loadComponentDef( componentDef );
 
         await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 

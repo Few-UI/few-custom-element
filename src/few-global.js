@@ -13,7 +13,8 @@ import {
     loadModules,
     setModuleLoader,
     loadComponent,
-    setComponentLoader
+    setComponentLoader,
+    setComponent
 } from './few-utils';
 
 let exports;
@@ -82,11 +83,16 @@ export async function render( componentPath, containerElem, modelRef ) {
     // For not no check for non-string behavior
     let model =  ( typeof modelRef === 'string' || modelRef instanceof String ) && parentComponent && modelRef  ? parentComponent.getValue( modelRef ) : modelRef;
 
+    // Create component and call init definition
+    let component = new FewComponent( undefined, parentComponent,  model );
+
+    // setComponent( containerElem, component );
+    containerElem._vm = component;
+
     // load component definition
     let componentDef = await loadComponent( componentPath );
 
-    // Create component and call init definition
-    let component = new FewComponent( componentDef, parentComponent,  model );
+    component.loadComponentDef( componentDef );
 
     await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 
