@@ -23481,6 +23481,12 @@ define(['require'], function (require) { 'use strict';
          * @returns {Promise} promise can be used for next step
          */
         async render( viewDef, containerElem, urlData = {} ) {
+            // load predefined model
+            this._modelDef = containerElem.getAttribute( 'model' );
+            if ( this._modelDef && this._parent ) {
+                mergeModel( this._vm.model, this._parent.getValue( this._modelDef ) );
+            }
+
             // Load init action
             if ( this._vm.init ) {
                 await this._update( this._vm.init, undefined, false );
@@ -23535,12 +23541,21 @@ define(['require'], function (require) { 'use strict';
            } );
         }
 
-        // _updateViewDebounce = _.debounce(_updateView);
+        _updateModelDef() {
+            if ( this._modelDef && this._parent ) {
+                mergeModel( this._vm.model, this._parent.getValue( this._modelDef ) );
+            }
+
+            lodash.forEach( this._children, ( c ) => {
+                c._updateModelDef();
+           } );
+        }
 
         updateView() {
             if ( this._parent ) {
                 this._parent.updateView();
             } else {
+                this._updateModelDef();
                 this._updateViewDebounce();
             }
         }
@@ -23801,16 +23816,15 @@ define(['require'], function (require) { 'use strict';
      * custom elemenet there is no callback or event to say 'render done'
      * @param {string} componentPath path for component definition
      * @param {Element} containerElem container element that component attach to
-     * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
+     * @param {Object} modelRef model input
      * @returns {Promise} promise can be used for next step
      */
     async function render( componentPath, containerElem, modelRef ) {
         // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
         let parentComponent = getComponent( containerElem );
 
-        // load from parent
-        // For not no check for non-string behavior
-        let model =  ( typeof modelRef === 'string' || modelRef instanceof String ) && parentComponent && modelRef  ? parentComponent.getValue( modelRef ) : modelRef;
+        // input model
+        let model =  modelRef;
 
         // load component definition
         let componentDef = await loadComponent( componentPath );
@@ -23852,7 +23866,7 @@ define(['require'], function (require) { 'use strict';
         }
 
         static get observedAttributes() {
-            return [ 'src', 'model' ];
+            return [ 'src' ];
         }
 
         constructor() {
@@ -23878,9 +23892,8 @@ define(['require'], function (require) { 'use strict';
                     // also need to destroy its ref in parent
                     // this._component.model = _.filter( modelPath );
                     // this._component.parent.remove(this._component);
-                    let modelPath = this.getAttribute( 'model' );
 
-                    await few$1.render( `${newValue}.yml`, this, modelPath );
+                    await few$1.render( `${newValue}.yml`, this );
                 } catch ( e ) {
                     if ( this._currentView === newValue ) {
                         this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

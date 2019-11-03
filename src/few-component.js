@@ -137,6 +137,12 @@ export default class FewComponent {
      * @returns {Promise} promise can be used for next step
      */
     async render( viewDef, containerElem, urlData = {} ) {
+        // load predefined model
+        this._modelDef = containerElem.getAttribute( 'model' );
+        if ( this._modelDef && this._parent ) {
+            mergeModel( this._vm.model, this._parent.getValue( this._modelDef ) );
+        }
+
         // Load init action
         if ( this._vm.init ) {
             await this._update( this._vm.init, undefined, false );
@@ -191,12 +197,21 @@ export default class FewComponent {
        } );
     }
 
-    // _updateViewDebounce = _.debounce(_updateView);
+    _updateModelDef() {
+        if ( this._modelDef && this._parent ) {
+            mergeModel( this._vm.model, this._parent.getValue( this._modelDef ) );
+        }
+
+        _.forEach( this._children, ( c ) => {
+            c._updateModelDef();
+       } );
+    }
 
     updateView() {
         if ( this._parent ) {
             this._parent.updateView();
         } else {
+            this._updateModelDef();
             this._updateViewDebounce();
         }
     }

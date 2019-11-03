@@ -11,7 +11,7 @@ export default class FewView extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return [ 'src', 'model' ];
+        return [ 'src' ];
     }
 
     constructor() {
@@ -37,9 +37,8 @@ export default class FewView extends HTMLElement {
                 // also need to destroy its ref in parent
                 // this._component.model = _.filter( modelPath );
                 // this._component.parent.remove(this._component);
-                let modelPath = this.getAttribute( 'model' );
 
-                await few.render( `${newValue}.yml`, this, modelPath );
+                await few.render( `${newValue}.yml`, this );
             } catch ( e ) {
                 if ( this._currentView === newValue ) {
                     this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );
