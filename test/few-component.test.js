@@ -241,7 +241,7 @@ describe( 'Test few-component', () => {
 
         expect( component._vm.model.testVal ).toEqual( 7 );
 
-        await wait( 100 );
+        await wait( 200 );
         expect( docElem.innerHTML ).toEqual( '<div>7</div>' );
     } );
 
