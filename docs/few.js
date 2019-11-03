@@ -22425,7 +22425,7 @@ define(['require'], function (require) { 'use strict';
     }
 
     /**
-     * Get component from closet parent element which has it
+     * Get view model context from closet parent element which has it
      *
      * @param {Element} element DOM Element
      * @returns {Object} view model object context
@@ -22438,23 +22438,17 @@ define(['require'], function (require) { 'use strict';
     }
 
     /**
-     * Get component from current element if exist
-     *
-     * @param {Element} element DOM Element
-     * @returns {Object} view model object context
-     */
-    function getComponentFromCurrentElement( element ) {
-        // TODO: can be enhanced by some flag for 'progressing component'
-        return element._vm;
-    }
-
-    /**
      * Get closest few view element
      *
      * @param {Element} element Current DOM Element
      * @returns {Element} Closest parent element which has view model context
      */
     function getViewElement( element ) {
+        /*
+        let scopeElem = getScopeElement( element );
+        if ( scopeElem ) {
+            return scopeElem.parentElement;
+        }*/
         return getScopeElement( element );
     }
 
@@ -22897,9 +22891,7 @@ define(['require'], function (require) { 'use strict';
                     } );
                 }else if( expr ) {
                     this.setInput( name, expr );
-                    if ( !/^f-/.test( name ) ) {
-                        domNode.setAttribute( name, '' );
-                    }
+                    domNode.setAttribute( name, '' );
                 } else {
                     this.setValue( name, value );
                 }
@@ -22931,23 +22923,7 @@ define(['require'], function (require) { 'use strict';
                 // TODO: should be string or primitive value. But still need error handling
                 if ( last !== res ) {
                     this.setValue( key, res );
-
-                    // If domNode.few_scope, call getComponent then update component
-                    // otherwise set attribute
-                    let component = getComponentFromCurrentElement( domNode );
-                    if ( component && /^f-/.test( key ) ) {
-                        // TODO: need to exclude OOTB attribute on few-view and few-route
-                        let params = {};
-                        params[key.substr( 2 )] = res;
-                        component.updateModel( params );
-                    } else {
-                        // If res is object, set it to attribute is useless
-                        // But doing 'setProp if object' will make the behavior
-                        // unpredictable. Always set both may be a waste too.
-                        // For now blindly set attribute at least get consistent
-                        // behavior
-                        domNode.setAttribute( key, res );
-                    }
+                    domNode.setAttribute( key, res );
                 }
             }
 
@@ -23419,9 +23395,7 @@ define(['require'], function (require) { 'use strict';
             }, 100 );
 
             // init
-            if ( componentDef ) {
-                this.loadComponentDef( componentDef );
-            }
+            this._loadComponentDef( componentDef );
 
             // Add myself to parent
             if ( parent ) {
@@ -23433,7 +23407,7 @@ define(['require'], function (require) { 'use strict';
          * load component def
          * @param {Object} componentDef component definition
          */
-        loadComponentDef( componentDef ) {
+        _loadComponentDef( componentDef ) {
             /**
              * Setup options
              */
@@ -23504,12 +23478,8 @@ define(['require'], function (require) { 'use strict';
                 fragment.appendChild( childNodes[0] );
             }
             containerElem.appendChild( fragment );
-
-            // await Promise.resolve();
-
             this._view.domNode = containerElem;
             this._view.render( this._vm.model );
-            // await Promise.resolve( () => this._view.render( this._vm.model ) );
 
             // todo: later we can try to copy the component and return that when apply on different templateDef
             return null;
@@ -23787,7 +23757,7 @@ define(['require'], function (require) { 'use strict';
      * custom elemenet there is no callback or event to say 'render done'
      * @param {string} componentPath path for component definition
      * @param {Element} containerElem container element that component attach to
-     * @param {Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
+     * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
      * @returns {Promise} promise can be used for next step
      */
     async function render( componentPath, containerElem, modelRef ) {
@@ -23798,35 +23768,11 @@ define(['require'], function (require) { 'use strict';
         // For not no check for non-string behavior
         let model =  ( typeof modelRef === 'string' || modelRef instanceof String ) && parentComponent && modelRef  ? parentComponent.getValue( modelRef ) : modelRef;
 
-        // Create component and call init definition
-        let component = new FewComponent( undefined, parentComponent,  model );
-
-        // setComponent( containerElem, component );
-        containerElem._vm = component;
-
         // load component definition
         let componentDef = await loadComponent( componentPath );
 
-        component.loadComponentDef( componentDef );
-
-        // TODO refactor later
-        let params = {};
-        let strParser = new StringTemplateParser(  componentDef.option && componentDef.option.stringTemplate );
-        let attributes = containerElem.attributes;
-        for( let i = attributes.length; i > 0; i-- ) {
-            let name = attributes[i - 1].name;
-            let value = attributes[i - 1].value;
-
-            if ( /^f-/.test( name ) ) {
-                let template = strParser.parse( value );
-                if ( template ) {
-                    params[name.substr( 2 )] = parentComponent.getValue( template );
-                }
-                containerElem.removeAttribute( name );
-            }
-        }
-
-        component.updateModel( params );
+        // Create component and call init definition
+        let component = new FewComponent( componentDef, parentComponent,  model );
 
         await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 
@@ -23862,7 +23808,7 @@ define(['require'], function (require) { 'use strict';
         }
 
         static get observedAttributes() {
-            return [ 'src' ];
+            return [ 'src', 'model' ];
         }
 
         constructor() {
@@ -23888,9 +23834,9 @@ define(['require'], function (require) { 'use strict';
                     // also need to destroy its ref in parent
                     // this._component.model = _.filter( modelPath );
                     // this._component.parent.remove(this._component);
+                    let modelPath = this.getAttribute( 'model' );
 
-
-                    await few$1.render( `${newValue}.yml`, this );
+                    await few$1.render( `${newValue}.yml`, this, modelPath );
                 } catch ( e ) {
                     if ( this._currentView === newValue ) {
                         this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

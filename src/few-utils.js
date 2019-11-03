@@ -185,7 +185,7 @@ export function setComponent( element, componentObj ) {
 }
 
 /**
- * Get component from closet parent element which has it
+ * Get view model context from closet parent element which has it
  *
  * @param {Element} element DOM Element
  * @returns {Object} view model object context
@@ -198,23 +198,17 @@ export function getComponent( element ) {
 }
 
 /**
- * Get component from current element if exist
- *
- * @param {Element} element DOM Element
- * @returns {Object} view model object context
- */
-export function getComponentFromCurrentElement( element ) {
-    // TODO: can be enhanced by some flag for 'progressing component'
-    return element._vm;
-}
-
-/**
  * Get closest few view element
  *
  * @param {Element} element Current DOM Element
  * @returns {Element} Closest parent element which has view model context
  */
 export function getViewElement( element ) {
+    /*
+    let scopeElem = getScopeElement( element );
+    if ( scopeElem ) {
+        return scopeElem.parentElement;
+    }*/
     return getScopeElement( element );
 }
 

@@ -104,7 +104,7 @@ describe( 'Test few-view element', () => {
             '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
-        await wait( 150 );
+        await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
             '<few-view src="testView" id="testView" class="few-scope">',
@@ -129,7 +129,7 @@ describe( 'Test few-view element', () => {
             '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
-        await wait( 150 );
+        await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
             '<few-view src="testView" id="testView" class="few-scope">',
@@ -159,7 +159,7 @@ describe( 'Test few-view element', () => {
             '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
-        await wait( 150 );
+        await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
             '<few-view src="testView" id="testView" class="few-scope">',
@@ -192,7 +192,7 @@ describe( 'Test few-view element', () => {
             '<few-view src="testView"></few-view>'
         ].join( '' ) ) );
 
-        await wait( 150 );
+        await wait( 50 );
 
         expect( docElem.firstChild.innerHTML ).toEqual( [
             '<few-view src="testView" id="testView" class="few-scope">',
@@ -236,7 +236,7 @@ describe( 'Test few-view element', () => {
             '<few-view src="firstView" id="change"></few-view>'
         ].join( '' ) ) );
 
-        await wait( 150 );
+        await wait( 50 );
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
@@ -246,7 +246,7 @@ describe( 'Test few-view element', () => {
         ].join( '' ) );
 
         elem.setAttribute( 'src', 'secondView' );
-        await wait( 200 );
+        await wait( 100 );
 
         expect( elem.outerHTML ).toEqual( [
             '<few-view src="secondView" id="change" class="few-scope">',
@@ -255,8 +255,7 @@ describe( 'Test few-view element', () => {
         ].join( '' ) );
     } );
 
-    // TODO: Cannot run properly because of polyfill
-    xit( 'Verify few-view can be rendered correctly with model from parent', async() => {
+    it( 'Verify few-view can be rendered correctly with model from parent', async() => {
         let parentViewContent = [
             'view:',
             '  template:',
@@ -264,8 +263,7 @@ describe( 'Test few-view element', () => {
                 '    ',
                 // eslint-disable-next-line no-template-curly-in-string
                 '<div>${ctx.testVal}</div>',
-                // eslint-disable-next-line no-template-curly-in-string
-                '<few-view src="subView" f-pval="${ctx.testVal}"></few-view>'
+                '<few-view src="subView" model="ctx"></few-view>'
             ].join( '' ),
             'model:',
             '  ctx:',
@@ -276,7 +274,7 @@ describe( 'Test few-view element', () => {
             'view:',
             '  template:',
             // eslint-disable-next-line no-template-curly-in-string
-            '    <code>${pval}</div>',
+            '    <code>${testVal}</div>',
             'model:',
             '  dummy: 7'
         ];
@@ -293,13 +291,13 @@ describe( 'Test few-view element', () => {
             '<few-view src="parentView"></few-view>'
         ].join( '' ) ) );
 
-        await wait( 200 );
+        await wait( 100 );
 
         let elem = docElem.firstChild.firstChild;
         expect( elem.outerHTML ).toEqual( [
             '<few-view src="parentView" id="parentView" class="few-scope">',
               '<div>5</div>',
-              '<few-view src="subView" id="subView" class="few-scope">',
+              '<few-view src="subView" model="ctx" id="subView" class="few-scope">',
                 '<code>5</code>',
               '</few-view>',
             '</few-view>'

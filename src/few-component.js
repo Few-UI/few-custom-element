@@ -61,9 +61,7 @@ export default class FewComponent {
         }, 100 );
 
         // init
-        if ( componentDef ) {
-            this.loadComponentDef( componentDef );
-        }
+        this._loadComponentDef( componentDef );
 
         // Add myself to parent
         if ( parent ) {
@@ -75,7 +73,7 @@ export default class FewComponent {
      * load component def
      * @param {Object} componentDef component definition
      */
-    loadComponentDef( componentDef ) {
+    _loadComponentDef( componentDef ) {
         /**
          * Setup options
          */
@@ -146,12 +144,8 @@ export default class FewComponent {
             fragment.appendChild( childNodes[0] );
         }
         containerElem.appendChild( fragment );
-
-        // await Promise.resolve();
-
         this._view.domNode = containerElem;
         this._view.render( this._vm.model );
-        // await Promise.resolve( () => this._view.render( this._vm.model ) );
 
         // todo: later we can try to copy the component and return that when apply on different templateDef
         return null;

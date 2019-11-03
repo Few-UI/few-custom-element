@@ -3,7 +3,7 @@ view:
   template:
     <div>
       <h2>View in View</h2>
-      <few-view id="sub-form" src="./tree-child" f-pval="${testValue}"></few-view>
+      <few-view id="sub-form" src="./tree-child" model="dialogContext"></few-view>
       <h3>Update from Form</h3>
       <code>${'Name in Form:' + testMsg}</code>
     </div>
@@ -11,7 +11,8 @@ view:
 # model
 model:
   testMsg: ''
-  testValue: Text from parent!
+  dialogContext:
+    valueFromParent: Text from parent!
 
 # update
 action:
@@ -27,9 +28,9 @@ action:
     import: lib/sample-utils
     name: log
     input:
-      message: ${testValue + "+" + scope}
+      message: ${dialogContext.valueFromParent + "+" + scope}
     output:
-      testValue: ''
+      dialogContext.valueFromParent: ''
 
   sub-form:
     submitData:

@@ -2,19 +2,20 @@
 view:
   template:
     <h2>Few Todo</h2>
-    <few-view src="./todo-form"></few-view>
-    <few-view src="./todo-table" f-items="${items}"></few-view>
+    <few-view src="view/advance/few/todo-form"></few-view>
+    <few-view src="view/advance/few/todo-table" model="todo"></few-view>
 
 # model
 model:
-  items: []
+  todo:
+    items: []
 
 # update
 action:
   todo-form:
     addTodo:
       input:
-        updatedItems: ${items.concat([few.getFormInput(scope.target)])}
+        updatedItems: ${todo.items.concat([few.getFormInput(scope.target)])}
       output:
-        items: updatedItems
+        todo.items: updatedItems
 

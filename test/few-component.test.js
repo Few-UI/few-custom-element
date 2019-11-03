@@ -194,14 +194,14 @@ describe( 'Test few-component', () => {
 
         expect( component._vm.model.testVal ).toEqual( 5 );
 
-        await wait( 250 );
+        await wait( 100 );
         expect( docElem.innerHTML ).toEqual( '<div>5</div>' );
 
         expect( await component.update( 'action.testAction', true ) ).toEqual( 8 );
 
         expect( component._vm.model.testVal ).toEqual( 8 );
 
-        await wait( 150 );
+        await wait( 100 );
         expect( docElem.innerHTML ).toEqual( '<div>8</div>' );
     } );
 
@@ -234,7 +234,7 @@ describe( 'Test few-component', () => {
 
         expect( component._vm.model.testVal ).toEqual( 5 );
 
-        await wait( 200 );
+        await wait( 100 );
         expect( docElem.innerHTML ).toEqual( '<div>5</div>' );
 
         expect( await component.update( 'testAction', { enable: true } ) ).toEqual( 7 );

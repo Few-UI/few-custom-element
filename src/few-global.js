@@ -13,10 +13,8 @@ import {
     loadModules,
     setModuleLoader,
     loadComponent,
-    setComponentLoader,
-    setComponent
+    setComponentLoader
 } from './few-utils';
-import StringTemplateParser from './string-template-parser';
 
 let exports;
 
@@ -73,7 +71,7 @@ export function importDocStyle( shadowRoot ) {
  * custom elemenet there is no callback or event to say 'render done'
  * @param {string} componentPath path for component definition
  * @param {Element} containerElem container element that component attach to
- * @param {Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
+ * @param {string|Object} modelRef model(as Object) or model path(as string) to fetch model from parent ( if parent exist )
  * @returns {Promise} promise can be used for next step
  */
 export async function render( componentPath, containerElem, modelRef ) {
@@ -84,35 +82,11 @@ export async function render( componentPath, containerElem, modelRef ) {
     // For not no check for non-string behavior
     let model =  ( typeof modelRef === 'string' || modelRef instanceof String ) && parentComponent && modelRef  ? parentComponent.getValue( modelRef ) : modelRef;
 
-    // Create component and call init definition
-    let component = new FewComponent( undefined, parentComponent,  model );
-
-    // setComponent( containerElem, component );
-    containerElem._vm = component;
-
     // load component definition
     let componentDef = await loadComponent( componentPath );
 
-    component.loadComponentDef( componentDef );
-
-    // TODO refactor later
-    let params = {};
-    let strParser = new StringTemplateParser(  componentDef.option && componentDef.option.stringTemplate );
-    let attributes = containerElem.attributes;
-    for( let i = attributes.length; i > 0; i-- ) {
-        let name = attributes[i - 1].name;
-        let value = attributes[i - 1].value;
-
-        if ( /^f-/.test( name ) ) {
-            let template = strParser.parse( value );
-            if ( template ) {
-                params[name.substr( 2 )] = parentComponent.getValue( template );
-            }
-            containerElem.removeAttribute( name );
-        }
-    }
-
-    component.updateModel( params );
+    // Create component and call init definition
+    let component = new FewComponent( componentDef, parentComponent,  model );
 
     await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 

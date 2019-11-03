@@ -2,7 +2,7 @@
 view:
   template:
     <few-view src="view/frame">
-      <few-view slot="primary" src="view/toc" f-toc="${tocModel}"></few-view>
+      <few-view slot="primary" src="view/toc" model="tocModel"></few-view>
       <div slot="secondary">
         <div f-when="/\.yml$/.test(tocModel.items[tocModel.selection].src)"
               class="few-sample-app-md-align-polyfill">
