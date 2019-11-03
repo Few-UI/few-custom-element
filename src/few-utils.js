@@ -320,7 +320,7 @@ export function setComponentLoader( callback ) {
  */
 export function isPrimitive( val ) {
   const type = typeof val;
-  return type === 'number' || type === 'string';
+  return type === 'number' || type === 'string' || type === 'boolean';
 }
 
 export const isArray = Array.isArray;
