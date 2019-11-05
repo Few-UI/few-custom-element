@@ -55,7 +55,7 @@ class TodoTableLitElement extends LitElement {
         `;
     }
 
-    // AFX: Trick to not use shadow-dom for getting CSS Effect for now.
+    // Trick to not use shadow-dom for getting CSS Effect for now.
     // https://github.com/Polymer/lit-element/issues/42
     // Long-term solution should be use shadow-dom.
     // Note: non-shadow dom doesn't support slot/transclude
