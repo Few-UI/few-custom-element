@@ -57,7 +57,6 @@ class TodoFormLitElement extends LitElement {
          * To create a `TemplateResult`, tag a JavaScript template literal
          * with the `html` helper function:
          */
-        this.dummy;
         return html `
           <form @submit="${this.submitInfo}">
             <label for="item">Todo:</label>

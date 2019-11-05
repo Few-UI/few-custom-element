@@ -41,7 +41,6 @@ class TodoLitElement extends LitElement {
          * To create a `TemplateResult`, tag a JavaScript template literal
          * with the `html` helper function:
          */
-        this.dummy;
         return html `
           <h2>Lit Todo</h2>
           <lit-todo-form @add-todo="${this.addTodo}">

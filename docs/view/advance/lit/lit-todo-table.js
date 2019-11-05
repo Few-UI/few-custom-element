@@ -34,7 +34,6 @@ class TodoTableLitElement extends LitElement {
          * To create a `TemplateResult`, tag a JavaScript template literal
          * with the `html` helper function:
          */
-        this.dummy;
         return html `
           <table>
             <thead>
