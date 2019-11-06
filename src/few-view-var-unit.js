@@ -1,5 +1,5 @@
 /* eslint-env es6 */
-import { evalExpression } from './few-utils';
+import { evalExpression, getComponent } from './few-utils';
 import { getDirective } from './few-view-directive';
 import viewUnitFactory, { FewViewUnit } from './few-view-unit';
 
@@ -19,7 +19,18 @@ class FewViewVarUnit extends FewViewUnit {
             // TODO: if it is directive
             if( getDirective( name ) ) {
                 this.setDirective( name, value );
-            } else if ( /^@.+/.test( name ) ) {
+            // TODO: move it as separate unit later
+            } else if ( name === 'f-bind' ) {
+                // blindly bind with .value for now
+                this.setInput( 'value', value );
+                // domNode.setAttribute( 'value', '' );
+                domNode.addEventListener( 'input', ( e ) => {
+                    let component = getComponent( e.target );
+                    let params = {};
+                    params[value] = e.target.value;
+                    component.updateModel( params );
+                } );
+            }else if ( /^@.+/.test( name ) ) {
                 let evtName = name.replace( /^@/, '' );
                 domNode.addEventListener( evtName, ( e ) => {
                     // eslint-disable-next-line no-undef
