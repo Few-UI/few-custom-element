@@ -1,5 +1,4 @@
 /* eslint-env es6 */
-import set from 'lodash/set';
 import _ from 'lodash';
 import fewViewFactory from './few-view-factory';
 import StringTemplateParser from './string-template-parser';
@@ -223,7 +222,7 @@ export default class FewComponent {
      * @param {string} value value itself
      */
     _updateModel( path, value ) {
-        set( this._vm.model, path, value );
+        _.set( this._vm.model, path, value );
         this._isDirty = true;
     }
 
