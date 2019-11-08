@@ -1,7 +1,12 @@
 /* eslint-env es6 */
-import { evalExpression, getComponent } from './few-utils';
 import { getDirective } from './few-view-directive';
 import viewUnitFactory, { FewViewUnit } from './few-view-unit';
+import {
+    evalExpression,
+    getComponent,
+    cloneDeepJsonObject,
+    deepEqual
+} from './few-utils';
 
 class FewViewVarUnit extends FewViewUnit {
     /**
@@ -16,9 +21,12 @@ class FewViewVarUnit extends FewViewUnit {
 
             let expr = this._parser.parse( value );
 
-            // TODO: if it is directive
-            if( getDirective( name ) ) {
+            let directive = getDirective( name );
+            if( directive ) {
                 this.setDirective( name, value );
+                if( directive.compile ) {
+                    directive.compile( domNode, value );
+                }
             // TODO: move it as separate unit later
             } else if ( name === 'f-bind' ) {
                 // blindly bind with .value for now
@@ -67,10 +75,15 @@ class FewViewVarUnit extends FewViewUnit {
         for( let key in inputScope ) {
             let res = evalExpression( inputScope[key], vm, true );
             let last = this.getValue( key );
-            // TODO: should be string or primitive value. But still need error handling
-            if ( last !== res ) {
-                this.setValue( key, res );
-                domNode.setAttribute( key, res );
+            // Supports object too
+            if ( !deepEqual( last, res ) ) {
+                if( key.startsWith( ':' ) ) {
+                    this.setValue( key, cloneDeepJsonObject( res ) );
+                    domNode[key.substr( 1 )] = res;
+                } else {
+                    this.setValue( key, res );
+                    domNode.setAttribute( key, res );
+                }
             }
         }
 
@@ -83,8 +96,11 @@ class FewViewVarUnit extends FewViewUnit {
             let last = this.getValue( key );
             let res = evalExpression( directives[key], vm, true );
             if ( !this.hasValue( key ) || last !== res ) {
-                getDirective( key ).update( this, res );
-                this.setValue( key, res );
+                let directive = getDirective( key );
+                if ( directive.update ) {
+                    directive.update( this, res );
+                    this.setValue( key, res );
+                }
             }
         }
 
