@@ -70,7 +70,9 @@
                                             +-----------+
 ```
 
-## A perfect example for calculator
+## An example for calculator
+
+Given viewModel:
 ```
 class Calculator
 {
@@ -85,4 +87,118 @@ class Calculator
 }
 ```
 
+A real state machine description:
+```
+class Calculator
+{
+    var valueFirst : string = "";
+    var op : string = "";
+    prop Value : string = "0";
+
+    func Update(value : string) : void
+    {
+        SetValue(value);
+        valueFirst = value;
+    }
+
+    func Calculate() : void
+    {
+        if (valueFirst == "")
+        {
+            valueFirst = value;
+        }
+        else if (op == "+")
+        {
+            Update((cast double valueFirst) + (cast double Value));
+        }
+        else if (op == "*")
+        {
+            Update((cast double valueFirst) * (cast double Value));
+        }
+        else
+        {
+            raise $"Unrecognized operator: $(op)";
+        }
+    }
+
+    $state_machine
+    {
+        $state_input Digit(i : int);
+        $state_input Dot();
+        $state_input Add();
+        $state_input Mul();
+        $state_input Equal();
+        $state_input Clear();
+
+        $state Digits()
+        {
+            $switch(pass)
+            {
+                case Digit(i)
+                {
+                    Value = Value & i;
+                    $goto_state Digits();
+                }
+            }
+        }
+
+        $state Integer(newNumber: bool)
+        {
+            $switch(pass)
+            {
+                case Digit(i)
+                {
+                    if (newNumber)
+                    {
+                        Value = i;
+                    }
+                    else
+                    {
+                        Value = Value & i;
+                    }
+                    $goto_state Digits();
+                }
+            }
+        }
+
+        $state Number()
+        {
+            $push_state Integer(true);
+            $switch(pass_and_return)
+            {
+                case Dot()
+                {
+                    Value = Value & ".";
+                }
+            }
+            $push_state Integer(false);
+        }
+
+        $state Calculate()
+        {
+            $push_state Number();
+            $switch
+            {
+                case Add():     {Calculate(); op = "+";}
+                case Mul():     {Calculate(); op = "-";}
+                case Equal():   {Calculate(); op = "=";}
+                case Clear():
+                {
+                    valueFirst = "";
+                    op = "";
+                    Value = "0";
+                }
+            }
+            $goto_state Calculate();
+        }
+
+        $state
+        {
+            $goto_state Calculate();
+        }
+    }
+}
+```
+
+I don't think we really care about the state in this granularity - it is adding the complexity in unecessary way
 
