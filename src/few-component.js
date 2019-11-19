@@ -1,5 +1,4 @@
 /* eslint-env es6 */
-import set from 'lodash/set';
 import _ from 'lodash';
 import fewViewFactory from './few-view-factory';
 import StringTemplateParser from './string-template-parser';
@@ -223,19 +222,23 @@ export default class FewComponent {
      * @param {string} value value itself
      */
     _updateModel( path, value ) {
-        set( this._vm.model, path, value );
+        _.set( this._vm.model, path, value );
         this._isDirty = true;
     }
 
     /**
      * update model in component
      * @param {Object} params parameters as name value pair, for deep update make sure to put full path like 'a.b.c'
+     * @param {Boolean} updateView if true will update the view
      */
-    updateModel( params ) {
+    updateModel( params, updateView = true ) {
         for( let key in params ) {
             this._updateModel( key, params[key] );
         }
-        this.updateView();
+
+        if( updateView ) {
+            this.updateView();
+        }
     }
 
     /**

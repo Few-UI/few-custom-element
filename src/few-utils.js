@@ -74,6 +74,18 @@ export function cloneDeepJsonObject( obj ) {
 }
 
 /**
+ * fastest way to compare a pure JSON object, use on your own risk
+ * https://www.mattzeunert.com/2016/01/28/javascript-deep-equal.html
+ *
+ * @param {Object} obj Current DOM Element
+ * @returns {Object} new cloned object
+ */
+export function deepEqual( a, b ) {
+    return isPrimitive( a ) || isPrimitive( b ) ? a === b :
+        JSON.stringify( a ) === JSON.stringify( b );
+}
+
+/**
  * get form input from Form HTML Element
  * @param {Element} elem Form element
  * @returns {Object} from input as name value pair

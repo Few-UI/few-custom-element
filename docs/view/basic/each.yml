@@ -4,7 +4,8 @@ view:
     <h2>Each</h2>
     <form @submit="action.addTodo">
       <label for="item">Type and Enter:</label>
-      <input id="item" type="text" name="item_desc" />
+      <input id="item" type="text" f-bind="item_desc" />
+      <code> ${ item_desc } </code>
     </form>
 
     <ul>
@@ -19,7 +20,7 @@ model:
 action:
   addTodo:
     input:
-      formInput: ${items.concat([few.getFormInput(scope.target)])}
+      formInput: ${items.concat([{item_desc:item_desc}])}
     output:
       items: formInput
 

@@ -57,7 +57,6 @@ class TodoFormLitElement extends LitElement {
          * To create a `TemplateResult`, tag a JavaScript template literal
          * with the `html` helper function:
          */
-        this.dummy;
         return html `
           <form @submit="${this.submitInfo}">
             <label for="item">Todo:</label>
@@ -97,7 +96,7 @@ class TodoFormLitElement extends LitElement {
         this.dispatchEvent( event );
     }
 
-    // AFX: Trick to not use shadow-dom for getting CSS Effect for now.
+    // Trick to not use shadow-dom for getting CSS Effect for now.
     // https://github.com/Polymer/lit-element/issues/42
     // Long-term solution should be use shadow-dom.
     // Note: non-shadow dom doesn't support slot/transclude
