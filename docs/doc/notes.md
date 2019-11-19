@@ -37,3 +37,4 @@ No, we should treat sub component as black box. It doesn't has flexibility like 
 - [VDOM](https://github.com/livoras/blog/issues/13)
 - [MV*](https://github.com/livoras/blog/issues/11)
 - [snabbdom](https://github.com/creeperyang/blog/tree/master/codes/snabbdom)
+- [coroutine state machine](https://zhuanlan.zhihu.com/p/31001684)

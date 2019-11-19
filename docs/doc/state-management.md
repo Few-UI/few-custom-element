@@ -1,12 +1,5 @@
-# Design
-- 'Action' is the connection for `View => Model`
-  - When view event triggered, a 'message' as action name will be send to component
-  - Message can be processed by current model, by actionDef defined under the `actionName`.
-  - Message can be processed by direct parent model, by actionDef defined under `childId.actionName`.
-- `Model => View` is simple reactive update without user knowing it
-- No talking between different component, no global event bus
 
-# How ELM define a component
+# ELM
 - Type definition
   - Model -> Model type only
   - Message (Action name)
@@ -38,9 +31,58 @@
 - When I have to hack in to sub component, I would rather to re-write one - with maximum possible reusability on former one.
 - When sub component needs to talk with parent, send a message with data up is fine, but what to sent should be decided by sub component
 
-# How Vue define component interaction
+# VUE
 - At parent element, use `v-bind:items="todoList"` to pass in data. `items` is attribute on child scope, `todoList` is key on parent scope.
 - At child component, define `v-on:click="$emit('enlarge-text', 0.1)"`.
 - At parent component, define `v-on:enlarge-text="postFontSize += $event"`.
   - Or if `v-on:enlarge-text="onEnlargeText"`, 0.1 will be 1st param of callback `onEnlargeText`.
+
+# React
+- React follows view = f(model).
+- You can modify whatever place of model you want, and simply call render. All update relys on virtual DOM.
+- React has trick like shouldComponentUpdate to save the preformance
+
+# Design
+- 'Action' is the connection for `View => Model`
+  - When view event triggered, a 'message' as action name will be send to component
+  - Message can be processed by current model, by actionDef defined under the `actionName`.
+  - Message can be processed by direct parent model, by actionDef defined under `childId.actionName`.
+- `Model => View` is simple reactive update without user knowing it
+- No talking between different component, no global event bus
+
+## State = Model + Action
+
+```code
+                  +-----------+
+       +--->      |           |      Action
+ State            |   Model   +-------------------+
+       +--->      |           |                   |
+                  +-----------+                   |
+                        ^                         |
+                        |                         |
+                        |                         |
+                        |                         |
+                        |                         v
+                        |                   +-----------+
+       +--->            |                   |           |
+ State                  +-------------------+   Model   |
+       +--->                   Action       |           |
+                                            +-----------+
+```
+
+## A perfect example for calculator
+```
+class Calculator
+{
+    prop Value : string = "0" {const}
+
+    func Digit(i: int): void;
+    func Dot(): void;
+    func Add(): void;
+    func Mul(): void;
+    func Equal(): void;
+    func Clear(): void;
+}
+```
+
 

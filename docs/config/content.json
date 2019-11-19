@@ -11,8 +11,8 @@
         "name": "Advance",
         "src": "view/advance/advance.yml"
     },
-    "Dummy": {
-        "name": "Dummy",
-        "src": "view/advance/scratch.yml"
+    "Calculator": {
+        "name": "Calculator",
+        "src": "view/calculator/calculator.yml"
     }
 }
