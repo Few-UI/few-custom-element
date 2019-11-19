@@ -22894,7 +22894,18 @@ define(['require'], function (require) { 'use strict';
                 // TODO: if it is directive
                 if( getDirective( name ) ) {
                     this.setDirective( name, value );
-                } else if ( /^@.+/.test( name ) ) {
+                // TODO: move it as separate unit later
+                } else if ( name === 'f-bind' ) {
+                    // blindly bind with .value for now
+                    this.setInput( 'value', value );
+                    // domNode.setAttribute( 'value', '' );
+                    domNode.addEventListener( 'input', ( e ) => {
+                        let component = getComponent( e.target );
+                        let params = {};
+                        params[value] = e.target.value;
+                        component.updateModel( params );
+                    } );
+                }else if ( /^@.+/.test( name ) ) {
                     let evtName = name.replace( /^@/, '' );
                     domNode.addEventListener( evtName, ( e ) => {
                         // eslint-disable-next-line no-undef
@@ -23574,12 +23585,16 @@ define(['require'], function (require) { 'use strict';
         /**
          * update model in component
          * @param {Object} params parameters as name value pair, for deep update make sure to put full path like 'a.b.c'
+         * @param {Boolean} updateView if true will update the view
          */
-        updateModel( params ) {
+        updateModel( params, updateView = true ) {
             for( let key in params ) {
                 this._updateModel( key, params[key] );
             }
-            this.updateView();
+
+            if( updateView ) {
+                this.updateView();
+            }
         }
 
         /**
