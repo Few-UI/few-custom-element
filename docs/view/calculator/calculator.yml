@@ -6,51 +6,84 @@ view:
     </div>
     <div class="row">
       <div class="column">
-        <button>1</button>
+        <button @click="digit">1</button>
       </div>
       <div class="column">
-        <button>2</button>
+        <button @click="digit">2</button>
       </div>
       <div class="column">
-        <button>3</button>
-      </div>
-    </div>
-    <div class="row">
-      <div class="column">
-        <button>4</button>
-      </div>
-      <div class="column">
-        <button>5</button>
-      </div>
-      <div class="column">
-        <button>6</button>
+        <button @click="digit">3</button>
       </div>
     </div>
     <div class="row">
       <div class="column">
-        <button>7</button>
+        <button @click="digit">4</button>
       </div>
       <div class="column">
-        <button>8</button>
+        <button @click="digit">5</button>
       </div>
       <div class="column">
-        <button>9</button>
+        <button @click="digit">6</button>
       </div>
     </div>
     <div class="row">
       <div class="column">
-        <button>+</button>
+        <button @click="digit">7</button>
       </div>
       <div class="column">
-        <button>-</button>
+        <button @click="digit">8</button>
       </div>
       <div class="column">
-        <button>=</button>
+        <button @click="digit">9</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="column">
+        <button @click="add">+</button>
+      </div>
+      <div class="column">
+        <button @click="minus">-</button>
+      </div>
+      <div class="column">
+        <button @click="equal">=</button>
       </div>
     </div>
 
 # model
 model:
-  value: 0
+  value: '0'
 
+# update
+action:
+  digit:
+    import: lib/calculator-utils
+    name: digitAction
+    input:
+      currValue: ${value}
+      newInput: ${scope.target.textContent}
+    output:
+      value: ''
 
+  add:
+    import: lib/calculator-utils
+    name: addAction
+    input:
+      currValue: ${value}
+    output:
+      value: ''
+
+  minus:
+    import: lib/calculator-utils
+    name: minusAction
+    input:
+      currValue: ${value}
+    output:
+      value: ''
+
+  equal:
+    import: lib/calculator-utils
+    name: equalAction
+    input:
+      currValue: ${value}
+    output:
+      value: ''
