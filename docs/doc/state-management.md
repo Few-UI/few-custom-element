@@ -1,10 +1,7 @@
-
 # ELM
 - Type definition
-  - Model -> Model type only
-  - Message (Action name)
-    - Message is a special function, that f => update(msg)
-      - But in ELM it could be array too, it is a mapping pattern
+  - Model: model schema, for example { uid: Int, counters: CounterType }
+  - Msg: coulde be Token, could be pattern like 'Modify Int Counter.Msg }
 
 - Update (Actions)
   - React based on different message (Action name)
@@ -19,7 +16,12 @@
 - Other functions
   - Other functions defines at top level too, which will be used in this component
     - It can be used at anywhere since ELM is fp
-    - OOTB Def above is nothing but function in name which occupied by system
+  - High Order function is the key concept for abstraction.
+    - updateCounter : Int -> Counter.Msg -> IndexedCounter -> IndexedCounter
+
+- Browser.sandbox { init = init, update = update, view = view }
+
+- Looks it prefers immuntable
 
 ## Parent Child Communication
 - Child component still send the same message when HTML Event happens
@@ -36,6 +38,9 @@
 - At child component, define `v-on:click="$emit('enlarge-text', 0.1)"`.
 - At parent component, define `v-on:enlarge-text="postFontSize += $event"`.
   - Or if `v-on:enlarge-text="onEnlargeText"`, 0.1 will be 1st param of callback `onEnlargeText`.
+
+# vuex
+vuex is a copycat of redux and elm, but match with VUE element life cycle.
 
 # React
 - React follows view = f(model).
@@ -69,8 +74,12 @@
        +--->                   Action       |           |
                                             +-----------+
 ```
+* flux/redux is trying to use a global store, as 'state template', when given value is assigned to the 'store', it becomes an actual 'state instance' which will define the UI.
+* Action will update the value in 'state template' so that it becomes 'another state instance'.
+* From academy point of view, 2 different 'state instance' may belongs to the same 'state'; But for engineering purpose, 'state instance' can help for modular and testability here.
+* From reusibility point of view, small state from sub component will compose to a singleton state.
 
-## An example for calculator
+# An example for calculator
 
 Given viewModel:
 ```

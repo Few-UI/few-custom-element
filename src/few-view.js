@@ -11,7 +11,7 @@ export default class FewView extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return [ 'src' ];
+        return [ 'src', 'model' ];
     }
 
     constructor() {
@@ -45,6 +45,8 @@ export default class FewView extends HTMLElement {
                 }
                 throw e;
             }
+        } else if ( name === 'model' && newValue && oldValue !== newValue ) {
+            // console.log( `model: ${oldValue} => ${newValue}` );
         }
     }
 }

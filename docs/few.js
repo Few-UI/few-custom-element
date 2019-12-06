@@ -22555,7 +22555,7 @@ define(['require'], function (require) { 'use strict';
         }
 
         static get observedAttributes() {
-            return [ 'src' ];
+            return [ 'src', 'model' ];
         }
 
         constructor() {
