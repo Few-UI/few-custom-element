@@ -1,7 +1,7 @@
 # view
 view:
   template:
-    <form @submit="addTodo">
+    <form @submit="submitInfo">
       <label for="item">Todo:</label>
       <input id="item" type="text" name="item_desc" />
       <label for="status">Status:</label>
@@ -13,9 +13,11 @@ view:
       <button type="submit">Add</button>
     </form>
 
-# action:
-#  submitInfo:
-#    name: few.requestUpdate
-#    input:
-#      item: ${few.getFormInput(scope.target)}
+action:
+  submitInfo:
+    name: few.requestUpdate
+    input:
+      component: ${few.getComponent(scope.target)}
+      method: addTodo
+      scope: ${scope}
 

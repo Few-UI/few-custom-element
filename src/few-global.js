@@ -47,9 +47,21 @@ export function handleEvent( elem, methodName, e ) {
         // TODO: need to tune performance to reduce over update
         return component.update( methodName, e );
     }
+    throw Error( `${methodName} is undefined action` );
 
     // One more level, but that will be all. Parent should only know its direct children
-    return component.requestUpdate( methodName, e );
+    // return component.requestUpdate( methodName, e );
+}
+
+/**
+ * Request parent component to execute action
+ * @param {FewComponent} component current component
+ * @param {String} method method name
+ * @param {*} scope input scope
+ * @returns {*} output
+ */
+export function requestUpdate( component, method, scope ) {
+    return component.requestUpdate( method, scope );
 }
 
 /**
@@ -95,11 +107,13 @@ export async function render( componentPath, containerElem, modelRef ) {
 export default exports = {
     render,
     handleEvent,
+    requestUpdate,
     getFormInput,
     getViewElement,
     importDocStyle,
     loadModules,
     setModuleLoader,
+    getComponent,
     loadComponent,
     setComponentLoader,
     httpGet: http.get,

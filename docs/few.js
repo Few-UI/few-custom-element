@@ -22481,9 +22481,21 @@ define(['require'], function (require) { 'use strict';
             // TODO: need to tune performance to reduce over update
             return component.update( methodName, e );
         }
+        throw Error( `${methodName} is undefined action` );
 
         // One more level, but that will be all. Parent should only know its direct children
-        return component.requestUpdate( methodName, e );
+        // return component.requestUpdate( methodName, e );
+    }
+
+    /**
+     * Request parent component to execute action
+     * @param {FewComponent} component current component
+     * @param {String} method method name
+     * @param {*} scope input scope
+     * @returns {*} output
+     */
+    function requestUpdate( component, method, scope ) {
+        return component.requestUpdate( method, scope );
     }
 
     /**
@@ -22529,11 +22541,13 @@ define(['require'], function (require) { 'use strict';
     var few$1 = exports$1 = {
         render,
         handleEvent,
+        requestUpdate,
         getFormInput,
         getViewElement,
         importDocStyle,
         loadModules,
         setModuleLoader,
+        getComponent,
         loadComponent,
         setComponentLoader,
         httpGet: http.get,
