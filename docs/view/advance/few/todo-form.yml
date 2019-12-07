@@ -13,6 +13,7 @@ view:
       <button type="submit">Add</button>
     </form>
 
+# action
 action:
   submitInfo:
     name: few.requestUpdate
@@ -20,4 +21,22 @@ action:
       component: ${few.getComponent(scope.target)}
       method: addTodo
       scope: ${scope}
+
+# from 'port' point of view
+# - requestUpdate defines an 'output port' as 'addTodo'
+# - Who will handle the port? parent? global? separate config?
+#   - Global
+#     - Redux is global store. Limitation is 'action name' cannot be duplicated.
+#     - postal.js is global but the handler can be at any level. Similar like redux
+#   - Parent
+#     - DOM Event, it makes then design more generic
+#     - Parent Component Traversal
+#   - Separate config
+#     - separate config defines 'view1:port => view2:action2'
+#     - when there is multiple 'view1', need a id to differenciate it.
+#     - where do we put the separte config?
+#       - parent view (where we design to use the component)
+#         - I feel this is better - everything should have a scope.
+#         - But redux way has its own credit
+#       - global
 
