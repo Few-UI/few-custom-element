@@ -30,6 +30,7 @@ action:
 #     - postal.js is global but the handler can be at any level. Similar like redux
 #   - Parent
 #     - DOM Event, it makes then design more generic
+#       - https://stackoverflow.com/questions/28627606/does-adding-too-many-event-listeners-affect-performance
 #     - Parent Component Traversal
 #   - Separate config
 #     - separate config defines 'view1:port => view2:action2'
