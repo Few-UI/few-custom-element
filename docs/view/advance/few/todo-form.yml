@@ -26,7 +26,7 @@ action:
 # - requestUpdate defines an 'output port' as 'addTodo'
 # - Who will handle the port? parent? global? separate config?
 #   - Global
-#     - Redux is global store. Limitation is 'action name' cannot be duplicated.
+#     - Redux is global solution. Limitation is 'action name' cannot be duplicated.
 #     - postal.js is global but the handler can be at any level. Similar like redux
 #   - Parent
 #     - DOM Event, it makes then design more generic
@@ -39,4 +39,5 @@ action:
 #         - I feel this is better - everything should have a scope.
 #         - But redux way has its own credit
 #       - global
-
+#         - good for small application
+#         - Easy to track and easy for debug
