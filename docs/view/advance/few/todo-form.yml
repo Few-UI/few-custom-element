@@ -42,3 +42,5 @@ action:
 #       - global
 #         - good for small application
 #         - Easy to track and easy for debug
+
+# Why event system is needed when we have data binding?
