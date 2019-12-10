@@ -35,7 +35,7 @@ action:
 #   - Separate config
 #     - separate config defines 'view1:port => view2:action2'
 #     - when there is multiple 'view1', need a id to differenciate it.
-#     - where do we put the separte config?
+#     - where do we put the separate config?
 #       - parent view (where we design to use the component)
 #         - I feel this is better - everything should have a scope.
 #         - But redux way has its own credit
