@@ -19,3 +19,7 @@ action:
       output:
         todo.items: updatedItems
 
+# Although todo-form.addTodo is a 'port' in view 'todo-form', that should not be a 'port'
+# in todo.
+# todo is suppose to define how to use'todo-form'.
+
