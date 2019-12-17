@@ -15,3 +15,7 @@ view:
         </tr>
       </tbody>
     </table>
+
+# model def as interface?
+model:
+  items: []
