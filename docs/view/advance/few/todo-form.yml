@@ -20,7 +20,8 @@ action:
     input:
       component: ${few.getComponent(scope.target)}
       method: addTodo
-      scope: ${scope}
+      scope:
+        item: ${few.getFormInput(scope.target)}
 
 # from 'port' point of view
 # - requestUpdate defines an 'output port' as 'addTodo'
