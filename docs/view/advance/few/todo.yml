@@ -21,5 +21,6 @@ action:
 
 # Although todo-form.addTodo is a 'port' in view 'todo-form', that should not be a 'port'
 # in todo.
-# todo is suppose to define how to use'todo-form'.
+# todo suppose to define how to use'todo-form'.
+# The best practice is put it on HTML, which make sense, but may net be applicable
 
