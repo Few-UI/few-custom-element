@@ -45,3 +45,5 @@ action:
 #         - Easy to track and easy for debug
 
 # Why event system is needed when we have data binding?
+
+# Ability to call action in a sub view
