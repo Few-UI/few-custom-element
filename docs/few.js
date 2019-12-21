@@ -22082,7 +22082,7 @@ define(['require'], function (require) { 'use strict';
             /**
              * Reference to children
              */
-            this._children = [];
+            this._children = {};
 
             /**
              * Barebone vm with model
@@ -22116,10 +22116,17 @@ define(['require'], function (require) { 'use strict';
 
             // init
             this._loadComponentDef( componentDef );
+        }
 
-            // Add myself to parent
-            if ( parent ) {
-                parent._children.push( this );
+        /**
+         * Add component to parent
+         * @param {FewComponent} component child component
+         * @param {string} elem child element
+         */
+        addChild( component, elem ) {
+            let key = elem.getAttribute( 'id' ) || elem.getAttribute( 'src' );
+            if ( key ) {
+                this._children[key] = component;
             }
         }
 
@@ -22166,6 +22173,11 @@ define(['require'], function (require) { 'use strict';
          * @returns {Promise} promise can be used for next step
          */
         async render( viewDef, containerElem, urlData = {} ) {
+            // Add myself to parent
+            if ( this._parent ) {
+                this._parent.addChild( this, containerElem );
+            }
+
             // load predefined model
             this._modelDef = containerElem.getAttribute( 'model' );
             if ( this._modelDef && this._parent ) {
@@ -22499,6 +22511,18 @@ define(['require'], function (require) { 'use strict';
     }
 
     /**
+     * Request parent component to execute action
+     * @param {FewComponent} component current component
+     * @param {String} viewName view name or id
+     * @param {String} action action name
+     * @param {*} scope input scope
+     * @returns {*} output
+     */
+    function callSubAction( component, viewName, action, scope ) {
+        return component._children[viewName].update( action, scope );
+    }
+
+    /**
      * Import Global Document Style Sheet to shadow DOM
      * @param {Element} shadowRoot Shadow root element for shadow DOM
      */
@@ -22542,6 +22566,7 @@ define(['require'], function (require) { 'use strict';
         render,
         handleEvent,
         requestUpdate,
+        callSubAction,
         getFormInput,
         getViewElement,
         importDocStyle,

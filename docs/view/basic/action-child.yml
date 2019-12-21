@@ -1,0 +1,15 @@
+view:
+  template:
+    <h3>Update Text:</h3>
+    <code>${simpleText}</code>
+
+# model
+model:
+  simpleText: Test String
+
+action:
+  updateText:
+    input:
+      value: ${scope.value}
+    output:
+      simpleText: value

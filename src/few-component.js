@@ -52,7 +52,7 @@ export default class FewComponent {
         /**
          * Reference to children
          */
-        this._children = [];
+        this._children = {};
 
         /**
          * Barebone vm with model
@@ -86,10 +86,17 @@ export default class FewComponent {
 
         // init
         this._loadComponentDef( componentDef );
+    }
 
-        // Add myself to parent
-        if ( parent ) {
-            parent._children.push( this );
+    /**
+     * Add component to parent
+     * @param {FewComponent} component child component
+     * @param {string} elem child element
+     */
+    addChild( component, elem ) {
+        let key = elem.getAttribute( 'id' ) || elem.getAttribute( 'src' );
+        if ( key ) {
+            this._children[key] = component;
         }
     }
 
@@ -136,6 +143,11 @@ export default class FewComponent {
      * @returns {Promise} promise can be used for next step
      */
     async render( viewDef, containerElem, urlData = {} ) {
+        // Add myself to parent
+        if ( this._parent ) {
+            this._parent.addChild( this, containerElem );
+        }
+
         // load predefined model
         this._modelDef = containerElem.getAttribute( 'model' );
         if ( this._modelDef && this._parent ) {

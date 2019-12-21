@@ -12,6 +12,8 @@ view:
     <few-view src="./each"></few-view>
     <div class="few-sample-app-block-break"></div>
     <few-view src="./slot"></few-view>
+    <div class="few-sample-app-block-break"></div>
+    <few-view src="./action"></few-view>
 
 #option
 option:

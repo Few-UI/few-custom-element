@@ -1,0 +1,31 @@
+view:
+  template:
+    <h2>Child Action</h2>
+    <form @submit="callSubAction">
+      <label for="name">Name:</label>
+      <input type="text" name="test_input">
+      <button type="submit">${buttonText}</button>
+      <div>${simpleText}</div>
+    </form>
+    <few-view id="action-child" src="./action-child" />
+
+# model
+model:
+  buttonText: update
+  simpleText: Test String
+
+action:
+  callActionInSubView:
+    input:
+      value: ${few.getFormInput(scope.target).test_input}
+    output:
+      simpleText: value
+
+  callSubAction:
+    name: few.callSubAction
+    input:
+      component: ${few.getComponent(scope.target)}
+      view: action-child
+      action: updateText
+      scope:
+        value: ${few.getFormInput(scope.target).test_input}

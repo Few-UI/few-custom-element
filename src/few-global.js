@@ -65,6 +65,18 @@ export function requestUpdate( component, method, scope ) {
 }
 
 /**
+ * Request parent component to execute action
+ * @param {FewComponent} component current component
+ * @param {String} viewName view name or id
+ * @param {String} action action name
+ * @param {*} scope input scope
+ * @returns {*} output
+ */
+export function callSubAction( component, viewName, action, scope ) {
+    return component._children[viewName].update( action, scope );
+}
+
+/**
  * Import Global Document Style Sheet to shadow DOM
  * @param {Element} shadowRoot Shadow root element for shadow DOM
  */
@@ -108,6 +120,7 @@ export default exports = {
     render,
     handleEvent,
     requestUpdate,
+    callSubAction,
     getFormInput,
     getViewElement,
     importDocStyle,
