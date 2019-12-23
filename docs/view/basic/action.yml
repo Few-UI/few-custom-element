@@ -15,12 +15,6 @@ model:
   simpleText: Test String
 
 action:
-  callActionInSubView:
-    input:
-      value: ${few.getFormInput(scope.target).test_input}
-    output:
-      simpleText: value
-
   callSubAction:
     name: few.callSubAction
     input:
