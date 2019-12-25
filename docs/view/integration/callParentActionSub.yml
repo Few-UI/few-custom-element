@@ -1,0 +1,23 @@
+view:
+  template:
+    <h2>Call Action In Parent View</h2>
+    <form @submit="submitInfo">
+      <label for="name">Name:</label>
+      <input type="text" name="test_input">
+      <button type="submit">${buttonText}</button>
+    </form>
+
+# model
+model:
+  buttonText: update
+
+# action
+action:
+  submitInfo:
+    name: few.requestUpdate
+    input:
+      component: ${few.getComponent(scope.target)}
+      method: updateText
+      scope:
+        item: ${few.getFormInput(scope.target)}
+

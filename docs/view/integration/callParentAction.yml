@@ -1,0 +1,19 @@
+view:
+  template:
+    <few-view id="callParentActionSub" src="./callParentActionSub"></few-view>
+    <h3>Update from children:</h3>
+    <code>${codeText}</code>
+
+# model
+model:
+  codeText: update
+
+# update
+action:
+  callParentActionSub:
+    updateText:
+      input:
+        updatedText: ${scope.item.test_input}
+      output:
+        codeText: updatedText
+

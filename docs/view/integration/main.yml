@@ -3,3 +3,4 @@ view:
   template:
     <few-view src="./callSubAction"></few-view>
     <div class="few-sample-app-block-break"></div>
+    <few-view src="./callParentAction"></few-view>
