@@ -1,13 +1,13 @@
 view:
   template:
-    <h2>Child Action</h2>
+    <h2>Call Action In Child View</h2>
     <form @submit="callSubAction">
       <label for="name">Name:</label>
       <input type="text" name="test_input">
       <button type="submit">${buttonText}</button>
       <div>${simpleText}</div>
     </form>
-    <few-view id="action-child" src="./action-child" />
+    <few-view id="action-child" src="./callSubActionSub" />
 
 # model
 model:

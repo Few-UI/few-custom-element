@@ -5,7 +5,11 @@
     },
     "Basic": {
         "name": "Basic",
-        "src": "view/basic/basic.yml"
+        "src": "view/basic/main.yml"
+    },
+    "Integration": {
+        "name": "Integration",
+        "src": "view/integration/main.yml"
     },
     "Advance": {
         "name": "Advance",
