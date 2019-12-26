@@ -14,7 +14,7 @@ class FewViewCondUnit extends FewViewUnit {
      */
     _compile( domNode ) {
         let key = this.constructor.KEY;
-        this.setInput( key, domNode.getAttribute( key ) );
+        this.setAttr( key, domNode.getAttribute( key ) );
 
         domNode.removeAttribute( key );
         this.addChild( viewUnitFactory.createUnit( domNode, this._parser ) );
@@ -31,7 +31,7 @@ class FewViewCondUnit extends FewViewUnit {
         let newNode = domNode;
         let name = this.constructor.KEY;
 
-        let vExpr = this.getInput( name );
+        let vExpr = this.getAttr( name );
         let vIfRes = Boolean( evalExpression( vExpr, vm, true ) );
         let vIfLst = this.getValue( name );
         let vStateUnit = this.getChildren()[0];

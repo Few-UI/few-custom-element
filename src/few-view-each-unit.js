@@ -37,9 +37,9 @@ class FewViewEachUnit extends FewViewUnit {
         // TODO: Error handling
         // TODO: put template DOM at child unit #0, need a better solution later
         domNode.removeAttribute( name );
-        this.setInput( varKey, match[1] );
-        this.setInput( setKey, match[3] );
-        this.setInput( templKey, domNode );
+        this.setAttr( varKey, match[1] );
+        this.setAttr( setKey, match[3] );
+        this.setAttr( templKey, domNode );
 
 
         // TODO: couple with HTML/DOM, can be abstract later
@@ -73,9 +73,9 @@ class FewViewEachUnit extends FewViewUnit {
         let templKey = this.constructor.EACH_TEMPLATE;
         let childUnits = this.getChildren();
 
-        let varName = this.getInput( varKey );
-        let setName = this.getInput( setKey );
-        let templNode = this.getInput( templKey );
+        let varName = this.getAttr( varKey );
+        let setName = this.getAttr( setKey );
+        let templNode = this.getAttr( templKey );
         let vForLst = childUnits.length;
         // let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
         let vForRes = _.get( vm, setName );

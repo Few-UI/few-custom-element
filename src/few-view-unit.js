@@ -18,7 +18,7 @@ export class FewViewUnit extends FewViewNode {
 
         /**
          * variable attributes
-         * this.input = {};
+         * this.attrs = {};
          */
 
         /**
@@ -34,8 +34,8 @@ export class FewViewUnit extends FewViewNode {
         return this.domNode ? this : undefined;
     }
 
-    get hasInput() {
-        return Boolean( this.input || this.directives || this.children );
+    get hasVariable() {
+        return Boolean( this.attrs || this.directives || this.children );
     }
 
     /**
@@ -43,11 +43,11 @@ export class FewViewUnit extends FewViewNode {
      * @param {string} name attribute name
      * @param {string} val attribute value
      */
-    setInput( name, val ) {
+    setAttr( name, val ) {
         // var shuld be string
         if ( val ) {
-            this.input = this.input || {};
-            this.input[name] = val;
+            this.attrs = this.attrs || {};
+            this.attrs[name] = val;
         }
     }
 
@@ -56,16 +56,16 @@ export class FewViewUnit extends FewViewNode {
      * @param {string} name attribute name
      * @returns {string} expression as string
      */
-    getInput( name ) {
-        return this.input ? this.input[name] : undefined;
+    getAttr( name ) {
+        return this.attrs ? this.attrs[name] : undefined;
     }
 
     /**
      * Get the all definition for variable attributes
      * @returns {object} expression as string
      */
-    getInputScope() {
-        return this.input || {};
+    getAttrs() {
+        return this.attrs || {};
     }
 
     /**
@@ -166,7 +166,7 @@ function _createUnit( node, parser, skipConstant ) {
             }
         }
     }
-    return unit && unit.hasInput || !skipConstant ? unit : undefined;
+    return unit && unit.hasVariable || !skipConstant ? unit : undefined;
 }
 
 export default {

@@ -27,7 +27,7 @@ describe( 'Test few-view', () => {
                             children: [
                                 {
                                     type: '#text',
-                                    input: {
+                                    attrs: {
                                         textContent: 'test1'
                                     }
                                 }
@@ -37,7 +37,7 @@ describe( 'Test few-view', () => {
                 },
                 {
                     type: 'CODE',
-                    input: {
+                    attrs: {
                         id: 'test2'
                     }
                 }

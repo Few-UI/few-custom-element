@@ -16,7 +16,7 @@ class FewViewTextUnit extends FewViewUnit {
         let name = this.constructor.TEXT_PROP_NAME;
 
         // TODO: we can do it better later by supporting "aaa {bbb} ccc"
-        this.setInput( name, this._parser.parse( domNode[name] ) );
+        this.setAttr( name, this._parser.parse( domNode[name] ) );
         return domNode;
     }
 
@@ -28,10 +28,10 @@ class FewViewTextUnit extends FewViewUnit {
      */
     _update( domNode, vm ) {
         let name = this.constructor.TEXT_PROP_NAME;
-        let expr = this.getInput( name );
+        let expr = this.getAttr( name );
         if ( expr ) {
             let name = this.constructor.TEXT_PROP_NAME;
-            let res = evalExpression( this.getInput( name ), vm, true );
+            let res = evalExpression( this.getAttr( name ), vm, true );
             let last = this.getValue( name );
             // string. TODO: error handling
             if ( last === undefined || last !== res ) {

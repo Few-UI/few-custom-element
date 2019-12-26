@@ -30,7 +30,7 @@ class FewViewVarUnit extends FewViewUnit {
             // TODO: move it as separate unit later
             } else if ( name === 'f-bind' ) {
                 // blindly bind with .value for now
-                this.setInput( 'value', value );
+                this.setAttr( 'value', value );
                 // domNode.setAttribute( 'value', '' );
                 domNode.addEventListener( 'input', ( e ) => {
                     let component = getComponent( e.target );
@@ -45,7 +45,7 @@ class FewViewVarUnit extends FewViewUnit {
                     few.handleEvent( domNode, value, e );
                 } );
             }else if( expr ) {
-                this.setInput( name, expr );
+                this.setAttr( name, expr );
                 domNode.setAttribute( name, '' );
             } else {
                 this.setValue( name, value );
@@ -71,7 +71,7 @@ class FewViewVarUnit extends FewViewUnit {
      * @returns {Node} updated dom node
      */
     _update( domNode, vm ) {
-        let inputScope = this.getInputScope();
+        let inputScope = this.getAttrs();
         for( let key in inputScope ) {
             let res = evalExpression( inputScope[key], vm, true );
             let last = this.getValue( key );

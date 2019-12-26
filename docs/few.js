@@ -21417,7 +21417,7 @@ define(['require'], function (require) { 'use strict';
 
             /**
              * variable attributes
-             * this.input = {};
+             * this.attrs = {};
              */
 
             /**
@@ -21433,8 +21433,8 @@ define(['require'], function (require) { 'use strict';
             return this.domNode ? this : undefined;
         }
 
-        get hasInput() {
-            return Boolean( this.input || this.directives || this.children );
+        get hasVariable() {
+            return Boolean( this.attrs || this.directives || this.children );
         }
 
         /**
@@ -21442,11 +21442,11 @@ define(['require'], function (require) { 'use strict';
          * @param {string} name attribute name
          * @param {string} val attribute value
          */
-        setInput( name, val ) {
+        setAttr( name, val ) {
             // var shuld be string
             if ( val ) {
-                this.input = this.input || {};
-                this.input[name] = val;
+                this.attrs = this.attrs || {};
+                this.attrs[name] = val;
             }
         }
 
@@ -21455,16 +21455,16 @@ define(['require'], function (require) { 'use strict';
          * @param {string} name attribute name
          * @returns {string} expression as string
          */
-        getInput( name ) {
-            return this.input ? this.input[name] : undefined;
+        getAttr( name ) {
+            return this.attrs ? this.attrs[name] : undefined;
         }
 
         /**
          * Get the all definition for variable attributes
          * @returns {object} expression as string
          */
-        getInputScope() {
-            return this.input || {};
+        getAttrs() {
+            return this.attrs || {};
         }
 
         /**
@@ -21563,7 +21563,7 @@ define(['require'], function (require) { 'use strict';
                 }
             }
         }
-        return unit && unit.hasInput || !skipConstant ? unit : undefined;
+        return unit && unit.hasVariable || !skipConstant ? unit : undefined;
     }
 
     var viewUnitFactory = {
@@ -21617,7 +21617,7 @@ define(['require'], function (require) { 'use strict';
                 // TODO: move it as separate unit later
                 } else if ( name === 'f-bind' ) {
                     // blindly bind with .value for now
-                    this.setInput( 'value', value );
+                    this.setAttr( 'value', value );
                     // domNode.setAttribute( 'value', '' );
                     domNode.addEventListener( 'input', ( e ) => {
                         let component = getComponent( e.target );
@@ -21632,7 +21632,7 @@ define(['require'], function (require) { 'use strict';
                         few.handleEvent( domNode, value, e );
                     } );
                 }else if( expr ) {
-                    this.setInput( name, expr );
+                    this.setAttr( name, expr );
                     domNode.setAttribute( name, '' );
                 } else {
                     this.setValue( name, value );
@@ -21658,7 +21658,7 @@ define(['require'], function (require) { 'use strict';
          * @returns {Node} updated dom node
          */
         _update( domNode, vm ) {
-            let inputScope = this.getInputScope();
+            let inputScope = this.getAttrs();
             for( let key in inputScope ) {
                 let res = evalExpression( inputScope[key], vm, true );
                 let last = this.getValue( key );
@@ -21716,7 +21716,7 @@ define(['require'], function (require) { 'use strict';
             let name = this.constructor.TEXT_PROP_NAME;
 
             // TODO: we can do it better later by supporting "aaa {bbb} ccc"
-            this.setInput( name, this._parser.parse( domNode[name] ) );
+            this.setAttr( name, this._parser.parse( domNode[name] ) );
             return domNode;
         }
 
@@ -21728,10 +21728,10 @@ define(['require'], function (require) { 'use strict';
          */
         _update( domNode, vm ) {
             let name = this.constructor.TEXT_PROP_NAME;
-            let expr = this.getInput( name );
+            let expr = this.getAttr( name );
             if ( expr ) {
                 let name = this.constructor.TEXT_PROP_NAME;
-                let res = evalExpression( this.getInput( name ), vm, true );
+                let res = evalExpression( this.getAttr( name ), vm, true );
                 let last = this.getValue( name );
                 // string. TODO: error handling
                 if ( last === undefined || last !== res ) {
@@ -21762,7 +21762,7 @@ define(['require'], function (require) { 'use strict';
          */
         _compile( domNode ) {
             let key = this.constructor.KEY;
-            this.setInput( key, domNode.getAttribute( key ) );
+            this.setAttr( key, domNode.getAttribute( key ) );
 
             domNode.removeAttribute( key );
             this.addChild( viewUnitFactory.createUnit( domNode, this._parser ) );
@@ -21779,7 +21779,7 @@ define(['require'], function (require) { 'use strict';
             let newNode = domNode;
             let name = this.constructor.KEY;
 
-            let vExpr = this.getInput( name );
+            let vExpr = this.getAttr( name );
             let vIfRes = Boolean( evalExpression( vExpr, vm, true ) );
             let vIfLst = this.getValue( name );
             let vStateUnit = this.getChildren()[0];
@@ -21845,9 +21845,9 @@ define(['require'], function (require) { 'use strict';
             // TODO: Error handling
             // TODO: put template DOM at child unit #0, need a better solution later
             domNode.removeAttribute( name );
-            this.setInput( varKey, match[1] );
-            this.setInput( setKey, match[3] );
-            this.setInput( templKey, domNode );
+            this.setAttr( varKey, match[1] );
+            this.setAttr( setKey, match[3] );
+            this.setAttr( templKey, domNode );
 
 
             // TODO: couple with HTML/DOM, can be abstract later
@@ -21879,9 +21879,9 @@ define(['require'], function (require) { 'use strict';
             let templKey = this.constructor.EACH_TEMPLATE;
             let childUnits = this.getChildren();
 
-            let varName = this.getInput( varKey );
-            let setName = this.getInput( setKey );
-            let templNode = this.getInput( templKey );
+            let varName = this.getAttr( varKey );
+            let setName = this.getAttr( setKey );
+            let templNode = this.getAttr( templKey );
             let vForLst = childUnits.length;
             // let vForRes = vm[setName] ? vm[setName].length + 1 : 1;
             let vForRes = lodash.get( vm, setName );
