@@ -1,0 +1,27 @@
+# view
+view:
+  template:
+    <h2>Prop Binding with Custom Element</h2>
+    <button @click="updateSize">Change Size</button>
+    <!-- div here looks ugly since it is for layout purpose only -->
+    <div></div>
+    <test-comp height="${height}" width="${width}"></test-comp>
+
+  import:
+    - lib/test-comp
+
+# model
+model:
+  height: 3
+  width: 5
+
+# action
+action:
+  updateSize:
+    input:
+      updatedItem: ${ { height:height + 1, width:width + 1 } }
+    output:
+      height: updatedItem.height
+      width: updatedItem.width
+
+

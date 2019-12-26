@@ -27,5 +27,8 @@
         "statusBarItem.hoverBackground": "#6f0e7b",
         "statusBar.foreground": "#e7e7e7"
     },
-    "peacock.color": "#46094d"
+    "peacock.color": "#46094d",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
 }
