@@ -21698,7 +21698,7 @@ define(['require'], function (require) { 'use strict';
                 }
             }
 
-            let propVars = this.getAttrs();
+            let propVars = this.getProps();
             for( let key in propVars ) {
                 let res = evalExpression( propVars[key], vm, true );
                 // Don't compare, let sub element decide

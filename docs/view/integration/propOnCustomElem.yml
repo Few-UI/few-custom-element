@@ -5,10 +5,10 @@ view:
     <button @click="updateSize">Change Size</button>
     <!-- div here looks ugly since it is for layout purpose only -->
     <div></div>
-    <test-comp height="${height}" width="${width}"></test-comp>
+    <sample-prop-widget :sample-prop="{ height:height, width:width }"></sample-prop-widget>
 
   import:
-    - lib/test-comp
+    - lib/sample-prop-widget
 
 # model
 model:

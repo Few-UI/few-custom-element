@@ -3,16 +3,17 @@
 define( [], () => {
     class TestButton extends HTMLElement {
         static get tag() {
-            return 'test-button';
+            return 'sample-prop-widget';
         }
 
-        get sattr() {
+        get ['sample-prop']() {
             return this._sattr;
         }
 
-        set sattr( val ) {
-            this._sattr = JSON.stringify( val );
-            this.textContent = this._sattr;
+        set ['sample-prop']( val ) {
+            this._sattr = val;
+            // sample code to update view
+            this.textContent = JSON.stringify( this._sattr );
         }
 
         constructor() {
