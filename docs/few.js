@@ -21019,18 +21019,6 @@ define(['require'], function (require) { 'use strict';
     }
 
     /**
-     * fastest way to compare a pure JSON object, use on your own risk
-     * https://www.mattzeunert.com/2016/01/28/javascript-deep-equal.html
-     *
-     * @param {Object} obj Current DOM Element
-     * @returns {Object} new cloned object
-     */
-    function deepEqual( a, b ) {
-        return isPrimitive( a ) || isPrimitive( b ) ? a === b :
-            JSON.stringify( a ) === JSON.stringify( b );
-    }
-
-    /**
      * get form input from Form HTML Element
      * @param {Element} elem Form element
      * @returns {Object} from input as name value pair
@@ -21670,6 +21658,9 @@ define(['require'], function (require) { 'use strict';
                         // eslint-disable-next-line no-undef
                         few.handleEvent( domNode, value, e );
                     } );
+                }else if ( /^:.+/.test( name ) ) {
+                    let propName = name.replace( /^:/, '' );
+                    this.setProp( propName, value );
                 }else if( expr ) {
                     this.setAttr( name, expr );
                     domNode.setAttribute( name, '' );
@@ -21697,20 +21688,22 @@ define(['require'], function (require) { 'use strict';
          * @returns {Node} updated dom node
          */
         _update( domNode, vm ) {
-            let inputScope = this.getAttrs();
-            for( let key in inputScope ) {
-                let res = evalExpression( inputScope[key], vm, true );
+            let attrVars = this.getAttrs();
+            for( let key in attrVars ) {
+                let res = evalExpression( attrVars[key], vm, true );
                 let last = this.getValue( key );
-                // Supports object too
-                if ( !deepEqual( last, res ) ) {
-                    if( key.startsWith( ':' ) ) {
-                        this.setValue( key, cloneDeepJsonObject( res ) );
-                        domNode[key.substr( 1 )] = res;
-                    } else {
-                        this.setValue( key, res );
-                        domNode.setAttribute( key, res );
-                    }
+                if ( last !== res ) {
+                    this.setValue( key, res );
+                    domNode.setAttribute( key, res );
                 }
+            }
+
+            let propVars = this.getAttrs();
+            for( let key in propVars ) {
+                let res = evalExpression( propVars[key], vm, true );
+                // Don't compare, let sub element decide
+                this.setValue( key, res );
+                domNode[key] = res;
             }
 
             for( let child of this.getChildren() ) {

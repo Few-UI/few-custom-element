@@ -250,7 +250,7 @@ describe( 'Test few-view element', () => {
 
         expect( elem.outerHTML ).toEqual( [
             '<few-view src="secondView" id="change" class="few-scope">',
-              '<code style="color:red">7</code>',
+              '<code style="color: red;">7</code>',
             '</few-view>'
         ].join( '' ) );
     } );

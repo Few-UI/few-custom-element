@@ -4,8 +4,8 @@ view:
     <h2>Each</h2>
     <form @submit="action.addTodo">
       <label for="item">Type and Enter:</label>
-      <input id="item" type="text" f-bind="item_desc" />
-      <code> ${ item_desc } </code>
+      <input id="item" type="text" f-bind="input_value" />
+      <code> ${ input_value } </code>
     </form>
 
     <ul>
@@ -15,12 +15,13 @@ view:
 # model
 model:
   items: []
+  input_value: ''
 
 # update
 action:
   addTodo:
     input:
-      formInput: ${items.concat([{item_desc:item_desc}])}
+      formInput: ${items.concat([{item_desc:input_value}])}
     output:
       items: formInput
 

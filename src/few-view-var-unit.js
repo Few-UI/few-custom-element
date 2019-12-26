@@ -44,6 +44,9 @@ class FewViewVarUnit extends FewViewUnit {
                     // eslint-disable-next-line no-undef
                     few.handleEvent( domNode, value, e );
                 } );
+            }else if ( /^:.+/.test( name ) ) {
+                let propName = name.replace( /^:/, '' );
+                this.setProp( propName, value );
             }else if( expr ) {
                 this.setAttr( name, expr );
                 domNode.setAttribute( name, '' );
@@ -71,20 +74,22 @@ class FewViewVarUnit extends FewViewUnit {
      * @returns {Node} updated dom node
      */
     _update( domNode, vm ) {
-        let inputScope = this.getAttrs();
-        for( let key in inputScope ) {
-            let res = evalExpression( inputScope[key], vm, true );
+        let attrVars = this.getAttrs();
+        for( let key in attrVars ) {
+            let res = evalExpression( attrVars[key], vm, true );
             let last = this.getValue( key );
-            // Supports object too
-            if ( !deepEqual( last, res ) ) {
-                if( key.startsWith( ':' ) ) {
-                    this.setValue( key, cloneDeepJsonObject( res ) );
-                    domNode[key.substr( 1 )] = res;
-                } else {
-                    this.setValue( key, res );
-                    domNode.setAttribute( key, res );
-                }
+            if ( last !== res ) {
+                this.setValue( key, res );
+                domNode.setAttribute( key, res );
             }
+        }
+
+        let propVars = this.getAttrs();
+        for( let key in propVars ) {
+            let res = evalExpression( propVars[key], vm, true );
+            // Don't compare, let sub element decide
+            this.setValue( key, res );
+            domNode[key] = res;
         }
 
         for( let child of this.getChildren() ) {
