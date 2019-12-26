@@ -18,13 +18,18 @@ export class FewViewUnit extends FewViewNode {
 
         /**
          * variable attributes
-         * this.attrs = {};
          */
+        // this._attrs = {};
+
+        /**
+         * variable properties
+         */
+        // this._props = {};
 
         /**
          * directive attributes
-         * this.directives = {};
          */
+        // this._directives = {};
 
         /**
          * domNode reference
@@ -35,7 +40,10 @@ export class FewViewUnit extends FewViewNode {
     }
 
     get hasVariable() {
-        return Boolean( this.attrs || this.directives || this.children );
+        return Boolean( this._attrs ||
+                        this._props ||
+                        this._directives ||
+                        this.children );
     }
 
     /**
@@ -46,8 +54,8 @@ export class FewViewUnit extends FewViewNode {
     setAttr( name, val ) {
         // var shuld be string
         if ( val ) {
-            this.attrs = this.attrs || {};
-            this.attrs[name] = val;
+            this._attrs = this._attrs || {};
+            this._attrs[name] = val;
         }
     }
 
@@ -57,15 +65,81 @@ export class FewViewUnit extends FewViewNode {
      * @returns {string} expression as string
      */
     getAttr( name ) {
-        return this.attrs ? this.attrs[name] : undefined;
+        return this._attrs ? this._attrs[name] : undefined;
     }
 
     /**
-     * Get the all definition for variable attributes
+     * Get the all definitions for variable attribute
      * @returns {object} expression as string
      */
     getAttrs() {
-        return this.attrs || {};
+        return this._attrs || {};
+    }
+
+    /**
+     * Add variable property
+     * @param {string} name property name
+     * @param {string} val property value
+     */
+    setProp( name, val ) {
+        // var shuld be string
+        if ( val ) {
+            this._props = this._props || {};
+            this._props[name] = val;
+        }
+    }
+
+    /**
+     * Get property expression by name
+     * @param {string} name attribute name
+     * @returns {string} expression as string
+     */
+    getProp( name ) {
+        return this._props ? this._props[name] : undefined;
+    }
+
+    /**
+     * Get the all definitions for variable property
+     * @returns {object} expression as string
+     */
+    getProps() {
+        return this._props || {};
+    }
+
+    /**
+     * Set directives definition to unit
+     * @param {string} name name of directives
+     * @param {string} expr expression as directive input
+     */
+    setDirective( name, expr ) {
+        this._directives = this._directives || {};
+        this._directives[name] = expr;
+    }
+
+    /**
+     * Get directive definition from unit by name
+     * @param {string} name name of directives
+     * @returns {string} expression as string
+     */
+    getDirective( name ) {
+        return this._directives ? this._directives[name] : undefined;
+    }
+
+    /**
+     * Get all directive definitions from unit
+     * @returns {object} expression as string
+     */
+    getDirectives() {
+        return this._directives || {};
+    }
+
+    /**
+     * Check if directive is defined or not
+     * @param {string} name name of directives
+     * @returns {boolean} true if directive is defined
+     */
+    hasDirective( name ) {
+        return this._directives && this._directives.hasOwnProperty( name );
     }
 
     /**
@@ -81,41 +155,6 @@ export class FewViewUnit extends FewViewNode {
         return newNode;
     }
 
-    /**
-     * Set directives definition to unit
-     * @param {string} name name of directives
-     * @param {string} expr expression as directive input
-     */
-    setDirective( name, expr ) {
-        this.directives = this.directives || {};
-        this.directives[name] = expr;
-    }
-
-    /**
-     * Get directive definition from unit by name
-     * @param {string} name name of directives
-     * @returns {string} expression as string
-     */
-    getDirective( name ) {
-        return this.directives ? this.directives[name] : undefined;
-    }
-
-    /**
-     * Get all directive definitions from unit
-     * @returns {object} expression as string
-     */
-    getDirectives() {
-        return this.directives || {};
-    }
-
-    /**
-     * Check if directive is defined or not
-     * @param {string} name name of directives
-     * @returns {boolean} true if directive is defined
-     */
-    hasDirective( name ) {
-        return this.directives && this.directives.hasOwnProperty( name );
-    }
 
     /**
      * compile dom node input to curren unit context
