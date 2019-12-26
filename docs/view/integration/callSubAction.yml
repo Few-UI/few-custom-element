@@ -5,14 +5,12 @@ view:
       <label for="name">Name:</label>
       <input type="text" name="test_input">
       <button type="submit">${buttonText}</button>
-      <div>${simpleText}</div>
     </form>
     <few-view id="action-child" src="./callSubActionSub" />
 
 # model
 model:
   buttonText: update
-  simpleText: Test String
 
 action:
   callSubAction:

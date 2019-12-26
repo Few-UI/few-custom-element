@@ -1,7 +1,7 @@
 view:
   template:
     <few-view id="callParentActionSub" src="./callParentActionSub"></few-view>
-    <h3>Update from children:</h3>
+    <h3>Update from child:</h3>
     <code>${codeText}</code>
 
 # model
@@ -16,4 +16,3 @@ action:
         updatedText: ${scope.item.test_input}
       output:
         codeText: updatedText
-

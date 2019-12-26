@@ -1,6 +1,6 @@
 view:
   template:
-    <h3>Update Text:</h3>
+    <h3>Update from parent:</h3>
     <code>${simpleText}</code>
 
 # model
