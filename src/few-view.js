@@ -14,7 +14,7 @@ export default class FewView extends HTMLElement {
         return [ 'src', 'model' ];
     }
 
-     set model( value ) {
+    set model( value ) {
         return this._renderPromise.then( ( component ) => {
             component.updateModel( value );
         } );
