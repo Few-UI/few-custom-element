@@ -263,7 +263,7 @@ describe( 'Test slot feature in few-view element', () => {
                 '<li>5</li>',
                 '<li>',
                   '<few-view src="secondView" id="secondView" class="few-scope">',
-                    '<code style="color: red;">7</code>',
+                    '<code style="color:red">7</code>',
                   '</few-view>',
                 '</li>',
               '</ul>',

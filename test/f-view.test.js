@@ -250,7 +250,7 @@ describe( 'Test few-view element', () => {
 
         expect( elem.outerHTML ).toEqual( [
             '<few-view src="secondView" id="change" class="few-scope">',
-              '<code style="color: red;">7</code>',
+              '<code style="color:red">7</code>',
             '</few-view>'
         ].join( '' ) );
     } );
@@ -263,7 +263,7 @@ describe( 'Test few-view element', () => {
                 '    ',
                 // eslint-disable-next-line no-template-curly-in-string
                 '<div>${ctx.testVal}</div>',
-                '<few-view src="subView" model="ctx"></few-view>'
+                '<few-view src="subView" :model="ctx"></few-view>'
             ].join( '' ),
             'model:',
             '  ctx:',
@@ -297,7 +297,7 @@ describe( 'Test few-view element', () => {
         expect( elem.outerHTML ).toEqual( [
             '<few-view src="parentView" id="parentView" class="few-scope">',
               '<div>5</div>',
-              '<few-view src="subView" model="ctx" id="subView" class="few-scope">',
+              '<few-view src="subView" :model="ctx" id="subView" class="few-scope">',
                 '<code>5</code>',
               '</few-view>',
             '</few-view>'

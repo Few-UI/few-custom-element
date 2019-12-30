@@ -22211,10 +22211,12 @@ define(['require'], function (require) { 'use strict';
             }
 
             // load predefined model
+            /*
             this._modelDef = containerElem.getAttribute( 'model' );
             if ( this._modelDef && this._parent ) {
                 mergeModel( this._vm.model, this._parent.getValue( this._modelDef ) );
             }
+            */
 
             // Load init action
             if ( this._vm.init ) {
@@ -22311,7 +22313,7 @@ define(['require'], function (require) { 'use strict';
             }
 
             if( updateView ) {
-                this.updateView();
+                this._updateViewDebounce();
             }
         }
 
@@ -22629,6 +22631,12 @@ define(['require'], function (require) { 'use strict';
             return [ 'src', 'model' ];
         }
 
+         set model( value ) {
+            return this._renderPromise.then( ( component ) => {
+                component.updateModel( value );
+            } );
+        }
+
         constructor() {
             super();
 
@@ -22653,7 +22661,8 @@ define(['require'], function (require) { 'use strict';
                     // this._component.model = _.filter( modelPath );
                     // this._component.parent.remove(this._component);
 
-                    await few$1.render( `${newValue}.yml`, this );
+                    this._renderPromise = few$1.render( `${newValue}.yml`, this );
+                    this._component = await this._renderPromise;
                 } catch ( e ) {
                     if ( this._currentView === newValue ) {
                         this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

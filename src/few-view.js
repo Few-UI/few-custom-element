@@ -14,6 +14,12 @@ export default class FewView extends HTMLElement {
         return [ 'src', 'model' ];
     }
 
+     set model( value ) {
+        return this._renderPromise.then( ( component ) => {
+            component.updateModel( value );
+        } );
+    }
+
     constructor() {
         super();
 
@@ -38,7 +44,8 @@ export default class FewView extends HTMLElement {
                 // this._component.model = _.filter( modelPath );
                 // this._component.parent.remove(this._component);
 
-                await few.render( `${newValue}.yml`, this );
+                this._renderPromise = few.render( `${newValue}.yml`, this );
+                this._component = await this._renderPromise;
             } catch ( e ) {
                 if ( this._currentView === newValue ) {
                     this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

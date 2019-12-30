@@ -149,10 +149,12 @@ export default class FewComponent {
         }
 
         // load predefined model
+        /*
         this._modelDef = containerElem.getAttribute( 'model' );
         if ( this._modelDef && this._parent ) {
             mergeModel( this._vm.model, this._parent.getValue( this._modelDef ) );
         }
+        */
 
         // Load init action
         if ( this._vm.init ) {
@@ -249,7 +251,7 @@ export default class FewComponent {
         }
 
         if( updateView ) {
-            this.updateView();
+            this._updateViewDebounce();
         }
     }
 
