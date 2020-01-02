@@ -22266,11 +22266,15 @@ define(['require'], function (require) { 'use strict';
 
 
         updateView() {
+            /*
             if ( this._parent ) {
                 this._parent.updateView();
             } else {
+                */
                 this._updateViewDebounce();
+            /*
             }
+            */
         }
         /////////////////////////////////////////////////////////////////////////////////////////
 

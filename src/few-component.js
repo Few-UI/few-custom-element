@@ -204,11 +204,15 @@ export default class FewComponent {
 
 
     updateView() {
+        /*
         if ( this._parent ) {
             this._parent.updateView();
         } else {
+            */
             this._updateViewDebounce();
+        /*
         }
+        */
     }
     /////////////////////////////////////////////////////////////////////////////////////////
 
