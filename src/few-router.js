@@ -53,11 +53,7 @@ export default class FewRouter {
                 // process state
                 if ( state ) {
                     if ( this._currState === state ) {
-                        let model = {};
-                        for( let key in params ) {
-                            set( model, key, params[key] );
-                        }
-                        this._component.updateModel2( model );
+                        this._component.updateModel( params );
                     } else {
                         let model = {};
                         for( let key in params ) {

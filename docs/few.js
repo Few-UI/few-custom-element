@@ -21257,17 +21257,6 @@ define(['require'], function (require) { 'use strict';
         _loadComponentCallback = callback;
     }
 
-
-    /**
-     * Check value type is primitive or not
-     * @param {any} val input value
-     * @returns {boolean} true if input is number or string
-     */
-    function isPrimitive( val ) {
-      const type = typeof val;
-      return type === 'number' || type === 'string' || type === 'boolean';
-    }
-
     /* eslint-env es6 */
 
     class FewViewNode {
@@ -22074,30 +22063,6 @@ define(['require'], function (require) { 'use strict';
 
     /* eslint-env es6 */
 
-    /**
-     * merge model object
-     * @param {Object} tar target object
-     * @param {Object} src source object
-     * @returns {Object} target object
-     */
-    function mergeModel( tar, src ) {
-        if ( tar === undefined ) {
-            return src;
-        }
-
-        if( isPrimitive( tar ) || isPrimitive( src ) || Array.isArray( src ) ) {
-            return src;
-        }
-
-        for ( let key in src ) {
-            tar[key] = mergeModel( tar[key], src[key] );
-            if ( tar[key] === undefined ) {
-                delete tar[key];
-            }
-        }
-        return tar;
-    }
-
     class FewComponent {
         /**
          * Constructor for View Model Object
@@ -22289,16 +22254,6 @@ define(['require'], function (require) { 'use strict';
             }
         }
 
-        /**
-         * update model in component
-         * @param {Object} obj update object which will replace model
-         */
-        updateModel2( obj ) {
-            mergeModel( this._vm.model, obj );
-            this._isDirty = true;
-            this.updateView();
-        }
-
         _getActionDefinition( key ) {
             let methodDef = null;
             lodash.forEach( this._option.actionPaths, ( p ) => {
@@ -22342,7 +22297,7 @@ define(['require'], function (require) { 'use strict';
             return value;
         }
 
-        async _executeAction( actionDef, scope ) {
+        async _executeAction( actionDef /*, scope*/ ) {
             let res;
 
             let dep =  actionDef.import ? ( await loadModules( [ actionDef.import ] ) )[0] : this;
@@ -24172,11 +24127,7 @@ define(['require'], function (require) { 'use strict';
                     // process state
                     if ( state ) {
                         if ( this._currState === state ) {
-                            let model = {};
-                            for( let key in params ) {
-                                set_1( model, key, params[key] );
-                            }
-                            this._component.updateModel2( model );
+                            this._component.updateModel( params );
                         } else {
                             let model = {};
                             for( let key in params ) {

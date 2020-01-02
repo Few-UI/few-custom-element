@@ -3,6 +3,31 @@ import yaml from 'js-yaml';
 import http from './http';
 
 /**
+ * merge model object
+ * Deprecate function, keep here for not loosing the code
+ * @param {Object} tar target object
+ * @param {Object} src source object
+ * @returns {Object} target object
+ */
+function mergeModel( tar, src ) {
+    if ( tar === undefined ) {
+        return src;
+    }
+
+    if( isPrimitive( tar ) || isPrimitive( src ) || Array.isArray( src ) ) {
+        return src;
+    }
+
+    for ( let key in src ) {
+        tar[key] = mergeModel( tar[key], src[key] );
+        if ( tar[key] === undefined ) {
+            delete tar[key];
+        }
+    }
+    return tar;
+}
+
+/**
  * Parse view string as DOM without interpret it
  * TODO no for now and needs to be enahanced
  * @param {string} str view template as string
