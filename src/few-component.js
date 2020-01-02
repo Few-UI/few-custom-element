@@ -80,9 +80,7 @@ export default class FewComponent {
          * method update view
          * TODO: can we return promise here
          */
-        this._updateViewDebounce = _.debounce( () => {
-            this._updateView();
-        }, 100 );
+        this.updateView = _.debounce( this._updateView.bind( this ) );
 
         // init
         this._loadComponentDef( componentDef );
@@ -189,7 +187,7 @@ export default class FewComponent {
 
     ///////////////////////////////////////////////////////////////////////////////////////
     _updateView() {
-        if ( this._view ) {
+        if ( this._view && this._isDirty ) {
             this._view.render( this._vm.model );
             this._isDirty = false;
         }
@@ -202,18 +200,6 @@ export default class FewComponent {
        } );
     }
 
-
-    updateView() {
-        /*
-        if ( this._parent ) {
-            this._parent.updateView();
-        } else {
-            */
-            this._updateViewDebounce();
-        /*
-        }
-        */
-    }
     /////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -237,7 +223,7 @@ export default class FewComponent {
         }
 
         if( updateView ) {
-            this._updateViewDebounce();
+            this.updateView();
         }
     }
 
@@ -247,6 +233,7 @@ export default class FewComponent {
      */
     updateModel2( obj ) {
         mergeModel( this._vm.model, obj );
+        this._isDirty = true;
         this.updateView();
     }
 
@@ -314,8 +301,8 @@ export default class FewComponent {
             }
         }
 
-        // Vue's approach is overwrite 'this' by func.apply(data), which will will limite your
-        // JS practice. But it is fine since JS is part of its DSL.
+        // Vue's approach is overwrite 'this' by func.apply(data), which will will limit your
+        // JS practice. But it is fine for vue since JS is part of its DSL.
         res = func ? await func.apply( dep, vals ) : input;
 
         _.forEach( actionDef.output, ( valPath, vmPath ) => {

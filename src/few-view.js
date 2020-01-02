@@ -15,9 +15,15 @@ export default class FewView extends HTMLElement {
     }
 
     set model( value ) {
-        return this._renderPromise.then( ( component ) => {
-            component.updateModel( value );
-        } );
+        if ( !this._component ) {
+            // TODO: Can be optimize to avoid duplicate refresh
+            return this._renderPromise.then( ( component ) => {
+                component.updateModel( value );
+            } );
+        }
+
+        // Normal update case
+        return this._component.updateModel( value, false );
     }
 
     constructor() {

@@ -22142,9 +22142,7 @@ define(['require'], function (require) { 'use strict';
              * method update view
              * TODO: can we return promise here
              */
-            this._updateViewDebounce = lodash.debounce( () => {
-                this._updateView();
-            }, 100 );
+            this.updateView = lodash.debounce( this._updateView.bind( this ) );
 
             // init
             this._loadComponentDef( componentDef );
@@ -22251,7 +22249,7 @@ define(['require'], function (require) { 'use strict';
 
         ///////////////////////////////////////////////////////////////////////////////////////
         _updateView() {
-            if ( this._view ) {
+            if ( this._view && this._isDirty ) {
                 this._view.render( this._vm.model );
                 this._isDirty = false;
             }
@@ -22264,18 +22262,6 @@ define(['require'], function (require) { 'use strict';
            } );
         }
 
-
-        updateView() {
-            /*
-            if ( this._parent ) {
-                this._parent.updateView();
-            } else {
-                */
-                this._updateViewDebounce();
-            /*
-            }
-            */
-        }
         /////////////////////////////////////////////////////////////////////////////////////////
 
         /**
@@ -22299,7 +22285,7 @@ define(['require'], function (require) { 'use strict';
             }
 
             if( updateView ) {
-                this._updateViewDebounce();
+                this.updateView();
             }
         }
 
@@ -22309,6 +22295,7 @@ define(['require'], function (require) { 'use strict';
          */
         updateModel2( obj ) {
             mergeModel( this._vm.model, obj );
+            this._isDirty = true;
             this.updateView();
         }
 
@@ -22376,8 +22363,8 @@ define(['require'], function (require) { 'use strict';
                 }
             }
 
-            // Vue's approach is overwrite 'this' by func.apply(data), which will will limite your
-            // JS practice. But it is fine since JS is part of its DSL.
+            // Vue's approach is overwrite 'this' by func.apply(data), which will will limit your
+            // JS practice. But it is fine for vue since JS is part of its DSL.
             res = func ? await func.apply( dep, vals ) : input;
 
             lodash.forEach( actionDef.output, ( valPath, vmPath ) => {
@@ -22618,9 +22605,15 @@ define(['require'], function (require) { 'use strict';
         }
 
         set model( value ) {
-            return this._renderPromise.then( ( component ) => {
-                component.updateModel( value );
-            } );
+            if ( !this._component ) {
+                // TODO: Can be optimize to avoid duplicate refresh
+                return this._renderPromise.then( ( component ) => {
+                    component.updateModel( value );
+                } );
+            }
+
+            // Normal update case
+            return this._component.updateModel( value, false );
         }
 
         constructor() {
