@@ -60,7 +60,7 @@ export default class FewRouter {
                             set( model, key, params[key] );
                         }
                         this._currState = state;
-                        this._component = await few.render( `${state.view}.yml`, this._elem, model );
+                        this._component = await few.render( `${state.view}.yml`, this._elem, null, model );
                     }
                 }
             }

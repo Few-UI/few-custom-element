@@ -16,9 +16,9 @@ export default class FewComponent {
      * Constructor for View Model Object
      * @param {Object} componentDef component definition
      * @param {FewComponent} parent parent view model
-     * @param {Object} model input model
+     * @param {Object} ctxMap context map
      */
-    constructor( componentDef, parent, model ) {
+    constructor( componentDef, parent, ctxMap, model ) {
         /**
          * parent view model
          */
@@ -55,10 +55,15 @@ export default class FewComponent {
          * method update view
          * TODO: can we return promise here
          */
-        this.updateView = _.debounce( this._updateView.bind( this ) );
+        this.updateViewDebounce = _.debounce( this._updateView.bind( this ) );
 
         // init
         this._loadComponentDef( componentDef );
+
+        // load ctxMap
+        if ( parent && ctxMap ) {
+            this._loadParentCtx( ctxMap );
+        }
     }
 
     /**
@@ -103,6 +108,19 @@ export default class FewComponent {
                 delete componentDef.model;
             }
             Object.assign( this._vm, componentDef );
+        }
+    }
+
+    /**
+     * load parent context to current model
+     * @param {Object} ctxMap context path map from parent
+     */
+    _loadParentCtx( ctxMap ) {
+        this._ctxMap = ctxMap;
+        for( let key in ctxMap ) {
+            let srcPath = ctxMap[key];
+            // TODO: refactor with _updateModel later
+            _.set( this._vm.model, key, this._parent.getValue( srcPath ) );
         }
     }
 
@@ -161,8 +179,17 @@ export default class FewComponent {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
+    updateView() {
+        if( this._ctxUpdate && this._parent ) {
+            this._parent.updateModel( this._ctxMap );
+            this._ctxUpdate = null;
+        } else {
+            this.updateViewDebounce();
+        }
+    }
+
     _updateView() {
-        if ( this._view && this._isDirty ) {
+        if ( this._view && ( this._isDirty || this._ctxMap ) ) {
             this._view.render( this._vm.model );
             this._isDirty = false;
         }
@@ -183,8 +210,29 @@ export default class FewComponent {
      * @param {string} value value itself
      */
     _updateModel( path, value ) {
-        _.set( this._vm.model, path, value );
-        this._isDirty = true;
+        if( !this._updateCtx( path, value ) ) {
+            _.set( this._vm.model, path, value );
+            this._isDirty = true;
+        }
+    }
+
+    /**
+     * Update ctx value and trigger parent view update
+     * @param {string} path value path on model
+     * @param {string} value value itself
+     * @returns {boolean} true if path is in ctx
+     */
+    _updateCtx( path, value ) {
+        for( let key in this._ctxMap ) {
+            if ( path.startsWith( key ) ) {
+                if ( !this._ctxUpdate ) {
+                    this._ctxUpdate = {};
+                }
+                this._ctxUpdate[this._ctxMap[key]] = value;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

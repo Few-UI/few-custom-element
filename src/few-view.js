@@ -11,7 +11,7 @@ export default class FewView extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return [ 'src', 'model' ];
+        return [ 'src' ];
     }
 
     set model( value ) {
@@ -49,8 +49,10 @@ export default class FewView extends HTMLElement {
                 // also need to destroy its ref in parent
                 // this._component.model = _.filter( modelPath );
                 // this._component.parent.remove(this._component);
+                let ctxPath = this.getAttribute( 'ctx' );
+                let ctxMap = ctxPath ? { ctx: ctxPath } : null;
 
-                this._renderPromise = few.render( `${newValue}.yml`, this );
+                this._renderPromise = few.render( `${newValue}.yml`, this, ctxMap );
                 this._component = await this._renderPromise;
             } catch ( e ) {
                 if ( this._currentView === newValue ) {

@@ -8,8 +8,8 @@ view:
     </form>
     <h3>Ctx In Parent</h3>
     <code>${ctx.codeText}</code>
-    <few-view id="sharedModelViewSub1" src="./sharedModelViewSub1" :model="{ctx:ctx}"></few-view>
-    <few-view id="sharedModelViewSub2" src="./sharedModelViewSub2" :model="{ctx:ctx}"></few-view>
+    <few-view id="sharedModelViewSub1" src="./sharedModelViewSub1" ctx="ctx"></few-view>
+    <few-view id="sharedModelViewSub2" src="./sharedModelViewSub2" ctx="ctx"></few-view>
 
 # model
 model:

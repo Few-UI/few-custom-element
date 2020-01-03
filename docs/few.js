@@ -22068,9 +22068,9 @@ define(['require'], function (require) { 'use strict';
          * Constructor for View Model Object
          * @param {Object} componentDef component definition
          * @param {FewComponent} parent parent view model
-         * @param {Object} model input model
+         * @param {Object} ctxMap context map
          */
-        constructor( componentDef, parent, model ) {
+        constructor( componentDef, parent, ctxMap, model ) {
             /**
              * parent view model
              */
@@ -22107,10 +22107,15 @@ define(['require'], function (require) { 'use strict';
              * method update view
              * TODO: can we return promise here
              */
-            this.updateView = lodash.debounce( this._updateView.bind( this ) );
+            this.updateViewDebounce = lodash.debounce( this._updateView.bind( this ) );
 
             // init
             this._loadComponentDef( componentDef );
+
+            // load ctxMap
+            if ( parent && ctxMap ) {
+                this._loadParentCtx( ctxMap );
+            }
         }
 
         /**
@@ -22155,6 +22160,19 @@ define(['require'], function (require) { 'use strict';
                     delete componentDef.model;
                 }
                 Object.assign( this._vm, componentDef );
+            }
+        }
+
+        /**
+         * load parent context to current model
+         * @param {Object} ctxMap context path map from parent
+         */
+        _loadParentCtx( ctxMap ) {
+            this._ctxMap = ctxMap;
+            for( let key in ctxMap ) {
+                let srcPath = ctxMap[key];
+                // TODO: refactor with _updateModel later
+                lodash.set( this._vm.model, key, this._parent.getValue( srcPath ) );
             }
         }
 
@@ -22213,8 +22231,17 @@ define(['require'], function (require) { 'use strict';
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
+        updateView() {
+            if( this._ctxUpdate && this._parent ) {
+                this._parent.updateModel( this._ctxMap );
+                this._ctxUpdate = null;
+            } else {
+                this.updateViewDebounce();
+            }
+        }
+
         _updateView() {
-            if ( this._view && this._isDirty ) {
+            if ( this._view && ( this._isDirty || this._ctxMap ) ) {
                 this._view.render( this._vm.model );
                 this._isDirty = false;
             }
@@ -22235,8 +22262,29 @@ define(['require'], function (require) { 'use strict';
          * @param {string} value value itself
          */
         _updateModel( path, value ) {
-            lodash.set( this._vm.model, path, value );
-            this._isDirty = true;
+            if( !this._updateCtx( path, value ) ) {
+                lodash.set( this._vm.model, path, value );
+                this._isDirty = true;
+            }
+        }
+
+        /**
+         * Update ctx value and trigger parent view update
+         * @param {string} path value path on model
+         * @param {string} value value itself
+         * @returns {boolean} true if path is in ctx
+         */
+        _updateCtx( path, value ) {
+            for( let key in this._ctxMap ) {
+                if ( path.startsWith( key ) ) {
+                    if ( !this._ctxUpdate ) {
+                        this._ctxUpdate = {};
+                    }
+                    this._ctxUpdate[this._ctxMap[key]] = value;
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
@@ -22503,21 +22551,20 @@ define(['require'], function (require) { 'use strict';
      * custom elemenet there is no callback or event to say 'render done'
      * @param {string} componentPath path for component definition
      * @param {Element} containerElem container element that component attach to
+     * @param {Object} ctxMap context map between child path and parent
      * @param {Object} modelRef model input
      * @returns {Promise} promise can be used for next step
      */
-    async function render( componentPath, containerElem, modelRef ) {
+    async function render( componentPath, containerElem, ctxMap, modelRef ) {
         // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
         let parentComponent = getComponent( containerElem );
 
-        // input model
-        let model =  modelRef;
-
-        // load component definition
+         // input model
+        let model =  modelRef;   // load component definition
         let componentDef = await loadComponent( componentPath );
 
         // Create component and call init definition
-        let component = new FewComponent( componentDef, parentComponent,  model );
+        let component = new FewComponent( componentDef, parentComponent, ctxMap, model );
 
         await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 
@@ -22556,7 +22603,7 @@ define(['require'], function (require) { 'use strict';
         }
 
         static get observedAttributes() {
-            return [ 'src', 'model' ];
+            return [ 'src' ];
         }
 
         set model( value ) {
@@ -22594,8 +22641,10 @@ define(['require'], function (require) { 'use strict';
                     // also need to destroy its ref in parent
                     // this._component.model = _.filter( modelPath );
                     // this._component.parent.remove(this._component);
+                    let ctxPath = this.getAttribute( 'ctx' );
+                    let ctxMap = ctxPath ? { ctx: ctxPath } : null;
 
-                    this._renderPromise = few$1.render( `${newValue}.yml`, this );
+                    this._renderPromise = few$1.render( `${newValue}.yml`, this, ctxMap );
                     this._component = await this._renderPromise;
                 } catch ( e ) {
                     if ( this._currentView === newValue ) {
@@ -24134,7 +24183,7 @@ define(['require'], function (require) { 'use strict';
                                 set_1( model, key, params[key] );
                             }
                             this._currState = state;
-                            this._component = await few$1.render( `${state.view}.yml`, this._elem, model );
+                            this._component = await few$1.render( `${state.view}.yml`, this._elem, null, model );
                         }
                     }
                 }

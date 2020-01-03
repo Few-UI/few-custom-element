@@ -95,21 +95,20 @@ export function importDocStyle( shadowRoot ) {
  * custom elemenet there is no callback or event to say 'render done'
  * @param {string} componentPath path for component definition
  * @param {Element} containerElem container element that component attach to
+ * @param {Object} ctxMap context map between child path and parent
  * @param {Object} modelRef model input
  * @returns {Promise} promise can be used for next step
  */
-export async function render( componentPath, containerElem, modelRef ) {
+export async function render( componentPath, containerElem, ctxMap, modelRef ) {
     // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
     let parentComponent = getComponent( containerElem );
 
-    // input model
-    let model =  modelRef;
-
-    // load component definition
+     // input model
+    let model =  modelRef;   // load component definition
     let componentDef = await loadComponent( componentPath );
 
     // Create component and call init definition
-    let component = new FewComponent( componentDef, parentComponent,  model );
+    let component = new FewComponent( componentDef, parentComponent, ctxMap, model );
 
     await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 
