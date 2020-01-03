@@ -83,8 +83,7 @@ class TodoFormLitElement extends LitElement {
         this.item_status = event.target.value;
     }
 
-    // pass info back to parent. Much cleaner than the example than react doc
-    // because lit-element provides syntactic sugur for event binding
+    // pass info back to parent. Much cleaner than the example in react doc
     submitInfo( e ) {
         e.preventDefault();
         let event = new CustomEvent( 'add-todo', {
