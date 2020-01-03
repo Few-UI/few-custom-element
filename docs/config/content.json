@@ -7,9 +7,9 @@
         "name": "Basic",
         "src": "view/basic/main.yml"
     },
-    "Integration": {
-        "name": "Integration",
-        "src": "view/integration/main.yml"
+    "Compose": {
+        "name": "Compose",
+        "src": "view/compose/main.yml"
     },
     "Advance": {
         "name": "Advance",
