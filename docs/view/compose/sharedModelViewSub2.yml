@@ -1,0 +1,4 @@
+view:
+  template:
+    <h3>Ctx In View1</h3>
+    <div>${ctx.codeText + ' in view2'}</div>

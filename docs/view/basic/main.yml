@@ -5,8 +5,6 @@ view:
     <div class="few-sample-app-block-break"></div>
     <few-view src="./directive"></few-view>
     <div class="few-sample-app-block-break"></div>
-    <few-view src="./tree"></few-view>
-    <div class="few-sample-app-block-break"></div>
     <few-view src="./cond"></few-view>
     <div class="few-sample-app-block-break"></div>
     <few-view src="./each"></few-view>
