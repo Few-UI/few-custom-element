@@ -2,7 +2,7 @@
 import few from './few-global';
 import {
     parseView,
-    getComponent
+    getComponentFromElem
 } from './few-utils';
 
 
@@ -16,7 +16,7 @@ export default class FewView extends HTMLElement {
     }
 
     set model( value ) {
-        let component = getComponent( this );
+        let component = getComponentFromElem( this );
         if ( !component ) {
             // TODO: Can be optimize to avoid duplicate refresh
             return this._renderPromise.then( ( component ) => {

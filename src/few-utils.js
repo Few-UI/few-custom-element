@@ -230,8 +230,19 @@ export function setComponent( element, componentObj ) {
 export function getComponent( element ) {
     let scopeElem = getScopeElement( element );
     if( scopeElem ) {
-        return scopeElem._vm;
+        return getComponentFromElem( scopeElem );
     }
+}
+
+/**
+ * Get view model context from curren element. Return undefiened if it doesn't exist
+ * Simple wrapper for _vm
+ *
+ * @param {Element} element DOM Element
+ * @returns {Object} view model object context
+ */
+export function getComponentFromElem( element ) {
+    return element._vm;
 }
 
 /**
@@ -241,11 +252,6 @@ export function getComponent( element ) {
  * @returns {Element} Closest parent element which has view model context
  */
 export function getViewElement( element ) {
-    /*
-    let scopeElem = getScopeElement( element );
-    if ( scopeElem ) {
-        return scopeElem.parentElement;
-    }*/
     return getScopeElement( element );
 }
 

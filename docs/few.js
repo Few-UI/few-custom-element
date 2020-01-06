@@ -21138,8 +21138,19 @@ define(['require'], function (require) { 'use strict';
     function getComponent( element ) {
         let scopeElem = getScopeElement( element );
         if( scopeElem ) {
-            return scopeElem._vm;
+            return getComponentFromElem( scopeElem );
         }
+    }
+
+    /**
+     * Get view model context from curren element. Return undefiened if it doesn't exist
+     * Simple wrapper for _vm
+     *
+     * @param {Element} element DOM Element
+     * @returns {Object} view model object context
+     */
+    function getComponentFromElem( element ) {
+        return element._vm;
     }
 
     /**
@@ -21149,11 +21160,6 @@ define(['require'], function (require) { 'use strict';
      * @returns {Element} Closest parent element which has view model context
      */
     function getViewElement( element ) {
-        /*
-        let scopeElem = getScopeElement( element );
-        if ( scopeElem ) {
-            return scopeElem.parentElement;
-        }*/
         return getScopeElement( element );
     }
 
@@ -22608,7 +22614,7 @@ define(['require'], function (require) { 'use strict';
         }
 
         set model( value ) {
-            let component = getComponent( this );
+            let component = getComponentFromElem( this );
             if ( !component ) {
                 // TODO: Can be optimize to avoid duplicate refresh
                 return this._renderPromise.then( ( component ) => {
