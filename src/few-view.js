@@ -1,7 +1,8 @@
 /* eslint-env es6 */
 import few from './few-global';
 import {
-    parseView
+    parseView,
+    getComponent
 } from './few-utils';
 
 
@@ -15,7 +16,8 @@ export default class FewView extends HTMLElement {
     }
 
     set model( value ) {
-        if ( !this._component ) {
+        let component = getComponent( this );
+        if ( !component ) {
             // TODO: Can be optimize to avoid duplicate refresh
             return this._renderPromise.then( ( component ) => {
                 component.updateModel( value );
@@ -23,16 +25,11 @@ export default class FewView extends HTMLElement {
         }
 
         // Normal update case
-        return this._component.updateModel( value, false );
+        return component.updateModel( value, false );
     }
 
     constructor() {
         super();
-
-        /**
-         * component
-         */
-        this._component = null;
 
         /**
          * view path
@@ -47,13 +44,13 @@ export default class FewView extends HTMLElement {
             try {
                 // TODO: clean up model except attribute defined by parent
                 // also need to destroy its ref in parent
-                // this._component.model = _.filter( modelPath );
-                // this._component.parent.remove(this._component);
                 let ctxPath = this.getAttribute( 'ctx' );
                 let ctxMap = ctxPath ? { ctx: ctxPath } : null;
 
                 this._renderPromise = few.render( `${newValue}.yml`, this, ctxMap );
-                this._component = await this._renderPromise;
+
+                // await here is required
+                await this._renderPromise;
             } catch ( e ) {
                 if ( this._currentView === newValue ) {
                     this.appendChild( parseView( `<code style="color:red" >${newValue}.yml: ${e}</code>` ) );

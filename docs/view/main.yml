@@ -2,16 +2,16 @@
 view:
   template:
     <few-view src="view/frame">
-      <few-view slot="primary" src="view/toc" :model="tocModel" ctx="ctx"></few-view>
+      <few-view slot="primary" src="view/toc" ctx="tocModel"></few-view>
       <div slot="secondary">
-        <div f-when="/\.yml$/.test(tocModel.items[ctx.selection].src)"
+        <div f-when="/\.yml$/.test(tocModel.items[tocModel.selection].src)"
               class="few-sample-app-md-align-polyfill">
         </div>
-        <few-view f-when="/\.yml$/.test(tocModel.items[ctx.selection].src)"
-                   src="${tocModel.items[ctx.selection].src.replace(/\.yml$/,'')}">
+        <few-view f-when="/\.yml$/.test(tocModel.items[tocModel.selection].src)"
+                   src="${tocModel.items[tocModel.selection].src.replace(/\.yml$/,'')}">
         </few-view>
-        <md-view f-when="/\.md$/.test(tocModel.items[ctx.selection].src)"
-                    src="${tocModel.items[ctx.selection].src.replace(/\.md$/,'')}">
+        <md-view f-when="/\.md$/.test(tocModel.items[tocModel.selection].src)"
+                    src="${tocModel.items[tocModel.selection].src.replace(/\.md$/,'')}">
         </md-view>
       </div>
     </few-view>
@@ -20,11 +20,10 @@ view:
 
 # model
 # model:
-#  ctx:
-# tocModel:
-#   items:
-#     name: Introduction
-#     src: doc/introduction.md
+#   tocModel:
+#     items:
+#       name: Introduction
+#       src: doc/introduction.md
 #     selection: Introduction
 
 # init
@@ -48,9 +47,9 @@ action:
 
   initSelection:
     input:
-      val: ${ctx.selection || Object.keys(scope)[0]}
+      val: ${tocModel.selection || Object.keys(scope)[0]}
     output:
-      ctx.selection: 'val'
+      tocModel.selection: 'val'
 
   loadContent:
     then:

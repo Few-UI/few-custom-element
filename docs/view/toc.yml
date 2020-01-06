@@ -3,7 +3,7 @@ view:
   template:
     <div class="few-sample-app-md-align-polyfill"></div>
     <ul>
-      <li f-each="item of items">
+      <li f-each="item of ctx.items">
         <a href="${ '#/' + item.name}" style="${ ctx.selection === item.name ?'font-weight:bold':''}">${item.name}</a>
       </li>
     </ul>

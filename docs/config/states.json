@@ -1,6 +1,6 @@
 [
     {
-        "url": "/:ctx.selection",
+        "url": "/:tocModel.selection",
         "view": "view/main"
     }
 ]
