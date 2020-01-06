@@ -12,6 +12,15 @@ view:
       </li>
     </ul>
 
+# model
+# model:
+#   ctx:
+#     items:
+#       - name: Introduction
+#         src: doc/introduction.md
+#     selection: Introduction
+
+
 # action
 action:
   updateSelection:
