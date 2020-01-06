@@ -22233,7 +22233,7 @@ define(['require'], function (require) { 'use strict';
         ///////////////////////////////////////////////////////////////////////////////////////
         updateView() {
             if( this._ctxUpdate && this._parent ) {
-                this._parent.updateModel( this._ctxMap );
+                this._parent.updateModel( this._ctxUpdate );
                 this._ctxUpdate = null;
             } else {
                 this.updateViewDebounce();
@@ -22280,7 +22280,7 @@ define(['require'], function (require) { 'use strict';
                     if ( !this._ctxUpdate ) {
                         this._ctxUpdate = {};
                     }
-                    this._ctxUpdate[this._ctxMap[key]] = value;
+                    this._ctxUpdate[path.replace( key, this._ctxMap[key] )] = value;
                     return true;
                 }
             }

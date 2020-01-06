@@ -1,13 +1,13 @@
 view:
   template:
     <h2>Share model in view</h2>
+    <h3>Parent View</h3>
     <form @submit="updateText">
       <label for="name">Name:</label>
       <input type="text" name="test_input">
       <button type="submit">${buttonText}</button>
     </form>
-    <h3>Ctx In Parent</h3>
-    <code>${ctx.codeText}</code>
+    <code>${ctx.codeText + ' in Parent'}</code>
     <few-view id="sharedModelViewSub1" src="./sharedModelViewSub1" ctx="ctx"></few-view>
     <few-view id="sharedModelViewSub2" src="./sharedModelViewSub2" ctx="ctx"></few-view>
 
