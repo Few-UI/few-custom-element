@@ -18,7 +18,7 @@ export default class FewComponent {
      * @param {FewComponent} parent parent view model
      * @param {Object} ctxMap context map
      */
-    constructor( componentDef, parent, ctxMap, model ) {
+    constructor( componentDef, parent, ctxMap ) {
         /**
          * parent view model
          */
@@ -33,7 +33,7 @@ export default class FewComponent {
          * Barebone vm with model
          */
         this._vm = {
-            model: model || {}
+            model: {}
         };
 
         /**

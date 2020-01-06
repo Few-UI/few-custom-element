@@ -22070,7 +22070,7 @@ define(['require'], function (require) { 'use strict';
          * @param {FewComponent} parent parent view model
          * @param {Object} ctxMap context map
          */
-        constructor( componentDef, parent, ctxMap, model ) {
+        constructor( componentDef, parent, ctxMap ) {
             /**
              * parent view model
              */
@@ -22085,7 +22085,7 @@ define(['require'], function (require) { 'use strict';
              * Barebone vm with model
              */
             this._vm = {
-                model: model || {}
+                model: {}
             };
 
             /**
@@ -22559,12 +22559,13 @@ define(['require'], function (require) { 'use strict';
         // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
         let parentComponent = getComponent( containerElem );
 
-         // input model
-        let model =  modelRef;   // load component definition
         let componentDef = await loadComponent( componentPath );
 
         // Create component and call init definition
-        let component = new FewComponent( componentDef, parentComponent, ctxMap, model );
+        let component = new FewComponent( componentDef, parentComponent, ctxMap );
+
+         // input model
+        component.updateModel( modelRef, false );
 
         await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 

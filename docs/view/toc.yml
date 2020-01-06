@@ -4,7 +4,7 @@ view:
     <div class="few-sample-app-md-align-polyfill"></div>
     <ul>
       <li f-each="item of items">
-        <a href="${ '#/' + item.name}" style="${ selection === item.name ?'font-weight:bold':''}">${item.name}</a>
+        <a href="${ '#/' + item.name}" style="${ ctx.selection === item.name ?'font-weight:bold':''}">${item.name}</a>
       </li>
     </ul>
 
@@ -14,7 +14,7 @@ action:
     input:
       selectedItem: ${ scope.target.textContent }
     output:
-      selection: selectedItem
+      ctx.selection: selectedItem
 
 
 

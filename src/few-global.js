@@ -103,12 +103,13 @@ export async function render( componentPath, containerElem, ctxMap, modelRef ) {
     // NOTE: THIS HAS TO BE HERE BEFORE 1ST AWAIT. BE CAREFUL OF AWAIT
     let parentComponent = getComponent( containerElem );
 
-     // input model
-    let model =  modelRef;   // load component definition
     let componentDef = await loadComponent( componentPath );
 
     // Create component and call init definition
-    let component = new FewComponent( componentDef, parentComponent, ctxMap, model );
+    let component = new FewComponent( componentDef, parentComponent, ctxMap );
+
+     // input model
+    component.updateModel( modelRef, false );
 
     await component.render( componentDef.view, containerElem, parseUrl( componentPath ) );
 

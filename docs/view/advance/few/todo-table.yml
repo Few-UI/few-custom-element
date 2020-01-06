@@ -9,15 +9,13 @@ view:
         </tr>
       </thead>
       <tbody>
-        <tr f-each="item of items">
+        <tr f-each="item of ctx.items">
           <td>${item.item_desc}</td>
           <td>${item.item_status}</td>
         </tr>
       </tbody>
     </table>
 
-# model def as interface
-# If you want specific interface definition in DSL
-# we can define it later
-model:
-  items: []
+# model:
+#   ctx:
+#     items: []

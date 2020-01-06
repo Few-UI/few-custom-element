@@ -263,11 +263,11 @@ describe( 'Test few-view element', () => {
             [
                 '    ',
                 // eslint-disable-next-line no-template-curly-in-string
-                '<div>${ctx.testVal}</div>',
-                '<few-view src="subView" :model="ctx"></few-view>'
+                '<div>${child.testVal}</div>',
+                '<few-view src="subView" :model="child"></few-view>'
             ].join( '' ),
             'model:',
-            '  ctx:',
+            '  child:',
             '    testVal: 5'
         ];
 
@@ -298,7 +298,7 @@ describe( 'Test few-view element', () => {
         expect( elem.outerHTML ).toEqual( [
             '<few-view src="parentView" id="parentView" class="few-scope">',
               '<div>5</div>',
-              '<few-view src="subView" :model="ctx" id="subView" class="few-scope">',
+              '<few-view src="subView" :model="child" id="subView" class="few-scope">',
                 '<code>5</code>',
               '</few-view>',
             '</few-view>'
