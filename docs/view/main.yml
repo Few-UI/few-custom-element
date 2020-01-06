@@ -23,8 +23,8 @@ view:
 # model:
 #   tocModel:
 #     items:
-#       name: Introduction
-#       src: doc/introduction.md
+#       - name: Introduction
+#         src: doc/introduction.md
 #     selection: Introduction
 
 # init
